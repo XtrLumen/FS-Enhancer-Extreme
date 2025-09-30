@@ -8,7 +8,7 @@
 注释^纯WEBUI功能没做
 ## 计划由WebUI调用的已完成后端功能
 联网更新安全补丁时间: [ tseed --securitypatchdatefetch ]
-抓取有效密钥: [ tseed --stealkeybox < Basic |-a|-b| > ]
+抓取有效密钥: [ tseed --stealkeybox < Basic |-a|-b|-c| > ]
 TrickyStore服务状态读取/控制: [ tseed --tsctl < Basic |-stop|-start|-state| > ]
 TSEnhancerExtreme服务状态读取/控制: [ tseed --tseectl < Basic |-stop|-start|-state| > ]
 ## 完全由WebUI实现的未完成前端功能
