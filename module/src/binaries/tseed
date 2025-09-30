@@ -9,7 +9,7 @@ Arguments:
   --rootdetect
   --startwebui
   --passvbhash
-  --stealkeybox [Basic |-a|-b| ]
+  --stealkeybox [Basic |-a|-b|-c| ]
   --staterefresh
   --passpropstate
   --conflictappcheck
@@ -296,8 +296,9 @@ echo "stealkeybox
 Usage: tseed stealkeybox <Basic arguments>
 
 Arguments:
-  -a
-  -b
+  -a (Keybox by Tricky Addon)
+  -b (Keybox by Integrity Box)
+  -c (Keybox by YuriKey Manager)
 
 Options:
   -h, -help"
@@ -369,6 +370,36 @@ case "$1" in
     fi
     echo "- 清理缓存"
     rm -f "$TMPDIR/keybox.b64"
+    ;;
+  -c)
+    MAINLINK="https://raw.githubusercontent.com/YurikeyDev/yurikey/refs/heads/main/conf"
+    SPARELINK="https://raw.gitmirror.com/YurikeyDev/yurikey/refs/heads/main/conf"
+    echo -n "- 下载文件..."
+    if crawl "$MAINLINK" > "$TMPDIR/keybox.bin" || crawl "$SPARELINK" > "$TMPDIR/keybox.bin"; then
+      echo "完毕"
+    else
+      echo "失败"
+      exit 1
+    fi
+    echo -n "- 解码密钥..."
+    strings "$TMPDIR/keybox.bin" | grep -E '^[A-Za-z0-9+/=]+$' | awk 'length($0) >= 500' | base64 -d > "$TMPDIR/keybox.xml"
+    if grep -q -F -e "-----BEGIN EC PRIVATE KEY-----" "$TMPDIR/keybox.xml"; then
+      echo "完毕"
+    else
+      echo "失败"
+      exit 1
+    fi
+    echo -n "- 写出文件..."
+    [ -f "$TSCONFIG/keybox.xml" ] && mv "$TSCONFIG/keybox.xml" "$TSCONFIG/keybox.xml.bak"
+    if mv "$TMPDIR/keybox.xml" "$TSCONFIG/keybox.xml"; then
+      echo "完毕"
+    else
+      [ -f "$TSCONFIG/keybox.xml.bak" ] && mv "$TSCONFIG/keybox.xml.bak" "$TSCONFIG/keybox.xml"
+      echo "失败"
+      exit 1
+    fi
+    echo "- 清理缓存"
+    rm -f "$TMPDIR/keybox.bin"
     ;;
   *) error "$1" "stealkeybox <Basic arguments>" "-help";;
 esac
