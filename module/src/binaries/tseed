@@ -484,7 +484,7 @@ else
   if [ "$ROOT" = "KernelSU" ]; then
     ENVIRONMENT="✅Root#KernelSU($VERSION)$KERNEL."
   elif [ "$ROOT" = "SuckySU" ]; then
-    ENVIRONMENT="6️⃣Root#SuckySU($VERSION)$KERNEL."
+    ENVIRONMENT="✅Root#SuckySU($VERSION)$KERNEL."
   fi
 fi
 functions_cn PARAMETER="✅参数执行结束."
