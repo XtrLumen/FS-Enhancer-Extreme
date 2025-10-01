@@ -296,9 +296,9 @@ echo "stealkeybox
 Usage: tseed stealkeybox <Basic arguments>
 
 Arguments:
-  -a (Keybox by Tricky Addon)
-  -b (Keybox by Integrity Box)
-  -c (Keybox by YuriKey Manager)
+  -a (By Tricky Addon)
+  -b (By Integrity Box)
+  -c (By YuriKey Manager)
 
 Options:
   -h, -help"
@@ -473,14 +473,14 @@ fi
 if [ "$ROOT" = "NULL" ]; then
   ENVIRONMENT="⚠️Root#Unknown(Unknown)."
 elif [ "$ROOT" = "APatch" ]; then
-  VERSION=$($ADB/apd -V | awk '{print $2}')
+  VERSION=$(apd -V | awk '{print $2}')
   [ -f $ADB/.litemode_enable ] && LITE="Lite-"
   ENVIRONMENT="✅Root#APatch($LITE$VERSION)$KERNEL."
 elif [ "$ROOT" = "Magisk" ]; then
-  VERSION=$($ADB/magisk/magisk -V || $ADB/magisk/magisk32 -V || $ADB/magisk/magisk64 -V)
+  VERSION=$(magisk -V)
   ENVIRONMENT="✅Root#Magisk($VERSION)$KERNEL."
 fi
-VERSION=$($ADB/ksud debug version | awk '{print $3}')
+VERSION=$(ksud debug version | awk '{print $3}')
 if [ "$ROOT" = "KernelSU" ]; then
   ENVIRONMENT="✅Root#KernelSU($VERSION)$KERNEL."
 elif [ "$ROOT" = "SuckySU" ]; then
