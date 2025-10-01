@@ -105,7 +105,11 @@ detect() {
     echo_en "Failed"
   fi
 }
-initwait() { resetprop -w sys.boot_completed 0; }
+initwait() {
+  until [ $(getprop sys.boot_completed) -eq 1 ]; do
+    sleep 1s
+  done
+}
 ##END##
 
 if [[ "$ORIGIN" == *"$P"* ]]; then
