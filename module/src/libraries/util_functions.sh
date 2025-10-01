@@ -55,26 +55,24 @@ logc() { logout "<CLI>$1"; }
 logs() { logout "<Service>$1"; }
 logd() { logout "<Service.D>$1"; }
 logp() { logout "<Post-Fs-Data>$1"; }
-call() {
-  "$1" "$2"
-  if $TSEEBIN/tseed $3; then
-    "$1" "完毕"
-  else
-    "$1" "失败"
-  fi
-}
 invoke() {
   case "$ORIGIN" in
     *"$S"*)
-      call "logs" "$1" "$2"
+      class="logs"
       ;;
     *"$P"*)
-      call "logp" "$1" "$2"
+      class="logp"
       ;;
     *"$D"*)
-      call "logd" "$1" "$2"
+      class="logd"
       ;;
   esac
+  "$class" "$1"
+  if $TSEEBIN/tseed $2; then
+    "$class" "完毕"
+  else
+    "$class" "失败"
+  fi
 }
 check() {
   if [ "$(cat "$TYPE")" = "Multiple" ] || [ ! -d "$TSMODDIR" ] || [ -f "$TSMODDIR/disable" ]; then

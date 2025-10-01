@@ -479,12 +479,13 @@ elif [ "$ROOT" = "APatch" ]; then
 elif [ "$ROOT" = "Magisk" ]; then
   VERSION=$(magisk -V)
   ENVIRONMENT="✅Root#Magisk($VERSION)$KERNEL."
-fi
-VERSION=$(ksud debug version | awk '{print $3}')
-if [ "$ROOT" = "KernelSU" ]; then
-  ENVIRONMENT="✅Root#KernelSU($VERSION)$KERNEL."
-elif [ "$ROOT" = "SuckySU" ]; then
-  ENVIRONMENT="6️⃣Root#SuckySU($VERSION)$KERNEL."
+else
+  VERSION=$(ksud debug version | awk '{print $3}')
+  if [ "$ROOT" = "KernelSU" ]; then
+    ENVIRONMENT="✅Root#KernelSU($VERSION)$KERNEL."
+  elif [ "$ROOT" = "SuckySU" ]; then
+    ENVIRONMENT="6️⃣Root#SuckySU($VERSION)$KERNEL."
+  fi
 fi
 functions_cn PARAMETER="✅参数执行结束."
 functions_en PARAMETER="✅Parameters executed ends."
