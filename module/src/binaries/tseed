@@ -338,7 +338,7 @@ case "$1" in
     rm -f "$TMPDIR/keybox.hex"
     rm -f "$TMPDIR/keybox.bin"
     ;;
-    -b)
+  -b)
     MAINLINK="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/NullVoid/ShockWave.tar"
     SPARELINK="https://raw.gitmirror.com/MeowDump/MeowDump/refs/heads/main/NullVoid/ShockWave.tar"
     echo -n "- 下载文件..."
