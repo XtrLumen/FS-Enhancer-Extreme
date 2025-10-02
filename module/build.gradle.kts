@@ -150,6 +150,7 @@ listOf("debug", "release").forEach { variantName ->
                     set.add(Pair(File(moduleOutputDir, "service.sh"), null))
                     set.add(Pair(File(moduleOutputDir, "banner.png"), null))
                     set.add(Pair(File(moduleOutputDir, "webui.apk"), null))
+                    set.add(Pair(File(moduleOutputDir, "action.sh"), null))
 
                     File(moduleOutputDir, "libraries").walkTopDown().forEach { file ->
                         if (file.isFile) {

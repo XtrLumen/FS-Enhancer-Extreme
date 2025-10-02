@@ -57,24 +57,24 @@ SUCKYSUTAG=0
 APATCHTAG=0
 MAGISKTAG=0
 dmesg > "$DMESGLOG"
-if grep -q -F -e "KernelSU" "$DMESGLOG"; then
+grep -q -F -e "KernelSU" "$DMESGLOG" && {
   KERNELSU_KTAG=1
-  if [[ -d "$ADB/ksu" && -f "$ADB/ksud" ]]; then
+  [[ -d "$ADB/ksu" && -f "$ADB/ksud" ]] && {
     if grep -q -F -e "KP hook sukisu_kpm" "$DMESGLOG" || [[ "$($ADB/ksud -V 2>/dev/null)" == *"zako"* ]]; then
       SUCKYSUTAG=1
     else
       KERNELSUTAG=1
     fi
-  fi
-fi
-if grep -q -F -e "/debug_ramdisk/magisk" -e "magiskinit" "$DMESGLOG"; then
+  }
+}
+grep -q -F -e "/debug_ramdisk/magisk" -e "magiskinit" "$DMESGLOG" && {
   MAGISK_KTAG=1
   [[ -d "$ADB/magisk" && -f "$ADB/magisk.db" ]] && MAGISKTAG=1
-fi
-if grep -q -F -e "KP I commit_common_su" "$DMESGLOG"; then
+}
+grep -q -F -e "KP I commit_common_su" "$DMESGLOG" && {
   APATCH_KTAG=1
   [[ -d "$ADB/ap" && -f "$ADB/apd" ]] && APATCHTAG=1
-fi
+}
 if [ $(( KERNELSUTAG + SUCKYSUTAG + APATCHTAG + MAGISKTAG )) -gt 1 ]; then
   touch "$MULTIPLETYPE"
   [ $MAGISKTAG -eq 1 ] && echo -n "Magisk," >> "$MULTIPLETYPE"
@@ -95,13 +95,13 @@ fi
 [ -z "$ROOT" ] && ROOT="NULL"
 echo -n "$ROOT" > "$TYPE"
 rm -f "$DMESGLOG"
-if [ $(( KERNELSU_KTAG + APATCH_KTAG + MAGISK_KTAG )) -gt 1 ] && [ ! "$ROOT" = "Multiple" ]; then
+[ $(( KERNELSU_KTAG + APATCH_KTAG + MAGISK_KTAG )) -gt 1 ] && [ ! "$ROOT" = "Multiple" ] && {
   touch "$KERNELTYPE"
   [ $MAGISK_KTAG -eq 1 ] && [ ! "$ROOT" = "Magisk" ] && echo -n "Magisk," >> "$KERNELTYPE"
   [ $KERNELSU_KTAG -eq 1 ] && [ ! "$ROOT" = "KernelSU" ] && echo -n "KernelSU," >> "$KERNELTYPE"
   [ $APATCH_KTAG -eq 1 ] && [ ! "$ROOT" = "APatch" ] && echo -n "APatch" >> "$KERNELTYPE"
   sed -i 's/,$//' "$KERNELTYPE"
-fi
+}
 }
 
 passpropstate() {
@@ -213,9 +213,7 @@ com.lingqian.appbl
 com.topmiaohan.hidebllist
 "
 for PACKAGE in $APPCONFLICT; do
-  if pm path $PACKAGE > /dev/null 2>&1; then
-    pm uninstall $PACKAGE > /dev/null 2>&1
-  fi
+  pm path $PACKAGE > /dev/null 2>&1 && pm uninstall $PACKAGE > /dev/null 2>&1
 done
 }
 
@@ -448,11 +446,11 @@ staterefresh() {
 functions_cn TRUEDES="提升TrickyStore的使用体验,同时极致隐藏由解锁引导加载程序产生的相关检测点."
 functions_en TRUEDES="Improve the user experience of TrickyStore, while providing extreme hiding of detection points introduced by bootloader unlocking."
 description_exit() { sed -i "s|^description=.*|description=[$ENVIRONMENT$SERVICESTATE] $TRUEDES|" "$TSEEMODDIR/module.prop" && exit; }
-if [ -f "$TSEEMODDIR/disable" ]; then
+[ -f "$TSEEMODDIR/disable" ] && {
   functions_cn ENVIRONMENT="❌禁用."
   functions_en ENVIRONMENT="❌Disabled."
   description_exit
-fi
+}
 functions_cn SERVICESTATE=" 所有服务将不会启动!"
 functions_en SERVICESTATE=" All service will not start!"
 if [ ! -d "$TSMODDIR" ]; then

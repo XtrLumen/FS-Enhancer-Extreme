@@ -28,7 +28,7 @@ ORIGIN=$(basename "$0")
 #MULTILINGUAL#
 [[ "$(getprop persist.sys.locale)" == *"zh"* || "$(getprop ro.product.locale)" == *"zh"* ]] && LOCALE="CN" || LOCALE="EN"
 operate() {
-  if [ "$LOCALE" = "$1" ]; then
+  [ "$LOCALE" = "$1" ] && {
     shift
     local operation="$1"
     shift
@@ -45,7 +45,7 @@ operate() {
         eval "${1%=*}=\"${1#*=}\""
         ;;
     esac
-  fi
+  }
 }
 echo_cn() { operate "CN" "echo" "$@"; }
 echo_en() { operate "EN" "echo" "$@"; }
@@ -88,12 +88,16 @@ check() {
         ;;
     esac
   else
-    if [[ "$ORIGIN" == *"$P"* ]]; then
+    [[ "$ORIGIN" == *"$P"* ]] && {
       logp "环境正常,继续执行"
       mv "$TSEEMODDIR/.webroot" "$TSEEMODDIR/webroot"
-      mv "$TSEEMODDIR/.action.sh" "$TSEEMODDIR/action.sh"
       ln -sf "$TSEEMODDIR/libraries/action.sh" "$TSMODDIR/action.sh"
-    fi
+      if [[ ! "$APATCH" && ! "$KSU" ]]; then
+        mv "$TSEEMODDIR/.action.sh" "$TSEEMODDIR/action.sh"
+      else
+        mv "$TSEEMODDIR/action.sh" "$TSEEMODDIR/.action.sh"
+      fi
+    }
   fi
 }
 detect() {

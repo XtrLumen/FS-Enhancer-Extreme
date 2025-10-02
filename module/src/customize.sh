@@ -4,7 +4,7 @@ MIN_RELEASE=10
 RELEASE=$(grep_get_prop ro.build.version.release)
 [[ "$(grep_get_prop persist.sys.locale)" == *"zh"* || "$(grep_get_prop ro.product.locale)" == *"zh"* ]] && LOCALE="CN" || LOCALE="EN"
 operate() {
-  if [ "$LOCALE" = "$1" ]; then
+  [ "$LOCALE" = "$1" ] && {
     shift
     local operation="$1"
     shift
@@ -28,7 +28,7 @@ operate() {
         abort "***********************************************"
         ;;
     esac
-  fi
+  }
 }
 print_cn() { operate "CN" "echo" "$@"; }
 print_en() { operate "EN" "echo" "$@"; }
@@ -56,6 +56,8 @@ service.sh
 module.prop
 banner.png
 bakacirno
+webui.apk
+action.sh
 "
 #POST PROCESS#
 BACKUP1="$ADB/tsconfig_backup"
@@ -112,20 +114,20 @@ com.topmiaohan.hidebllist
 ##PRE PROCESS##
 #CHECK INTEGRITY#
 unzip -o "$ZIPFILE" 'verify.sh' -d "$TMPDIR" >/dev/null
-if [ ! -f "$TMPDIR/verify.sh" ]; then
+[ -f "$TMPDIR/verify.sh" ] || {
   abort_cn "verify.sh 不存在!"
   abort_en "verify.sh not exists"
-fi
+}
 source "$TMPDIR/verify.sh"
 #CHECK ENVIRONMENT#
-if [ "$RELEASE" -lt $MIN_RELEASE ]; then
+[ "$RELEASE" -lt $MIN_RELEASE ] && {
   echo "***********************************************"
   print_cn "! 不受支持的安卓版本 $RELEASE"
   print_cn "! 最低支持的安卓版本 $MIN_RELEASE"
   print_en "! Unsupported android version: $RELEASE"
   print_en "! Minimal supported android version is $MIN_RELEASE"
   abort "***********************************************"
-fi
+}
 #PRINT INFORMATION#
 print_cn "- 安装模块#TS-Enhancer-Extreme"
 print_cn "- 作者#XtrLumen"
@@ -156,15 +158,13 @@ for FILE in $FILES; do
 done
 mkdir -p "$SD"
 cat "$MODPATH/libraries/state.sh" > "$SD/.tsee_state.sh"
-if [ ! "$APATCH" ] && [ ! "$KSU" ]; then
-  extract "$ZIPFILE" 'action.sh' "$MODPATH"
-  extract "$ZIPFILE" 'webui.apk' "$MODPATH"
-  if ! { pm path com.dergoogler.mmrl.wx > /dev/null 2>&1 || pm path io.github.a13e300.ksuwebui > /dev/null 2>&1; }; then
+[[ ! "$APATCH" && ! "$KSU" ]] && {
+  pm path com.dergoogler.mmrl.wx > /dev/null 2>&1 || pm path io.github.a13e300.ksuwebui > /dev/null 2>&1 || {
     print_cn "- 安装 WebUI 软件"
     print_en "- install WebUI Sortware"
     pm install "$MODPATH/webui.apk" > /dev/null 2>&1
-  fi
-fi
+  }
+}
 ##END##
 
 ##POST PROCESS##
@@ -193,20 +193,40 @@ fi
 mkdir -p "$TSEECONFIG"
 mkdir -p "$TSEECONFIG/log"
 touch "$TSCONFIG/target.txt"
-if [[ ! -f "$TSEECONFIG/usr.txt" || ! -f "$TSEECONFIG/sys.txt" ]]; then
+[[ ! -f "$TSEECONFIG/usr.txt" || ! -f "$TSEECONFIG/sys.txt" ]] && {
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
-  touch "$TSEECONFIG/usr.txt"
-  echo "$SYS" | awk 'NF { lines[++n]=$0 } END { for (i=1;i<=n;i++) { printf "%s", lines[i]; if (i<n) printf "\n" } }' > "$TSEECONFIG/sys.txt"
   touch "$TSEECONFIG/sys.txt"
-  echo "$USR" | awk 'NF { lines[++n]=$0 } END { for (i=1;i<=n;i++) { printf "%s", lines[i]; if (i<n) printf "\n" } }' > "$TSEECONFIG/usr.txt"
-fi
-if [[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]]; then
-  grep -qx "com.oplus.engineermode" "$TSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$TSEECONFIG/sys.txt"
-fi
+  echo "$SYS" | awk '
+    NF {
+        lines[++n] = $0
+    }
+    END {
+        for (i = 1; i <= n; i++) {
+            printf "%s", lines[i]
+            if (i < n)
+                printf "\n"
+        }
+    }
+  ' > "$TSEECONFIG/sys.txt"
+  touch "$TSEECONFIG/usr.txt"
+  echo "$USR" | awk '
+    NF {
+        lines[++n] = $0
+    }
+    END {
+        for (i = 1; i <= n; i++) {
+            printf "%s", lines[i]
+            if (i < n)
+                printf "\n"
+        }
+    }
+  ' > "$TSEECONFIG/usr.txt"
+}
+[[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && grep -qx "com.oplus.engineermode" "$TSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$TSEECONFIG/sys.txt"
 print_cn "- 获取包名添加"
 print_en "- Getting package list & adding target"
-{ pm list packages -3 | sed 's/^package://' | grep -vFf "$TSEECONFIG/usr.txt"; cat "$TSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
+{ pm list packages -3 | sed 's/^package://' | grep -vFf "$TSEECONFIG/usr.txt" ; cat "$TSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
 print_cn "- 提取密钥文件"
 print_en "- Extract google signature keybox"
 extract "$ZIPFILE" 'keybox.xml' "$TSEECONFIG"
@@ -239,10 +259,10 @@ if [[ -f "$ADB/ap/modules.img" || -f "$ADB/ksu/modules.img" ]]; then
 else
   for MODULE in $OFSCONFLICT; do
     [ -d "$MODULESDIR/$MODULE" ] && {
-      if [ -f $MODULESDIR/$MODULE/update ]; then
+      [ -f $MODULESDIR/$MODULE/update ] && {
         functions_cn WAY="两次重新启动后被移除."
         functions_en WAY="after two reboots."
-      fi
+      }
       conflictdes_all
       touch "$MODULESDIR/$MODULE/update"
       touch "$MODULESDIR/$MODULE/disable"
@@ -273,10 +293,10 @@ fi
 print_cn "- 检查冲突软件"
 print_en "- Checking conflicts software"
 for PACKAGE in $APPCONFLICT; do
-  if pm path $PACKAGE > /dev/null 2>&1; then
+  pm path $PACKAGE > /dev/null 2>&1 && {
     pm uninstall $PACKAGE > /dev/null 2>&1
     APPDETECTED=$((APPDETECTED + 1))
-  fi
+  }
 done
 if [ $APPDETECTED -gt 0 ]; then
   print_cn "- 发现$APPDETECTED个冲突软件,已强制卸载"
