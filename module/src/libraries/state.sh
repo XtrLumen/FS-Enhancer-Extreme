@@ -1,4 +1,5 @@
 cd ${0%/*}
+[ ! -d "../modules/ts_enhancer_extreme" ] && rm -f "$0"
 source "../modules/ts_enhancer_extreme/libraries/util_functions.sh"
 
 initwait

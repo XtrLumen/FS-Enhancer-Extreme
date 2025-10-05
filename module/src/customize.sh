@@ -9,20 +9,15 @@ operate() {
     local operation="$1"
     shift
     case "$operation" in
-      echo)
-        if [ "$1" = "-n" ]; then
-          shift
-          echo -n "$@"
-        else
-          echo "$@"
-        fi
+      ui_print)
+        ui_print "$@"
         ;;
       functions)
         eval "${1%=*}=\"${1#*=}\""
         ;;
       abort_verify)
-        echo "***********************************************"
-        echo "! $@"
+        ui_print "***********************************************"
+        ui_print "! $@"
         print_cn "! 这个ZIP文件已损坏,请重新下载"
         print_en "! This zip may be corrupted, please try downloading again"
         abort "***********************************************"
@@ -30,8 +25,8 @@ operate() {
     esac
   }
 }
-print_cn() { operate "CN" "echo" "$@"; }
-print_en() { operate "EN" "echo" "$@"; }
+print_cn() { operate "CN" "ui_print" "$@"; }
+print_en() { operate "EN" "ui_print" "$@"; }
 abort_cn() { operate "CN" "abort_verify" "$@"; }
 abort_en() { operate "EN" "abort_verify" "$@"; }
 functions_cn() { operate "CN" "functions" "$@"; }
@@ -120,8 +115,16 @@ unzip -o "$ZIPFILE" 'verify.sh' -d "$TMPDIR" >/dev/null
 }
 source "$TMPDIR/verify.sh"
 #CHECK ENVIRONMENT#
+[ "$BOOTMODE" ] || {
+  ui_print "***********************************************"
+  print_cn "! 不受支持的安装环境 Recovery"
+  print_cn "! 请从 Magisk 或 KernelSU 应用安装"
+  print_en "! Install from recovery is not supported"
+  print_en "! Please install from KernelSU or Magisk app"
+  abort "***********************************************"
+}
 [ "$RELEASE" -lt $MIN_RELEASE ] && {
-  echo "***********************************************"
+  ui_print "***********************************************"
   print_cn "! 不受支持的安卓版本 $RELEASE"
   print_cn "! 最低支持的安卓版本 $MIN_RELEASE"
   print_en "! Unsupported android version: $RELEASE"
@@ -193,37 +196,41 @@ fi
 mkdir -p "$TSEECONFIG"
 mkdir -p "$TSEECONFIG/log"
 touch "$TSCONFIG/target.txt"
-[[ ! -f "$TSEECONFIG/usr.txt" || ! -f "$TSEECONFIG/sys.txt" ]] && {
+[ ! -f "$TSEECONFIG/usr.txt" ] || [ ! -f "$TSEECONFIG/sys.txt" ] && {
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
-  touch "$TSEECONFIG/sys.txt"
-  echo "$SYS" | awk '
-    NF {
-        lines[++n] = $0
-    }
-    END {
-        for (i = 1; i <= n; i++) {
-            printf "%s", lines[i]
-            if (i < n)
-                printf "\n"
-        }
-    }
-  ' > "$TSEECONFIG/sys.txt"
-  touch "$TSEECONFIG/usr.txt"
-  echo "$USR" | awk '
-    NF {
-        lines[++n] = $0
-    }
-    END {
-        for (i = 1; i <= n; i++) {
-            printf "%s", lines[i]
-            if (i < n)
-                printf "\n"
-        }
-    }
-  ' > "$TSEECONFIG/usr.txt"
+  [ ! -f "$TSEECONFIG/sys.txt" ] && {
+    touch "$TSEECONFIG/sys.txt"
+    echo "$SYS" | awk '
+      NF {
+          lines[++n] = $0
+      }
+      END {
+          for (i = 1; i <= n; i++) {
+              printf "%s", lines[i]
+              if (i < n)
+                  printf "\n"
+          }
+      }
+    ' > "$TSEECONFIG/sys.txt"
+  }
+  [ ! -f "$TSEECONFIG/usr.txt" ] && {
+    touch "$TSEECONFIG/usr.txt"
+    echo "$USR" | awk '
+      NF {
+          lines[++n] = $0
+      }
+      END {
+          for (i = 1; i <= n; i++) {
+              printf "%s", lines[i]
+              if (i < n)
+                  printf "\n"
+          }
+      }
+    ' > "$TSEECONFIG/usr.txt"
+  }
 }
-[[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && grep -qx "com.oplus.engineermode" "$TSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$TSEECONFIG/sys.txt"
+[[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && { grep -qx "com.oplus.engineermode" "$TSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$TSEECONFIG/sys.txt"; }
 print_cn "- 获取包名添加"
 print_en "- Getting package list & adding target"
 { pm list packages -3 | sed 's/^package://' | grep -vFf "$TSEECONFIG/usr.txt" ; cat "$TSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"

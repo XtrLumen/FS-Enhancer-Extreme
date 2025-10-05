@@ -268,9 +268,9 @@ if pm install "$TSEEMODDIR/service.apk" >/dev/null 2>&1; then
   if [ ${#VBHVALUE} -eq 64 ]; then
     logce "成功启动"
     if [ "$(getprop ro.boot.vbmeta.digest)" = "$VBHVALUE" ]; then
-      logce "无需修正,当前属性值:"$(getprop ro.boot.vbmeta.digest)""
+      logce "无需修正,当前属性:"$(getprop ro.boot.vbmeta.digest)""
     else
-      resetprop -n ro.boot.vbmeta.digest "$VBHVALUE" && logce "修正完毕,当前属性值:"$(getprop ro.boot.vbmeta.digest)""
+      resetprop -n ro.boot.vbmeta.digest "$VBHVALUE" && logce "修正完毕,当前属性:"$(getprop ro.boot.vbmeta.digest)""
     fi
   else
     logce "启动失败"
@@ -427,7 +427,7 @@ case "$1" in
     ;;
   -start)
     (
-    (exec /system/bin/app_process -Djava.class.path="$TSEEMODDIR/service.dex" / --nice-name=TSEnhancerExtreme ts.enhancer.xtr.MainKt)
+    (exec /system/bin/app_process -Djava.class.path="$TSEEMODDIR/service.dex" / --nice-name=TSEnhancerExtreme ts.enhancer.xtr.Main)
     [ $? -ne 0 ] && logc "服务启动失败"
     ) &
     ;;
@@ -444,7 +444,7 @@ esac
 
 staterefresh() {
 functions_cn TRUEDES="提升TrickyStore的使用体验,同时极致隐藏由解锁引导加载程序产生的相关检测点."
-functions_en TRUEDES="Improve the user experience of TrickyStore, while providing extreme hiding of detection points introduced by bootloader unlocking."
+functions_en TRUEDES="Enhances the TrickyStore experience, while providing comprehensive hiding of bootloader unlock detection points."
 description_exit() { sed -i "s|^description=.*|description=[$ENVIRONMENT$SERVICESTATE] $TRUEDES|" "$TSEEMODDIR/module.prop" && exit; }
 [ -f "$TSEEMODDIR/disable" ] && {
   functions_cn ENVIRONMENT="❌禁用."
@@ -649,7 +649,7 @@ case "$1:$2" in
   "--tseectl:"*) tseectl "$2"; exit ;;
   "--tsctl:"*) tsctl "$2"; exit ;;
 esac
-version() { echo "tseed 0.8.2" && exit; }
+version() { echo "tseed 0.8.2.1" && exit; }
 for ARG in "$@"; do
   case "$ARG" in
     -h|--help) help; exit ;;

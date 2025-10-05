@@ -1,6 +1,6 @@
 package ts.enhancer.xtr;
 
-public class MainKt {
+public class Main {
   public static void main(String[] args) {
     Thread modifyThread = new Thread(new ModifyExcute());
     modifyThread.start();

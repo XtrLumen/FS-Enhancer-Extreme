@@ -1,37 +1,67 @@
 # Tricky Store Enhancer Extreme
-提升TrickyStore的使用体验,同时极致隐藏由解锁引导加载程序产生的相关检测点.
+Enhances the TrickyStore experience, while providing comprehensive hiding of bootloader unlock detection points.
 
-> [!WARNING]
-> 本模块目前处于测试阶段!遇到问题请加入本页面底部群组反馈.
+> [!TIP]
+> 「[简体中文](README2zh-Hans.md)」「[繁體中文](README2zh-Hant.md)」
 
-## 要求
-- 已安装 [TrickyStore](https://github.com/5ec1cff/TrickyStore) 或 [TrickyStoreOSS](https://github.com/beakthoven/TrickyStoreOSS) 模块
+> [!IMPORTANT]  
+> This module **specializes** in disguising the bootloader status, **rather than** passed Play Integrity.
 
-## 用法
-1. 刷入模块并重启.
-2. 进入WebUI界面配置(可选)
-3. 完事,省心.
+## Requirements
+- [TrickyStore](https://github.com/5ec1cff/TrickyStore) or [TrickyStoreOSS](https://github.com/beakthoven/TrickyStoreOSS) module installed
 
-## 提示
-### KernelSU 和 APatch
-- 可使用自带的 WebUI 启动页面
+## Install
+1. Flash this module and reboot.
+2. Manual configuration (optional).
+3. Enjoy!
 
-### Magisk
-- 打开 WebUI 独立软件的 Action 按钮
-- 支持 [WebUI X](https://github.com/MMRLApp/WebUI-X-Portable) 和 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
-- 在未安装任何 WebUI 独立软件时自动安装 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
+## Feature
+### Main
+- [x] Takes over TrickyStore module target file management with real-time updates and higher priority than similar modules.
+- [x] Automatically tags conflicting modules for removal or deletes them directly; removes conflicting apps in real-time.
+- [x] Corrects abnormal VerifiedBootHash property automatically
+- [x] Synchronizes the security patch level to the attributes
+- [x] Spoofs bootloader status as locked
+- [x] Provides Google Hardware Attestation Root Certificate signing keybox<sup>Revoked</sup>
+- [x] Adds action button to TrickyStore module card for updating TrickyStore module target files<sup>Coming Soon</sup>.
 
-## 作用
-- 目前尚未实现全部预期功能
-- 已实现功能请查看 Pre-release ZIP 内的 README.md
+### Other
+- [x] Monitors and displays operating status
+- [x] Displays prompts in zh-Hans or en-US based on system language for runtime status and installation processes
+- [x] Backs up the TrickyStore module configuration directory during installation and restores the backup during uninstallation. Path: `/data/adb/tricky_store/config_backup`
 
-## 鸣谢
-- [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation) - 服务 [GetVBHash](https://github.com/XtrLumen/GetVBHash) 的代码来源
-- [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff) - 扫平执行环境障碍
+### TSEE-CLI
+**With the WebUI still under development, it can only be configured manually for now**
+- Invoke function
+  - Execute in the terminal as root: `PATH="/data/adb/modules/ts_enhancer_extreme/binaries:$PATH"`
+    - Steal Google Hardware Attestation Root Certificate signing keybox: `tseed --stealkeybox` `[Basic |-a|-b|-c| ]`<sup>「[Tricky-Addon](https://github.com/KOWX712/Tricky-Addon-Update-Target-List)」「[Integrity-Box](https://github.com/MeowDump/Integrity-Box)」「[YuriKey-Manager](https://github.com/YurikeyDev/yurikey)」</sup>
+    - Fetch the latest security patch level for Pixel update announcements online: `tseed --securitypatchdatefetch`
+    - TrickyStore service status reading/control: `tseed --tsctl` `[Basic |-stop|-start|-state| ]`
+    - TSEnhancerExtreme service status reading/control: `tseed --tseectl` `[Basic |-stop|-start|-state| ]`
+- Configuration Module
+  - Configuration directory path: `/data/adb/ts_enhancer_extreme`
+    - Add system app package names to sys.txt for inclusion in TrickyStore module target file.
+    - Add user app package names to usr.txt for exclusion from TrickyStore module target file.
+    - The logs are located at `/data/adb/ts_enhancer_extreme/log`. If you encounter any issues, please include the logs when creating an issue for feedback.
 
-## 链接
-[![](https://img.shields.io/badge/Open_Issue-goldenrod?style=for-the-badge)](https://github.com/XtrLumen/TS-Enhancer-Extreme/issues)
-[![](https://img.shields.io/badge/Change_log-orange?style=for-the-badge)](https://github.com/XtrLumen/TS-Enhancer-Extreme/blob/main/changelog.md)
-[![](https://img.shields.io/badge/Join_Group-red?style=for-the-badge)](https://t.me/cirnoclass)
-[![](https://img.shields.io/badge/Sub_Coolapk-forestgreen?style=for-the-badge)](http://www.coolapk.com/u/3644852)
-[![](https://img.shields.io/badge/Sub_Channel-blue?style=for-the-badge)](https://t.me/realxtr)
+### WebUI
+- [ ] Log Monitoring Window
+- [ ] Quickly select user apps
+- [ ] Quickly select system apps
+- [ ] Import keybox from internal storage
+- [ ] Invoke TrickyStore service status reading/control
+- [ ] Invoke TSEnhancerExtreme service status reading/control
+- [ ] Invoke steal Google Hardware Attestation Root Certificate signing keybox
+- [ ] Quickly customize security patch levels / Invoke fetch the latest security patch level for Pixel update announcements online
+
+> [!NOTE]
+> ### WebUI supports
+>   - **KernelSU or APatch**
+>     - Native support
+>   - **Magisk** 
+>     - Provide action button to navigate to [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) or [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
+>       - Automatically install [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) when no WebUI standalone software is installed
+
+## Acknowledgement
+- [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff)
+- [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation)

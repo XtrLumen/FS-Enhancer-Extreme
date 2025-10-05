@@ -80,10 +80,19 @@ listOf("debug", "release").forEach { variantName ->
         }
         from("$projectDir/src") {
             exclude(
+                ".DS_Store",
                 "module.prop",
                 "customize.sh"
             )
         }
+        from("${rootProject.projectDir}/README.md") {
+            rename(
+                "README.md",
+                "READNE2en-US.md"
+            )
+        }
+        from("${rootProject.projectDir}/README2zh-Hans.md")
+        from("${rootProject.projectDir}/README2zh-Hant.md")
         into("webroot") {
             from("${rootProject.projectDir}/webroot")
         }
@@ -99,15 +108,15 @@ listOf("debug", "release").forEach { variantName ->
 
         doLast {
             
-            fun sha256Files() {
+            fun sha512Files() {
                 moduleOutputDir.walkTopDown().forEach { file ->
                     if (file.isDirectory) return@forEach
-                    if (file.name.endsWith(".sha256")) return@forEach
-                    val md = MessageDigest.getInstance("SHA-256")
+                    if (file.name.endsWith(".sha512")) return@forEach
+                    val md = MessageDigest.getInstance("SHA-512")
                     file.forEachBlock(4096) { bytes, size ->
                         md.update(bytes, 0, size)
                     }
-                    File(file.path + ".sha256").writeText(md.digest().joinToString("") { "%02x".format(it) })
+                    File(file.path + ".sha512").writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
             
@@ -179,13 +188,13 @@ listOf("debug", "release").forEach { variantName ->
 
                 bakacirnoSign()
 
-                sha256Files()
+                sha512Files()
             } else {
                 println("no private_key found, this build will not be signed")
 
                 File(moduleOutputDir, "bakacirno").createNewFile()
                 
-                sha256Files()
+                sha512Files()
             }
         }
     }
