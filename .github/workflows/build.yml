@@ -13,12 +13,8 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macOS-latest ]
+    name: Build
+    runs-on: ubuntu-latest
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -41,7 +37,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: TS-Enhancer-Extreme-all-${{ matrix.os }}
+          name: TS-Enhancer-Extreme
           path: |
             module/build/outputs/release/*.zip
             module/build/outputs/debug/*.zip

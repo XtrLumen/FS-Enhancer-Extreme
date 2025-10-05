@@ -4,7 +4,7 @@ Enhances the TrickyStore experience, while providing comprehensive hiding of boo
 > [!TIP]
 > 「[简体中文](README2zh-Hans.md)」「[繁體中文](README2zh-Hant.md)」
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > This module **specializes** in disguising the bootloader status, **rather than** passed Play Integrity.
 
 ## Requirements
@@ -23,7 +23,7 @@ Enhances the TrickyStore experience, while providing comprehensive hiding of boo
 - [x] Synchronizes the security patch level to the attributes
 - [x] Spoofs bootloader status as locked
 - [x] Provides Google Hardware Attestation Root Certificate signing keybox<sup>Revoked</sup>
-- [x] Adds action button to TrickyStore module card for updating TrickyStore module target files<sup>Coming Soon</sup>.
+- [x] Adds action button to TrickyStore module card for updating TrickyStore module target files<sup>About to change</sup>.
 
 ### Other
 - [x] Monitors and displays operating status
