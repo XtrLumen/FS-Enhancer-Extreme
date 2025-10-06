@@ -10,7 +10,7 @@ fun String.execute(currentWorkingDir: File = file("./")): String {
 
 val moduleId by extra("ts_enhancer_extreme")
 val moduleName by extra("TS Enhancer Extreme")
-val verName by extra("v0.8.2.1")
+val verName by extra("v0.8.3")
 val verType by extra("-Beta")
-val verCode by extra("git rev-list HEAD --count".execute().toInt() + 68)
+val verCode by extra("git rev-list HEAD --count".execute().toInt() + 67)
 val verHash by extra("git rev-parse --verify --short HEAD".execute())

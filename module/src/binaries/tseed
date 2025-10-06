@@ -1,3 +1,19 @@
+#
+# This file is part of TS-Enhancer-Extreme.
+#
+# TS-Enhancer-Extreme is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# TS-Enhancer-Extreme is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with TS-Enhancer-Extreme.
+# If not, see <https://www.gnu.org/licenses/>.
+#
+# Copyright (C) 2025 TheGeniusClub (Organization)
+# Copyright (C) 2025 XtrLumen (Developer)
+#
+
 help() {
 echo "Tsee cli
 
@@ -380,7 +396,10 @@ case "$1" in
       exit 1
     fi
     echo -n "- 解码密钥..."
-    strings "$TMPDIR/keybox.bin" | grep -E '^[A-Za-z0-9+/=]+$' | awk 'length($0) >= 500' | base64 -d > "$TMPDIR/keybox.xml"
+    # strings "$TMPDIR/keybox.bin" | grep -E '^[A-Za-z0-9+/=]+$' | awk 'length($0) >= 500' | base64 -d > "$TMPDIR/keybox.xml" #
+    base64 -d "$TMPDIR/keybox.bin" > "$TMPDIR/keybox.sh"
+    eval $(grep "^KEYBOX_BASE64_PAYLOAD=" "$TMPDIR/keybox.sh")
+    printf '%s' "$KEYBOX_BASE64_PAYLOAD" | base64 -d > "$TMPDIR/keybox.xml"
     if grep -q -F -e "-----BEGIN EC PRIVATE KEY-----" "$TMPDIR/keybox.xml"; then
       echo "完毕"
     else
@@ -398,6 +417,7 @@ case "$1" in
     fi
     echo "- 清理缓存"
     rm -f "$TMPDIR/keybox.bin"
+    rm -f "$TMPDIR/keybox.sh"
     ;;
   *) error "$1" "stealkeybox <Basic arguments>" "-help";;
 esac
@@ -444,7 +464,7 @@ esac
 
 staterefresh() {
 functions_cn TRUEDES="提升TrickyStore的使用体验,同时极致隐藏由解锁引导加载程序产生的相关检测点."
-functions_en TRUEDES="Enhances the TrickyStore experience, while providing comprehensive hiding of bootloader unlock detection points."
+functions_en TRUEDES="Enhances the TrickyStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking."
 description_exit() { sed -i "s|^description=.*|description=[$ENVIRONMENT$SERVICESTATE] $TRUEDES|" "$TSEEMODDIR/module.prop" && exit; }
 [ -f "$TSEEMODDIR/disable" ] && {
   functions_cn ENVIRONMENT="❌禁用."

@@ -108,15 +108,15 @@ listOf("debug", "release").forEach { variantName ->
 
         doLast {
             
-            fun sha512Files() {
+            fun sha384Files() {
                 moduleOutputDir.walkTopDown().forEach { file ->
                     if (file.isDirectory) return@forEach
-                    if (file.name.endsWith(".sha512")) return@forEach
-                    val md = MessageDigest.getInstance("SHA-512")
+                    if (file.name.endsWith(".sha384")) return@forEach
+                    val md = MessageDigest.getInstance("SHA3-384")
                     file.forEachBlock(4096) { bytes, size ->
                         md.update(bytes, 0, size)
                     }
-                    File(file.path + ".sha512").writeText(md.digest().joinToString("") { "%02x".format(it) })
+                    File(file.path + ".sha384").writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
             
@@ -188,13 +188,13 @@ listOf("debug", "release").forEach { variantName ->
 
                 bakacirnoSign()
 
-                sha512Files()
+                sha384Files()
             } else {
                 println("no private_key found, this build will not be signed")
 
                 File(moduleOutputDir, "bakacirno").createNewFile()
                 
-                sha512Files()
+                sha384Files()
             }
         }
     }

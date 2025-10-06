@@ -1,5 +1,5 @@
 # Tricky Store Enhancer Extreme
-Enhances the TrickyStore experience, while providing comprehensive hiding of bootloader unlock detection points.
+Enhances the TrickyStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
 
 > [!TIP]
 > 「[简体中文](README2zh-Hans.md)」「[繁體中文](README2zh-Hant.md)」

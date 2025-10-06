@@ -1,3 +1,19 @@
+#
+# This file is part of TS-Enhancer-Extreme.
+#
+# TS-Enhancer-Extreme is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# TS-Enhancer-Extreme is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with TS-Enhancer-Extreme.
+# If not, see <https://www.gnu.org/licenses/>.
+#
+# Copyright (C) 2025 TheGeniusClub (Organization)
+# Copyright (C) 2025 XtrLumen (Developer)
+#
+
 TMPDIR_FOR_VERIFY="$TMPDIR/.vunzip"
 mkdir -p "$TMPDIR_FOR_VERIFY"
 
@@ -11,16 +27,16 @@ extract() {
     unzip -o "$zip" "$file" -d "$dir" >&2
     file_path="$dir/$file"
     if [ -f "$file_path" ]; then
-      unzip -o "$zip" "$file.sha512" -d "$TMPDIR_FOR_VERIFY" >&2
-      hash_path="$TMPDIR_FOR_VERIFY/$file.sha512"
+      unzip -o "$zip" "$file.sha384" -d "$TMPDIR_FOR_VERIFY" >&2
+      hash_path="$TMPDIR_FOR_VERIFY/$file.sha384"
       if [ -f "$hash_path" ]; then
-        (echo "$(cat "$hash_path")  $file_path" | sha512sum -c -s -) || {
+        (echo "$(cat "$hash_path")  $file_path" | sha3sum -a 384 -c -s -) || {
           abort_cn "$file 被篡改!"
           abort_en "Failed to verify $file"
         }
       elif [ ! "$skip" = "-s" ]; then
-        abort_cn "$file.sha512 不存在!"
-        abort_en "$file.sha512 not exists"
+        abort_cn "$file.sha384 不存在!"
+        abort_en "$file.sha384 not exists"
       fi
     else
       abort_cn "$file 不存在!"
@@ -32,7 +48,7 @@ extract() {
     }
   }
   if [[ "$2" == */\* ]]; then
-    for files in $(unzip -l "$1" "$2" | awk 'NR>3 {print $4}' | grep -v '\.sha512$' | grep -v '/$' | grep -v '^$'); do
+    for files in $(unzip -l "$1" "$2" | awk 'NR>3 {print $4}' | grep -v '\.sha384$' | grep -v '/$' | grep -v '^$'); do
       unpack "$1" "$files" "$3" "$4" "$5"
     done
   else
