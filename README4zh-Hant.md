@@ -2,7 +2,7 @@
 提升TrickyStore的使用體驗,同時極致隱藏由解鎖引導載入程式產生的相關檢測點。
 
 > [!TIP]
-> 「[English](README.md)」「[简体中文](README2zh-Hans.md)」
+> 「[English](README.md)」「[简体中文](README4zh-Hans.md)」
 
 > [!IMPORTANT]  
 > 本模組**專精**偽裝引導載入程式狀態,**而非**通過PlayIntegrity.

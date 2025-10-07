@@ -2,7 +2,7 @@
 提升TrickyStore的使用体验,同时极致隐藏由解锁引导加载程序产生的相关检测点.
 
 > [!TIP]
-> 「[English](README.md)」「[繁體中文](README2zh-Hant.md)」
+> 「[English](README.md)」「[繁體中文](README4zh-Hant.md)」
 
 > [!IMPORTANT]  
 > 本模块**专精**伪装引导加载程序状态,**而非**通过PlayIntegrity.

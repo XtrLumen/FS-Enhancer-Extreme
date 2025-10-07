@@ -2,7 +2,7 @@
 Enhances the TrickyStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
 
 > [!TIP]
-> 「[简体中文](README2zh-Hans.md)」「[繁體中文](README2zh-Hant.md)」
+> 「[简体中文](README4zh-Hans.md)」「[繁體中文](README4zh-Hant.md)」
 
 > [!IMPORTANT]
 > This module **specializes** in disguising the bootloader status, **rather than** passed Play Integrity.

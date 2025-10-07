@@ -88,11 +88,11 @@ listOf("debug", "release").forEach { variantName ->
         from("${rootProject.projectDir}/README.md") {
             rename(
                 "README.md",
-                "READNE2en-US.md"
+                "README4en-US.md"
             )
         }
-        from("${rootProject.projectDir}/README2zh-Hans.md")
-        from("${rootProject.projectDir}/README2zh-Hant.md")
+        from("${rootProject.projectDir}/README4zh-Hans.md")
+        from("${rootProject.projectDir}/README4zh-Hant.md")
         into("webroot") {
             from("${rootProject.projectDir}/webroot")
         }
