@@ -17,8 +17,8 @@ Enhances the TrickyStore experience, while providing extreme hiding of detection
 
 ## Feature
 ### Main
+- [x] Automatically tags conflicting modules for removal or deletes them directly; uninstalls conflicting apps in real-time.
 - [x] Takes over TrickyStore module target file management with real-time updates and higher priority than similar modules.
-- [x] Automatically tags conflicting modules for removal or deletes them directly; removes conflicting apps in real-time.
 - [x] Corrects abnormal VerifiedBootHash property automatically
 - [x] Synchronizes the security patch level to the attributes
 - [x] Spoofs bootloader status as locked
@@ -42,8 +42,7 @@ Enhances the TrickyStore experience, while providing extreme hiding of detection
   - Configuration directory path: `/data/adb/ts_enhancer_extreme`
     - Add system app package names to sys.txt for inclusion in TrickyStore module target file.
     - Add user app package names to usr.txt for exclusion from TrickyStore module target file.
-    - The logs are located at `/data/adb/ts_enhancer_extreme/log`. If you encounter any issues, please include the logs when creating an issue for feedback.
-
+    - Logs are located at `/data/adb/ts_enhancer_extreme/log`. If you encounter any issues, please create an issue and include the logs.
 ### WebUI
 - [ ] Log Monitoring Window
 - [ ] Quickly select user apps
