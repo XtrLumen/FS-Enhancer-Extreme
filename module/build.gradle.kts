@@ -128,57 +128,48 @@ listOf("debug", "release").forEach { variantName ->
                 val kf = KeyFactory.getInstance("ed25519")
                 val privKey = kf.generatePrivate(privKeySpec);
                 val sig = Signature.getInstance("ed25519")
-                fun File.sha(realFile: File? = null) {
-                    sig.update(this.name.toByteArray())
-                    sig.update(0)
-                    val real = realFile ?: this
-                    val buffer = ByteBuffer.allocate(8)
-                        .order(ByteOrder.LITTLE_ENDIAN)
-                        .putLong(real.length())
-                        .array()
-                    sig.update(buffer)
-                    real.forEachBlock { bytes, size ->
-                        sig.update(bytes, 0, size)
-                    }
-                }
 
                 /* INFO:
                    bakacirno is the name of files that holds signed hash of all runtime files of TS Enhancer Extreme module, to ensure the runtime files hasn't been tampered with.
                 */
                 fun bakacirnoSign(name: String = "bakacirno") {
-                    val set = TreeSet<Pair<File, File?>> { o1, o2 ->
-                        o1.first.path.replace("\\", "/")
-                            .compareTo(o2.first.path.replace("\\", "/"))
+                    val set = TreeSet<File> { o1, o2 ->
+                        o1.path.replace("\\", "/")
+                            .compareTo(o2.path.replace("\\", "/"))
                     }
 
-                    set.add(Pair(File(moduleOutputDir, "post-fs-data.sh"), null))
-                    set.add(Pair(File(moduleOutputDir, "uninstall.sh"), null))
-                    set.add(Pair(File(moduleOutputDir, "customize.sh"), null))
-                    set.add(Pair(File(moduleOutputDir, "service.dex"), null))
-                    set.add(Pair(File(moduleOutputDir, "service.apk"), null))
-                    set.add(Pair(File(moduleOutputDir, "service.sh"), null))
-                    set.add(Pair(File(moduleOutputDir, "banner.png"), null))
-                    set.add(Pair(File(moduleOutputDir, "webui.apk"), null))
-                    set.add(Pair(File(moduleOutputDir, "action.sh"), null))
+                    set.add(File(moduleOutputDir, "post-fs-data.sh"))
+                    set.add(File(moduleOutputDir, "uninstall.sh"))
+                    set.add(File(moduleOutputDir, "customize.sh"))
+                    set.add(File(moduleOutputDir, "service.dex"))
+                    set.add(File(moduleOutputDir, "service.apk"))
+                    set.add(File(moduleOutputDir, "service.sh"))
+                    set.add(File(moduleOutputDir, "banner.png"))
+                    set.add(File(moduleOutputDir, "webui.apk"))
+                    set.add(File(moduleOutputDir, "action.sh"))
 
                     File(moduleOutputDir, "libraries").walkTopDown().forEach { file ->
                         if (file.isFile) {
-                            set.add(Pair(file, null))
+                            set.add(file)
                         }
                     }
                     File(moduleOutputDir, "binaries").walkTopDown().forEach { file ->
                         if (file.isFile) {
-                            set.add(Pair(file, null))
+                            set.add(file)
                         }
                     }
                     File(moduleOutputDir, "webroot").walkTopDown().forEach { file ->
                         if (file.isFile) {
-                            set.add(Pair(file, null))
+                            set.add(file)
                         }
                     }
 
                     sig.initSign(privKey)
-                    set.forEach { it.first.sha(it.second) }
+                    set.forEach { file ->
+                        file.forEachBlock(4096) { bytes, size ->
+                            sig.update(bytes, 0, size)
+                        }
+                    }
                     val signFile = File(moduleOutputDir, name)
                     signFile.writeBytes(sig.sign())
                     signFile.appendBytes(publicKey)
@@ -207,6 +198,7 @@ listOf("debug", "release").forEach { variantName ->
         from(moduleDir)
     }
 }
+
 tasks.register("zip") {
     group = "module"
     dependsOn("zipDebug", "zipRelease")
