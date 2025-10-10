@@ -8,10 +8,6 @@ import java.security.spec.EdECPrivateKeySpec
 import java.security.spec.NamedParameterSpec
 import org.apache.tools.ant.filters.FixCrLfFilter
 
-plugins {
-    base
-}
-
 tasks.withType<Copy>().configureEach {
     filteringCharset = "UTF-8"
 }
