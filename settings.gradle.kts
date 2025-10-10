@@ -8,7 +8,8 @@ pluginManagement {
         id("org.jetbrains.kotlin.android") version "2.1.0"
     }
 }
-rootProject.name = 'TS-Enhancer-Extreme'
-include 'app'
-include 'dex'
-include 'module'
+
+rootProject.name = "TS-Enhancer-Extreme"
+include(":app")
+include(":dex")
+include(":module")
