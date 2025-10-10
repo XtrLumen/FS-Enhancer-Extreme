@@ -8,10 +8,6 @@ import java.security.spec.EdECPrivateKeySpec
 import java.security.spec.NamedParameterSpec
 import org.apache.tools.ant.filters.FixCrLfFilter
 
-tasks.withType<Copy>().configureEach {
-    filteringCharset = "UTF-8"
-}
-
 val moduleId: String by rootProject.extra
 val moduleName: String by rootProject.extra
 val verName: String by rootProject.extra
@@ -63,22 +59,9 @@ listOf("debug", "release").forEach { variantName ->
             )
         }
         from("$projectDir/src") {
-            include("customize.sh")
-            if (variantLowered != "debug") {
-                filter { line ->
-                    if (line.trim() in listOf("set -x", "set +x")) {
-                        null
-                    } else {
-                        line
-                    }
-                }
-            }
-        }
-        from("$projectDir/src") {
             exclude(
                 ".DS_Store",
-                "module.prop",
-                "customize.sh"
+                "module.prop"
             )
         }
         from("${rootProject.projectDir}/README.md") {
@@ -160,15 +143,21 @@ listOf("debug", "release").forEach { variantName ->
                         }
                     }
 
-                    sig.initSign(privKey)
+                    val hashBuilder = StringBuilder()
+
                     set.forEach { file ->
+                        val md = MessageDigest.getInstance("SHA3-512")
                         file.forEachBlock(4096) { bytes, size ->
-                            sig.update(bytes, 0, size)
+                            md.update(bytes, 0, size)
                         }
+                        val fileHash = md.digest()
+                        hashBuilder.append(fileHash.joinToString("") { "%02x".format(it) })
                     }
+
+                    println(hashBuilder.toString())
+
                     val signFile = File(moduleOutputDir, name)
-                    signFile.writeBytes(sig.sign())
-                    signFile.appendBytes(publicKey)
+                    signFile.writeText(hashBuilder.toString())
                 }
 
                 println("=== Guards the peace of Embodiment of Scarlet Devil ===")
