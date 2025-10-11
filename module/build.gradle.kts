@@ -87,15 +87,15 @@ listOf("debug", "release").forEach { variantName ->
 
         doLast {
             
-            fun sha384Files() {
+            fun sha256Sum() {
                 moduleOutputDir.walkTopDown().forEach { file ->
                     if (file.isDirectory) return@forEach
-                    if (file.name.endsWith(".sha384")) return@forEach
-                    val md = MessageDigest.getInstance("SHA3-384")
+                    if (file.name.endsWith(".sha256")) return@forEach
+                    val md = MessageDigest.getInstance("SHA3-256")
                     file.forEachBlock(4096) { bytes, size ->
                         md.update(bytes, 0, size)
                     }
-                    File(file.path + ".sha384").writeText(md.digest().joinToString("") { "%02x".format(it) })
+                    File(file.path + ".sha256").writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
             
@@ -111,7 +111,7 @@ listOf("debug", "release").forEach { variantName ->
                 /* INFO:
                    bakacirno is the name of files that holds signed hash of all runtime files of TS Enhancer Extreme module, to ensure the runtime files hasn't been tampered with.
                 */
-                fun bakacirnoSign(name: String = "bakacirno") {
+                fun bakaSign(name: String = "bakacirno") {
                     val set = TreeSet<File> { o1, o2 ->
                         o1.path.replace("\\", "/")
                             .compareTo(o2.path.replace("\\", "/"))
@@ -146,7 +146,7 @@ listOf("debug", "release").forEach { variantName ->
                     val hashBuilder = StringBuilder()
 
                     set.forEach { file ->
-                        val md = MessageDigest.getInstance("SHA3-512")
+                        val md = MessageDigest.getInstance("SHA256")
                         file.forEachBlock(4096) { bytes, size ->
                             md.update(bytes, 0, size)
                         }
@@ -162,15 +162,15 @@ listOf("debug", "release").forEach { variantName ->
 
                 println("=== Guards the peace of Embodiment of Scarlet Devil ===")
 
-                bakacirnoSign()
+                bakaSign()
 
-                sha384Files()
+                sha256Sum()
             } else {
                 println("no private_key found, this build will not be signed")
 
                 File(moduleOutputDir, "bakacirno").createNewFile()
                 
-                sha384Files()
+                sha256Sum()
             }
         }
     }

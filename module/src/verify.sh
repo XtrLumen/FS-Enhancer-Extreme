@@ -27,16 +27,16 @@ extract() {
     unzip -o "$zip" "$file" -d "$dir" >&2
     file_path="$dir/$file"
     if [ -f "$file_path" ]; then
-      unzip -o "$zip" "$file.sha384" -d "$TMPDIR_FOR_VERIFY" >&2
-      hash_path="$TMPDIR_FOR_VERIFY/$file.sha384"
+      unzip -o "$zip" "$file.sha256" -d "$TMPDIR_FOR_VERIFY" >&2
+      hash_path="$TMPDIR_FOR_VERIFY/$file.sha256"
       if [ -f "$hash_path" ]; then
-        (echo "$(cat "$hash_path")  $file_path" | sha3sum -a 384 -c -s -) || {
+        (echo "$(cat "$hash_path")  $file_path" | sha3sum -a 256 -c -s -) || {
           abort_cn "$file 被篡改!"
           abort_en "Failed to verify $file"
         }
       elif [ ! "$skip" = "-s" ]; then
-        abort_cn "$file.sha384 不存在!"
-        abort_en "$file.sha384 not exists"
+        abort_cn "$file.sha256 不存在!"
+        abort_en "$file.sha256 not exists"
       fi
     else
       abort_cn "$file 不存在!"
@@ -48,7 +48,7 @@ extract() {
     }
   }
   if [[ "$2" == */\* ]]; then
-    for files in $(unzip -l "$1" "$2" | awk 'NR>3 {print $4}' | grep -v '\.sha384$' | grep -v '/$' | grep -v '^$'); do
+    for files in $(unzip -l "$1" "$2" | awk 'NR>3 {print $4}' | grep -v '\.sha256$' | grep -v '/$' | grep -v '^$'); do
       unpack "$1" "$files" "$3" "$4" "$5"
     done
   else
