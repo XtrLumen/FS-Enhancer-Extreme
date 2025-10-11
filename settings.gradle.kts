@@ -9,7 +9,17 @@ pluginManagement {
     }
 }
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 rootProject.name = "TS-Enhancer-Extreme"
-include(":app")
-include(":dex")
-include(":module")
+include(
+    ":app",
+    ":dex",
+    ":module"
+)

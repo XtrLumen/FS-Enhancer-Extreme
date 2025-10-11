@@ -6,10 +6,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
 }

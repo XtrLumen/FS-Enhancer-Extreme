@@ -4,9 +4,20 @@ import java.nio.ByteBuffer
 import java.security.Signature
 import java.security.KeyFactory
 import java.security.MessageDigest
+import io.github.rctcwyvrn.blake3.Blake3
 import java.security.spec.EdECPrivateKeySpec
 import java.security.spec.NamedParameterSpec
 import org.apache.tools.ant.filters.FixCrLfFilter
+
+plugins {
+    id("base")
+}
+
+buildscript {
+    dependencies {
+        classpath("io.github.rctcwyvrn:blake3:1.3")
+    }
+}
 
 val moduleId: String by rootProject.extra
 val moduleName: String by rootProject.extra
@@ -28,6 +39,7 @@ listOf("debug", "release").forEach { variantName ->
             ":app:assemble$variantCapped",
             ":dex:compileDex$variantCapped"
         )
+        outputs.upToDateWhen {false}
         into(moduleDir)
         from(project(":app").layout.buildDirectory.file("outputs/apk/$variantLowered")) {
             include(
@@ -80,13 +92,12 @@ listOf("debug", "release").forEach { variantName ->
     val signModuleTask = tasks.register("signModule$variantCapped") {
         group = "module"
         dependsOn(prepareModuleFilesTask)
-        
+
         val moduleOutputDir = moduleDir.get().asFile
         val privateKeyFile = File(project.projectDir, "private_key")
         val publicKeyFile = File(project.projectDir, "public_key")
 
         doLast {
-            
             fun sha256Sum() {
                 moduleOutputDir.walkTopDown().forEach { file ->
                     if (file.isDirectory) return@forEach
@@ -98,7 +109,7 @@ listOf("debug", "release").forEach { variantName ->
                     File(file.path + ".sha256").writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
-            
+
             if (privateKeyFile.exists()) {
                 val privateKey = privateKeyFile.readBytes()
                 val publicKey = publicKeyFile.readBytes()
@@ -143,14 +154,27 @@ listOf("debug", "release").forEach { variantName ->
                         }
                     }
 
+                    set.forEach { file ->
+                        val relativePath = file.absolutePath.substring(moduleOutputDir.absolutePath.length)
+                        println(relativePath.replace("\\", "/"))
+                    }
+
                     val hashBuilder = StringBuilder()
 
                     set.forEach { file ->
-                        val md = MessageDigest.getInstance("SHA256")
-                        file.forEachBlock(4096) { bytes, size ->
-                            md.update(bytes, 0, size)
+                        val hasher = Blake3.newInstance()
+                        val buffer = ByteArray(4096)
+                        file.inputStream().use { input ->
+                            var bytesRead: Int
+                            while (input.read(buffer).also { bytesRead = it } != -1) {
+                                if (bytesRead == buffer.size) {
+                                    hasher.update(buffer)
+                                } else {
+                                    hasher.update(buffer.copyOf(bytesRead))
+                                }
+                            }
                         }
-                        val fileHash = md.digest()
+                        val fileHash = hasher.digest()
                         hashBuilder.append(fileHash.joinToString("") { "%02x".format(it) })
                     }
 
@@ -160,16 +184,16 @@ listOf("debug", "release").forEach { variantName ->
                     signFile.writeText(hashBuilder.toString())
                 }
 
-                println("=== Guards the peace of Embodiment of Scarlet Devil ===")
-
                 bakaSign()
 
                 sha256Sum()
+
+                println("=== Guards the peace of Misty Lake ===")
             } else {
                 println("no private_key found, this build will not be signed")
 
                 File(moduleOutputDir, "bakacirno").createNewFile()
-                
+
                 sha256Sum()
             }
         }
