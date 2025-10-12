@@ -24,6 +24,10 @@ android {
     }
 }
 
+dependencies {
+    implementation("io.github.rctcwyvrn:blake3:1.3")
+}
+
 val variants = listOf("Debug", "Release")
 
 variants.forEach { variantCapped ->

@@ -178,10 +178,18 @@ listOf("debug", "release").forEach { variantName ->
                         hashBuilder.append(fileHash.joinToString("") { "%02x".format(it) })
                     }
 
-                    println(hashBuilder.toString())
+                    val concatenatedHash = hashBuilder.toString()
 
+                    println(concatenatedHash)
+
+                    sig.initSign(privKey)
+                    sig.update(concatenatedHash.toByteArray())
+
+                    val signature = sig.sign()
                     val signFile = File(moduleOutputDir, name)
-                    signFile.writeText(hashBuilder.toString())
+
+                    signFile.writeBytes(signature)
+                    signFile.appendBytes(publicKey)
                 }
 
                 bakaSign()
