@@ -12,6 +12,7 @@
 #
 # Copyright (C) 2025 TheGeniusClub (Organization)
 # Copyright (C) 2025 XtrLumen (Developer)
+# Copyright (C) 2025 furrybluelan (Developer)
 #
 
 help() {
@@ -223,6 +224,44 @@ case "$1" in
 esac
 }
 
+tseectl() {
+help() (
+echo "tseectl
+
+Usage: tseed tseectl <Basic arguments>
+
+Arguments:
+  -stop
+  -start
+  -state
+
+Options:
+  -h, -help"
+)
+[ "$1" = "" ] && help && exit 2
+case "$1" in
+  -h|-help)
+    help
+    ;;
+  -stop)
+    kill -9 "$(pidof "TSEnhancerExtreme")"
+    ;;
+  -start)
+    (
+    exec /system/bin/app_process -Djava.class.path="$TSEEMODDIR/service.dex" / --nice-name=TSEnhancerExtreme ts.enhancer.xtr.Main
+    ) &
+    ;;
+  -state)
+    if pidof "TSEnhancerExtreme" >/dev/null; then
+      echo "true"
+    else
+      echo "false"
+    fi
+    ;;
+  *) error "$1" "tseectl <Basic arguments>" "-help";;
+esac
+}
+
 conflictappcheck() {
 APPCONFLICT="
 com.lingqian.appbl
@@ -420,45 +459,6 @@ case "$1" in
     rm -f "$TMPDIR/keybox.sh"
     ;;
   *) error "$1" "stealkeybox <Basic arguments>" "-help";;
-esac
-}
-
-tseectl() {
-help() (
-echo "tseectl
-
-Usage: tseed tseectl <Basic arguments>
-
-Arguments:
-  -stop
-  -start
-  -state
-
-Options:
-  -h, -help"
-)
-[ "$1" = "" ] && help && exit 2
-case "$1" in
-  -h|-help)
-    help
-    ;;
-  -stop)
-    kill -9 "$(pidof "TSEnhancerExtreme")"
-    ;;
-  -start)
-    (
-    (exec /system/bin/app_process -Djava.class.path="$TSEEMODDIR/service.dex" / --nice-name=TSEnhancerExtreme ts.enhancer.xtr.Main)
-    [ $? -ne 0 ] && logc "服务启动失败"
-    ) &
-    ;;
-  -state)
-    if pidof "TSEnhancerExtreme" >/dev/null; then
-      echo "true"
-    else
-      echo "false"
-    fi
-    ;;
-  *) error "$1" "tseectl <Basic arguments>" "-help";;
 esac
 }
 

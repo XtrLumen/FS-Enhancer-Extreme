@@ -18,8 +18,10 @@ cd ${0%/*}
 source "./libraries/util_functions.sh"
 check
 
-invoke "调用后台服务启动参数" "--tseectl -start"
+logs "启动后台服务"
+$TSEEBIN/tseed --tseectl -start
 initwait
+[[ $($TSEEBIN/tseed --tseectl -state) == "true" ]] || logs "服务启动失败"
 invoke "调用安全级别同步参数" "--securitypatchpropsync"
 invoke "调用冲突模块排除参数" "--conflictmodcheck -b"
 invoke "调用包名列表更新参数" "--packagelistupdate"
