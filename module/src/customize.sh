@@ -175,7 +175,7 @@ for FILE in $FILES; do
   extract "$ZIPFILE" "$FILE" "$MODPATH"
 done
 mkdir -p "$SD"
-cat "$MODPATH/libraries/state.sh" > "$SD/.tsee_state.sh"
+cp -f "$MODPATH/libraries/state.sh" "$SD/.tsee_state.sh"
 [[ ! "$APATCH" && ! "$KSU" ]] && {
   pm path com.dergoogler.mmrl.wx > /dev/null 2>&1 || pm path io.github.a13e300.ksuwebui > /dev/null 2>&1 || {
     print_cn "- 安装 WebUI 软件"
@@ -199,7 +199,7 @@ if [ -d "$TSCONFIG" ]; then
   mv "$TSCONFIG" "$BACKUP1"
   mkdir -p "$TSCONFIG"
   mv "$BACKUP1" "$BACKUP2"
-  cat "$BACKUP2/tee_status" > "$TSCONFIG/tee_status"
+  cp -f "$BACKUP2/tee_status" "$TSCONFIG/tee_status"
   print_cn "- 重建配置目录"
   print_en "- Rebuild configuration directory"
 else

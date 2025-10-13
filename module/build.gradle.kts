@@ -82,8 +82,10 @@ listOf("debug", "release").forEach { variantName ->
                 "README4en-US.md"
             )
         }
-        from("${rootProject.projectDir}/README4zh-Hans.md")
-        from("${rootProject.projectDir}/README4zh-Hant.md")
+        from(
+            "${rootProject.projectDir}/README4zh-Hans.md",
+            "${rootProject.projectDir}/README4zh-Hant.md"
+        )
         into("webroot") {
             from("${rootProject.projectDir}/webroot")
         }
@@ -94,8 +96,8 @@ listOf("debug", "release").forEach { variantName ->
         dependsOn(prepareModuleFilesTask)
 
         val moduleOutputDir = moduleDir.get().asFile
-        val privateKeyFile = File(project.projectDir, "private_key")
         val publicKeyFile = File(project.projectDir, "public_key")
+        val privateKeyFile = File(project.projectDir, "private_key")
 
         doLast {
             fun sha256Sum() {
@@ -111,46 +113,34 @@ listOf("debug", "release").forEach { variantName ->
             }
 
             if (privateKeyFile.exists()) {
-                val privateKey = privateKeyFile.readBytes()
                 val publicKey = publicKeyFile.readBytes()
-                val namedSpec = NamedParameterSpec("ed25519")
-                val privKeySpec = EdECPrivateKeySpec(namedSpec, privateKey)
-                val kf = KeyFactory.getInstance("ed25519")
-                val privKey = kf.generatePrivate(privKeySpec);
-                val sig = Signature.getInstance("ed25519")
-
-                /* INFO:
-                   bakacirno is the name of files that holds signed hash of all runtime files of TS Enhancer Extreme module, to ensure the runtime files hasn't been tampered with.
-                */
-                fun bakaSign(name: String = "bakacirno") {
+                val privateKey = privateKeyFile.readBytes()
+                val sigType = Signature.getInstance("ed25519")
+                fun mistySign() {
                     val set = TreeSet<File> { o1, o2 ->
                         o1.path.replace("\\", "/")
                             .compareTo(o2.path.replace("\\", "/"))
                     }
 
-                    set.add(File(moduleOutputDir, "post-fs-data.sh"))
-                    set.add(File(moduleOutputDir, "uninstall.sh"))
-                    set.add(File(moduleOutputDir, "customize.sh"))
-                    set.add(File(moduleOutputDir, "service.dex"))
-                    set.add(File(moduleOutputDir, "service.apk"))
-                    set.add(File(moduleOutputDir, "service.sh"))
-                    set.add(File(moduleOutputDir, "banner.png"))
-                    set.add(File(moduleOutputDir, "webui.apk"))
-                    set.add(File(moduleOutputDir, "action.sh"))
+                    listOf(
+                        "post-fs-data.sh",
+                        "uninstall.sh",
+                        "customize.sh",
+                        "service.dex",
+                        "service.apk",
+                        "service.sh",
+                        "banner.png",
+                        "webui.apk",
+                        "action.sh"
+                    ).forEach { fileName ->
+                        set.add(File(moduleOutputDir, fileName))
+                    }
 
-                    File(moduleOutputDir, "libraries").walkTopDown().forEach { file ->
-                        if (file.isFile) {
-                            set.add(file)
-                        }
-                    }
-                    File(moduleOutputDir, "binaries").walkTopDown().forEach { file ->
-                        if (file.isFile) {
-                            set.add(file)
-                        }
-                    }
-                    File(moduleOutputDir, "webroot").walkTopDown().forEach { file ->
-                        if (file.isFile) {
-                            set.add(file)
+                    listOf("libraries", "binaries", "webroot").forEach { dirName ->
+                        File(moduleOutputDir, dirName).walkTopDown().forEach { file ->
+                            if (file.isFile) {
+                                set.add(file)
+                            }
                         }
                     }
 
@@ -159,7 +149,7 @@ listOf("debug", "release").forEach { variantName ->
                         println(relativePath.replace("\\", "/"))
                     }
 
-                    val hashBuilder = StringBuilder()
+                    val BLAKE3Builder = StringBuilder()
 
                     set.forEach { file ->
                         val hasher = Blake3.newInstance()
@@ -175,24 +165,22 @@ listOf("debug", "release").forEach { variantName ->
                             }
                         }
                         val fileHash = hasher.digest()
-                        hashBuilder.append(fileHash.joinToString("") { "%02x".format(it) })
+                        BLAKE3Builder.append(fileHash.joinToString("") { "%02x".format(it) })
                     }
 
-                    val concatenatedHash = hashBuilder.toString()
+                    val BLAKE3Hash = BLAKE3Builder.toString()
 
-                    println(concatenatedHash)
+                    println(BLAKE3Hash)
 
-                    sig.initSign(privKey)
-                    sig.update(concatenatedHash.toByteArray())
+                    sigType.initSign(KeyFactory.getInstance("ed25519").generatePrivate(EdECPrivateKeySpec(NamedParameterSpec("ed25519"), privateKey)))
+                    sigType.update(BLAKE3Hash.toByteArray())
 
-                    val signature = sig.sign()
-                    val signFile = File(moduleOutputDir, name)
+                    File(moduleOutputDir, "cirno").writeBytes(sigType.sign())
 
-                    signFile.writeBytes(signature)
-                    signFile.appendBytes(publicKey)
+                    File(moduleOutputDir, "misty").writeBytes(publicKey)
                 }
 
-                bakaSign()
+                mistySign()
 
                 sha256Sum()
 
@@ -200,7 +188,12 @@ listOf("debug", "release").forEach { variantName ->
             } else {
                 println("no private_key found, this build will not be signed")
 
-                File(moduleOutputDir, "bakacirno").createNewFile()
+                listOf(
+                    "cirno",
+                    "misty"
+                ).forEach { emptyFile ->
+                    File(moduleOutputDir, emptyFile).createNewFile()
+                }
 
                 sha256Sum()
             }
@@ -218,5 +211,8 @@ listOf("debug", "release").forEach { variantName ->
 
 tasks.register("zip") {
     group = "module"
-    dependsOn("zipDebug", "zipRelease")
+    dependsOn(
+        "zipDebug",
+        "zipRelease"
+    )
 }

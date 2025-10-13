@@ -22,5 +22,5 @@ rm -f /data/adb/modules/tricky_store/action.sh
   mv /data/adb/tricky_store/config_backup /data/adb/tsconfig_backup
   rm -rf /data/adb/tricky_store/
   mv /data/adb/tsconfig_backup /data/adb/tricky_store
-  [ ! -f /data/adb/tricky_store/keybox.xml ] && cat /data/adb/ts_enhancer_extreme/keybox.xml > /data/adb/tricky_store/keybox.xml
+  [ ! -f /data/adb/tricky_store/keybox.xml ] && cp -f /data/adb/ts_enhancer_extreme/keybox.xml /data/adb/tricky_store/keybox.xml
 }

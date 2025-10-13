@@ -22,6 +22,6 @@ check
 [ -f "$SD/$D" ] || {
   logp "复制状态检测脚本至执行文件夹"
   mkdir -p "$SD"
-  cat "$TSEEMODDIR/libraries/state.sh" > "$SD/$D"
+  cp -f "$TSEEMODDIR/libraries/state.sh" "$SD/$D"
   chmod +x "$SD/$D"
 }
