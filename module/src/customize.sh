@@ -67,8 +67,8 @@ module.prop
 banner.png
 webui.apk
 action.sh
-cirno
-misty
+bakacirno
+mistylake
 "
 #POST PROCESS#
 BACKUP1="$ADB/tsconfig_backup"

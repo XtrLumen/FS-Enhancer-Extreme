@@ -86,9 +86,6 @@ listOf("debug", "release").forEach { variantName ->
             "${rootProject.projectDir}/README4zh-Hans.md",
             "${rootProject.projectDir}/README4zh-Hant.md"
         )
-        into("webroot") {
-            from("${rootProject.projectDir}/webroot")
-        }
     }
 
     val signModuleTask = tasks.register("signModule$variantCapped") {
@@ -101,52 +98,50 @@ listOf("debug", "release").forEach { variantName ->
 
         doLast {
             fun sha256Sum() {
+                val manifestDir = File(moduleOutputDir, "MANIFEST")
+                manifestDir.mkdirs()
                 moduleOutputDir.walkTopDown().forEach { file ->
                     if (file.isDirectory) return@forEach
                     if (file.name.endsWith(".sha256")) return@forEach
+                    if (file.parentFile?.name == "MANIFEST") return@forEach
                     val md = MessageDigest.getInstance("SHA3-256")
                     file.forEachBlock(4096) { bytes, size ->
                         md.update(bytes, 0, size)
                     }
-                    File(file.path + ".sha256").writeText(md.digest().joinToString("") { "%02x".format(it) })
+                    val relativePath = moduleOutputDir.toPath().relativize(file.toPath())
+                    val sha256File = File(manifestDir, "$relativePath.sha256")
+                    sha256File.parentFile.mkdirs()
+                    sha256File.writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
-
             if (privateKeyFile.exists()) {
                 val publicKey = publicKeyFile.readBytes()
                 val privateKey = privateKeyFile.readBytes()
                 val sigType = Signature.getInstance("ed25519")
-                fun mistySign() {
-                    val set = TreeSet<File> { o1, o2 ->
-                        o1.path.replace("\\", "/")
-                            .compareTo(o2.path.replace("\\", "/"))
-                    }
-
-                    listOf(
-                        "post-fs-data.sh",
-                        "uninstall.sh",
-                        "customize.sh",
-                        "service.dex",
-                        "service.apk",
-                        "service.sh",
-                        "banner.png",
-                        "webui.apk",
-                        "action.sh"
-                    ).forEach { fileName ->
-                        set.add(File(moduleOutputDir, fileName))
-                    }
-
-                    listOf("bin", "lib", "webroot").forEach { dirName ->
-                        File(moduleOutputDir, dirName).walkTopDown().forEach { file ->
-                            if (file.isFile) {
-                                set.add(file)
-                            }
+                fun mistylakeSign() {
+                    val set = LinkedHashSet<File>().apply {
+                        listOf(
+                            "bin/cmd",
+                            "bin/tseed",
+                            "lib/action.sh",
+                            "lib/state.sh",
+                            "lib/util_functions.sh",
+                            "post-fs-data.sh",
+                            "uninstall.sh",
+                            "customize.sh",
+                            "service.apk",
+                            "service.dex",
+                            "service.sh",
+                            "banner.png",
+                            "webui.apk",
+                            "action.sh"
+                        ).forEach { fileName ->
+                            add(File(moduleOutputDir, fileName))
                         }
                     }
 
-                    set.forEach { file ->
-                        val relativePath = file.absolutePath.substring(moduleOutputDir.absolutePath.length)
-                        println(relativePath.replace("\\", "/"))
+                    set.forEach {
+                        println(it.absolutePath.replace("${moduleOutputDir.absolutePath}/", ""))
                     }
 
                     val BLAKE3Builder = StringBuilder()
@@ -175,12 +170,14 @@ listOf("debug", "release").forEach { variantName ->
                     sigType.initSign(KeyFactory.getInstance("ed25519").generatePrivate(EdECPrivateKeySpec(NamedParameterSpec("ed25519"), privateKey)))
                     sigType.update(BLAKE3Hash.toByteArray())
 
-                    File(moduleOutputDir, "cirno").writeBytes(sigType.sign())
+                    File(moduleOutputDir, "bakacirno").writeBytes(sigType.sign())
 
-                    File(moduleOutputDir, "misty").writeBytes(publicKey)
+                    File(moduleOutputDir, "mistylake").writeBytes(publicKey)
                 }
 
-                mistySign()
+                println("=== Guards the peace of Misty Lake ===")
+
+                mistylakeSign()
 
                 sha256Sum()
 
@@ -189,8 +186,8 @@ listOf("debug", "release").forEach { variantName ->
                 println("no private_key found, this build will not be signed")
 
                 listOf(
-                    "cirno",
-                    "misty"
+                    "bakacirno",
+                    "mistylake"
                 ).forEach { emptyFile ->
                     File(moduleOutputDir, emptyFile).createNewFile()
                 }

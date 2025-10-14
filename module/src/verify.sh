@@ -27,8 +27,8 @@ extract() {
     unzip -o "$zip" "$file" -d "$dir" >&2
     file_path="$dir/$file"
     if [ -f "$file_path" ]; then
-      unzip -o "$zip" "$file.sha256" -d "$TMPDIR_FOR_VERIFY" >&2
-      hash_path="$TMPDIR_FOR_VERIFY/$file.sha256"
+      unzip -o "$zip" "MANIFEST/$file.sha256" -d "$TMPDIR_FOR_VERIFY" >&2
+      hash_path="$TMPDIR_FOR_VERIFY/MANIFEST/$file.sha256"
       if [ -f "$hash_path" ]; then
         (echo "$(cat "$hash_path")  $file_path" | sha3sum -a 256 -c -s -) || {
           abort_cn "$file 被篡改!"
