@@ -136,7 +136,7 @@ listOf("debug", "release").forEach { variantName ->
                         set.add(File(moduleOutputDir, fileName))
                     }
 
-                    listOf("libraries", "binaries", "webroot").forEach { dirName ->
+                    listOf("bin", "lib", "webroot").forEach { dirName ->
                         File(moduleOutputDir, dirName).walkTopDown().forEach { file ->
                             if (file.isFile) {
                                 set.add(file)

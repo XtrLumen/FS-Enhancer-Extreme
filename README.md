@@ -33,7 +33,7 @@ Enhances the TrickyStore experience, while providing extreme hiding of detection
 ### TSEE-CLI
 **With the WebUI still under development, it can only be configured manually for now**
 - Invoke function
-  - Execute in the terminal as root: `PATH="/data/adb/modules/ts_enhancer_extreme/binaries:$PATH"`
+  - Execute in the terminal as root: `PATH="/data/adb/modules/ts_enhancer_extreme/bin:$PATH"`
     - Steal Google Hardware Attestation Root Certificate signing keybox: `tseed --stealkeybox` `[Basic |-a|-b|-c| ]`<sup>「[Tricky-Addon](https://github.com/KOWX712/Tricky-Addon-Update-Target-List)」「[Integrity-Box](https://github.com/MeowDump/Integrity-Box)」「[YuriKey-Manager](https://github.com/YurikeyDev/yurikey)」</sup>
     - Fetch the latest security patch level for Pixel update announcements online: `tseed --securitypatchdatefetch`
     - TrickyStore service status reading/control: `tseed --tsctl` `[Basic |-stop|-start|-state| ]`

@@ -34,7 +34,7 @@ TSMODDIR="$MODULESDIR/$TS"
 MULTIPLETYPE="$TSEECONFIG/multiple.txt"
 KERNELTYPE="$TSEECONFIG/kernel.txt"
 TSEELOG="$TSEECONFIG/log/log.log"
-TSEEBIN="$TSEEMODDIR/binaries"
+TSEEBIN="$TSEEMODDIR/bin"
 TYPE="$TSEECONFIG/root.txt"
 #OTHERS#
 ORIGIN=$(basename "$0")
@@ -107,7 +107,7 @@ check() {
     [[ "$ORIGIN" == *"$P"* ]] && {
       logp "环境正常,继续执行"
       mv "$TSEEMODDIR/.webroot" "$TSEEMODDIR/webroot"
-      ln -sf "$TSEEMODDIR/libraries/action.sh" "$TSMODDIR/action.sh"
+      ln -sf "$TSEEMODDIR/lib/action.sh" "$TSMODDIR/action.sh"
       if [[ ! "$APATCH" && ! "$KSU" ]]; then
         mv "$TSEEMODDIR/.action.sh" "$TSEEMODDIR/action.sh"
       else

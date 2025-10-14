@@ -45,10 +45,10 @@ public class ModifyExcute implements Runnable {
                 }
 
                 if (changed) {
-                    logOnce("触发执行包名列表更新&冲突软件排除");
+                    logOnce("更新目标文件&卸载冲突软件");
 
                     try {
-                        ProcessBuilder pb = new ProcessBuilder("/data/adb/modules/ts_enhancer_extreme/binaries/tseed", "--conflictappcheck", "--packagelistupdate");
+                        ProcessBuilder pb = new ProcessBuilder("/data/adb/modules/ts_enhancer_extreme/bin/tseed", "--conflictappcheck", "--packagelistupdate");
                         Process p = pb.start();
                         p.waitFor();
                     } catch (Exception ignored) {}

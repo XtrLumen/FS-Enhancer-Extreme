@@ -55,8 +55,8 @@ TSCONFIG="$ADB/tricky_store"
 TSEECONFIG="$ADB/ts_enhancer_extreme"
 #EXTRACT MODULE FILES#
 FILES="
-libraries/*
-binaries/*
+bin/*
+lib/*
 webroot/*
 post-fs-data.sh
 uninstall.sh
@@ -176,7 +176,7 @@ for FILE in $FILES; do
   extract "$ZIPFILE" "$FILE" "$MODPATH"
 done
 mkdir -p "$SD"
-cp -f "$MODPATH/libraries/state.sh" "$SD/.tsee_state.sh"
+cp -f "$MODPATH/lib/state.sh" "$SD/.tsee_state.sh"
 [[ ! "$APATCH" && ! "$KSU" ]] && {
   pm path com.dergoogler.mmrl.wx > /dev/null 2>&1 || pm path io.github.a13e300.ksuwebui > /dev/null 2>&1 || {
     print_cn "- 安装 WebUI 软件"
@@ -190,8 +190,8 @@ cp -f "$MODPATH/libraries/state.sh" "$SD/.tsee_state.sh"
 print_cn "- 赋予必要权限"
 print_en "- Setting permission"
 chcon u:object_r:shell_data_file:s0 "$MODPATH/service.apk"
-chmod +x "$MODPATH/binaries/tseed"
-chmod +x "$MODPATH/binaries/cmd"
+chmod +x "$MODPATH/bin/tseed"
+chmod +x "$MODPATH/bin/cmd"
 chmod +x "$SD/.tsee_state.sh"
 if [ -d "$TSCONFIG" ]; then
   print_cn "- 备份配置目录"

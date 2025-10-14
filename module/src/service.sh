@@ -15,16 +15,16 @@
 #
 
 cd ${0%/*}
-source "./libraries/util_functions.sh"
+source "./lib/util_functions.sh"
 check
 
 logs "启动后台服务"
 $TSEEBIN/tseed --tseectl -start
 initwait
 [[ $($TSEEBIN/tseed --tseectl -state) == "true" ]] || logs "服务启动失败"
-invoke "调用安全级别同步参数" "--securitypatchpropsync"
-invoke "调用冲突模块排除参数" "--conflictmodcheck -b"
-invoke "调用包名列表更新参数" "--packagelistupdate"
-invoke "调用冲突软件排除参数" "--conflictappcheck"
-invoke "调用引导属性修正参数" "--passpropstate"
-invoke "调用安全启动修正参数" "--passvbhash"
+invoke "更新目标文件" "--packagelistupdate"
+invoke "移除冲突模块" "--conflictmodcheck"
+invoke "卸载冲突软件" "--conflictappcheck"
+invoke "同步安全补丁级别到属性" "--securitypatchpropsync"
+invoke "伪装引导程序状态为锁定" "--passpropstate"
+invoke "修正已验证启动哈希属性" "--passvbhash"

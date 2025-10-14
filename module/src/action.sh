@@ -15,8 +15,8 @@
 #
 
 cd ${0%/*}
-source "./libraries/util_functions.sh"
+source "./lib/util_functions.sh"
 
-echo_cn "- 调用配置页面启动参数"
-echo_en "- Invoke the StartWebUI parameter"
+echo_cn "- 跳转配置页面"
+echo_en "- Start WebUI"
 $TSEEBIN/tseed --startwebui

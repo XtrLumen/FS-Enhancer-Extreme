@@ -37,12 +37,12 @@ public class ConflictCheck implements Runnable {
         File ksuImg = new File("/data/adb/ksu/modules.img");
         if (apImg.exists() || ksuImg.exists()) {
             MONITOR_FILE = new File("/data/adb/modules");
-            LOG_MODE = "触发执行冲突模块检查-OverlayFS";
+            LOG_MODE = "移除冲突模块-OverlayFS模式";
             IMG_EXISTS = true;
             ARG_TYPE = "-o";
         } else {
             MONITOR_FILE = new File("/data/adb/modules_update");
-            LOG_MODE = "触发执行冲突模块检查-MagicMount";
+            LOG_MODE = "移除冲突模块-MagicMount模式";
             IMG_EXISTS = false;
             ARG_TYPE = "-m";
         }
@@ -68,7 +68,7 @@ public class ConflictCheck implements Runnable {
                     logOnce(LOG_MODE);
 
                     try {
-                        ProcessBuilder pb = new ProcessBuilder("/data/adb/modules/ts_enhancer_extreme/binaries/tseed", "--conflictmodcheck", ARG_TYPE);
+                        ProcessBuilder pb = new ProcessBuilder("/data/adb/modules/ts_enhancer_extreme/bin/tseed", "--conflictmodcheck", ARG_TYPE);
                         Process p = pb.start();
                         p.waitFor();
                     } catch (Exception ignored) {}

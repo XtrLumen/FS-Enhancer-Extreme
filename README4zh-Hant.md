@@ -33,21 +33,21 @@
 ### TSEE-CLI
 **WebUI仍在開發中，目前只能手動配置**
 - 調用功能
-  - 於終端以Root身份執行`PATH="/data/adb/modules/ts_enhancer_extreme/binaries:$PATH"`
+  - 於終端以Root身份執行`PATH="/data/adb/modules/ts_enhancer_extreme/bin:$PATH"`
     - 竊取Google硬體認證根憑證簽章的keybox: `tseed --stealkeybox` `[Basic |-a|-b|-c| ]`<sup>「[Tricky-Addon](https://github.com/KOWX712/Tricky-Addon-Update-Target-List)」「[Integrity-Box](https://github.com/MeowDump/Integrity-Box)」「[YuriKey-Manager](https://github.com/YurikeyDev/yurikey)」</sup>
     - 連線拉取Pixel更新公告的最新安全性修補程式等級: `tseed --securitypatchdatefetch`
     - TrickyStore服務狀態讀取/控制: `tseed --tsctl` `[Basic |-stop|-start|-state| ]`
     - TSEnhancerExtreme服務狀態讀取/控制: `tseed --tseectl` `[Basic |-stop|-start|-state| ]`
 - 配置模組
   - 配置目錄路徑: `/data/adb/ts_enhancer_extreme`
-    - 在sys.txt中填入想添加到TrickyStore模組目標檔案的系統程式的套件名稱
-    - 在usr.txt中填入想從TrickyStore模組目標檔案去除的使用者程式的套件名稱
+    - 在sys.txt中填入想添加到TrickyStore模組目標檔案的系統軟體的套件名稱
+    - 在usr.txt中填入想從TrickyStore模組目標檔案去除的使用者軟體的套件名稱
     - 日誌位於`/data/adb/ts_enhancer_extreme/log`，若遇到問題請建立 issue 並附上日誌。
 
 ### WebUI
 - [ ] 日誌監控視窗
-- [ ] 快捷勾選系統程式
-- [ ] 快捷去除使用者程式
+- [ ] 快捷勾選系統軟體
+- [ ] 快捷去除使用者軟體
 - [ ] 從內部儲存空間導入keybox
 - [ ] 調用TrickyStore服務狀態讀取/控制
 - [ ] 調用竊取Google硬體認證根憑證簽章的keybox

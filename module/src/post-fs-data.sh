@@ -15,13 +15,13 @@
 #
 
 cd ${0%/*}
-source "./libraries/util_functions.sh"
-invoke "调用运行环境检查参数" "--rootdetect"
+source "./lib/util_functions.sh"
+invoke "检查运行环境" "--rootdetect"
 check
 
 [ -f "$SD/$D" ] || {
-  logp "复制状态检测脚本至执行文件夹"
+  logp "复制状态检测脚本到自启文件夹"
   mkdir -p "$SD"
-  cp -f "$TSEEMODDIR/libraries/state.sh" "$SD/$D"
+  cp -f "$TSEEMODDIR/lib/state.sh" "$SD/$D"
   chmod +x "$SD/$D"
 }

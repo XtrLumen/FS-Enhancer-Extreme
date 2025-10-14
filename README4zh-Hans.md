@@ -21,7 +21,7 @@
 - [x] 接管TrickyStore模块目标文件，实时更新，优先级高于任何类似模块。
 - [x] 全自动修正异常VerifiedBootHash属性
 - [x] 伪装引导加载程序状态为锁定
-- [x] 将安全补丁级别同步至属性
+- [x] 将安全补丁级别同步到属性
 - [x] 提供谷歌硬件认证根证书签名的keybox<sup>已吊销</sup>
 - [x] 在TrickyStore模块卡片上添加操作按钮，用于更新TrickyStore模块目标文件<sup>即将更改</sup>。
 
@@ -33,21 +33,21 @@
 ### TSEE-CLI
 **WebUI仍在开发中，目前只能手动配置**
 - 调用功能
-  - 于终端以Root身份执行`PATH="/data/adb/modules/ts_enhancer_extreme/binaries:$PATH"`
+  - 于终端以Root身份执行`PATH="/data/adb/modules/ts_enhancer_extreme/bin:$PATH"`
     - 窃取谷歌硬件认证根证书签名的keybox: `tseed --stealkeybox` `[Basic |-a|-b|-c| ]`<sup>「[Tricky-Addon](https://github.com/KOWX712/Tricky-Addon-Update-Target-List)」「[Integrity-Box](https://github.com/MeowDump/Integrity-Box)」「[YuriKey-Manager](https://github.com/YurikeyDev/yurikey)」</sup>
     - 联网拉取Pixel更新公告的最新安全补丁级别: `tseed --securitypatchdatefetch`
     - TrickyStore服务状态读取/控制: `tseed --tsctl` `[Basic |-stop|-start|-state| ]`
     - TSEnhancerExtreme服务状态读取/控制: `tseed --tseectl` `[Basic |-stop|-start|-state| ]`
 - 配置模块
   - 配置目录路径: `/data/adb/ts_enhancer_extreme`
-    - 在sys.txt中填入想添加到TrickyStore模块目标文件的系统程序的包名
-    - 在usr.txt中填入想从TrickyStore模块目标文件去除的用户程序的包名
+    - 在sys.txt中填入想添加到TrickyStore模块目标文件的系统软件的包名
+    - 在usr.txt中填入想从TrickyStore模块目标文件去除的用户软件的包名
     - 日志位于`/data/adb/ts_enhancer_extreme/log`，若遇到问题请创建 issue 并附上日志。
 
 ### WebUI
 - [ ] 日志监控窗口
-- [ ] 快捷去除用户程序
-- [ ] 快捷勾选系统程序
+- [ ] 快捷去除用户软件
+- [ ] 快捷勾选系统软件
 - [ ] 从内部存储导入keybox
 - [ ] 调用TrickyStore服务状态读取/控制
 - [ ] 调用窃取谷歌硬件认证根证书签名的keybox
@@ -59,7 +59,7 @@
 >   - **KernelSU 或 APatch**
 >     - 原生支持
 >   - **Magisk**
->     - 提供跳转至 [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) 或 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) 的操作按钮
+>     - 提供跳转到 [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) 或 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) 的操作按钮
 >       - 在未安装任何 WebUI 独立软件时自动安装 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
 
 ## 致谢
