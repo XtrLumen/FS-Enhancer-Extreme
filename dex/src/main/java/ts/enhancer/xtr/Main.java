@@ -16,6 +16,15 @@
 package ts.enhancer.xtr;
 
 public class Main {
+    public static native boolean jsealer();
+
+    static {
+        System.loadLibrary("sealer");
+        if (!jsealer()) {
+            throw new NullPointerException();
+        }
+    }
+
     public static void main(String[] args) {
         Thread modifyThread = new Thread(new ModifyExcute());
         modifyThread.start();

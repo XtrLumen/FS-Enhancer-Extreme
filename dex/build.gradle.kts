@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "ts.enhancer.xtr"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 24
         targetSdk = 34
@@ -22,16 +22,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
 }
 
-dependencies {
-    implementation("io.github.rctcwyvrn:blake3:1.3")
-}
-
-val variants = listOf("Debug", "Release")
-
-variants.forEach { variantCapped ->
-    val variantLowered = variantCapped.lowercase()
+listOf("Debug", "Release").forEach { variantName ->
+    val variantCapped = variantName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+    val variantLowered = variantName.lowercase()
 
     tasks.register("compileDex$variantCapped") {
         group = "build"
@@ -51,11 +51,11 @@ variants.forEach { variantCapped ->
             if (src.exists()) {
                 dst.parentFile.mkdirs()
                 src.copyTo(dst, overwrite = true)
-                println("Copied classes.dex to $dst")
             }
         }
     }
 }
+
 tasks.register("compileDex") {
     group = "build"
 

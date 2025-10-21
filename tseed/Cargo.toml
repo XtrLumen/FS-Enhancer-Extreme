@@ -1,0 +1,13 @@
+[package]
+name = "tseedemo"
+edition = "2021"
+
+[dependencies]
+libloading = "0.8"
+
+[profile.release]
+lto = true
+strip = true
+debug = false
+panic = "abort"
+opt-level = "z"

@@ -1,22 +1,18 @@
-import java.util.TreeSet
-import java.nio.ByteOrder
-import java.nio.ByteBuffer
 import java.security.Signature
 import java.security.KeyFactory
 import java.security.MessageDigest
 import io.github.rctcwyvrn.blake3.Blake3
 import java.security.spec.EdECPrivateKeySpec
 import java.security.spec.NamedParameterSpec
-import org.apache.tools.ant.filters.FixCrLfFilter
-
-plugins {
-    id("base")
-}
 
 buildscript {
     dependencies {
         classpath("io.github.rctcwyvrn:blake3:1.3")
     }
+}
+
+plugins {
+    id("base")
 }
 
 val moduleId: String by rootProject.extra
@@ -27,19 +23,25 @@ val verCode: Int by rootProject.extra
 val verHash: String by rootProject.extra
 
 listOf("debug", "release").forEach { variantName ->
-    val variantLowered = variantName.lowercase()
     val variantCapped = variantName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-
+    val variantLowered = variantName.lowercase()
     val moduleDir = layout.buildDirectory.dir("outputs/module/$variantLowered")
-    val zipFileName = "$moduleName-$verName-$verCode-$verHash-$variantName.zip".replace(' ', '-')
+    val moduleOutputDir = moduleDir.get().asFile
 
-    val prepareModuleFilesTask = tasks.register<Sync>("prepareModuleFiles$variantCapped") {
+    val prepareModuleFilesTask = tasks.register<Copy>("prepareModuleFiles$variantCapped") {
         group = "module"
+
         dependsOn(
             ":app:assemble$variantCapped",
-            ":dex:compileDex$variantCapped"
+            ":dex:compileDex$variantCapped",
+            ":tseed:buildBin$variantCapped",
+            ":sealer:buildLib$variantCapped"
         )
-        outputs.upToDateWhen {false}
+        doFirst {
+            with(moduleOutputDir) {
+                deleteRecursively()
+            }
+        }
         into(moduleDir)
         from(project(":app").layout.buildDirectory.file("outputs/apk/$variantLowered")) {
             include(
@@ -76,44 +78,53 @@ listOf("debug", "release").forEach { variantName ->
                 "module.prop"
             )
         }
-        from("${rootProject.projectDir}/README.md") {
+        from(rootProject.file("README.md")) {
             rename(
                 "README.md",
                 "README4en-US.md"
             )
         }
         from(
-            "${rootProject.projectDir}/README4zh-Hans.md",
-            "${rootProject.projectDir}/README4zh-Hant.md"
+            rootProject.files(
+                "README4zh-Hans.md",
+                "README4zh-Hant.md"
+            )
         )
+        into("bin") {
+            from(project(":tseed").file("target/aarch64-linux-android/$variantLowered"))
+            include("tseedemo")
+        }
+        into("lib") {
+            from(project(":sealer").file("target/aarch64-linux-android/$variantLowered"))
+            include("libsealer.so")
+        }
     }
 
     val signModuleTask = tasks.register("signModule$variantCapped") {
         group = "module"
         dependsOn(prepareModuleFilesTask)
 
-        val moduleOutputDir = moduleDir.get().asFile
-        val publicKeyFile = File(project.projectDir, "public_key")
-        val privateKeyFile = File(project.projectDir, "private_key")
+        val publicKeyFile = project.file("public_key")
+        val privateKeyFile = project.file("private_key")
 
         doLast {
             fun sha256Sum() {
-                val manifestDir = File(moduleOutputDir, "MANIFEST")
-                manifestDir.mkdirs()
-                moduleOutputDir.walkTopDown().forEach { file ->
-                    if (file.isDirectory) return@forEach
-                    if (file.name.endsWith(".sha256")) return@forEach
-                    if (file.parentFile?.name == "MANIFEST") return@forEach
+                fileTree(moduleDir) {
+                    exclude("MANIFEST")
+                }.visit {
+                    if (isDirectory) return@visit
+
                     val md = MessageDigest.getInstance("SHA3-256")
                     file.forEachBlock(4096) { bytes, size ->
                         md.update(bytes, 0, size)
                     }
-                    val relativePath = moduleOutputDir.toPath().relativize(file.toPath())
-                    val sha256File = File(manifestDir, "$relativePath.sha256")
+
+                    val sha256File = File(moduleOutputDir, "MANIFEST/${file.relativeTo(moduleOutputDir)}.sha256")
                     sha256File.parentFile.mkdirs()
                     sha256File.writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
+            val misty = File(moduleOutputDir, "mistylake")
             if (privateKeyFile.exists()) {
                 val publicKey = publicKeyFile.readBytes()
                 val privateKey = privateKeyFile.readBytes()
@@ -124,15 +135,15 @@ listOf("debug", "release").forEach { variantName ->
                             "bin/cmd",
                             "bin/tseed",
                             "lib/action.sh",
+                            "lib/libsealer.so",
                             "lib/state.sh",
                             "lib/util_functions.sh",
+                            "banner.png",
                             "post-fs-data.sh",
-                            "uninstall.sh",
-                            "customize.sh",
                             "service.apk",
                             "service.dex",
                             "service.sh",
-                            "banner.png",
+                            "uninstall.sh",
                             "webui.apk",
                             "action.sh"
                         ).forEach { fileName ->
@@ -170,12 +181,14 @@ listOf("debug", "release").forEach { variantName ->
                     sigType.initSign(KeyFactory.getInstance("ed25519").generatePrivate(EdECPrivateKeySpec(NamedParameterSpec("ed25519"), privateKey)))
                     sigType.update(BLAKE3Hash.toByteArray())
 
-                    File(moduleOutputDir, "bakacirno").writeBytes(sigType.sign())
+                    val signature = sigType.sign()
 
-                    File(moduleOutputDir, "mistylake").writeBytes(publicKey)
+                    misty.writeBytes(signature.copyOfRange(0, 16))
+                    misty.appendBytes(publicKey.copyOfRange(0, 16))
+                    misty.appendBytes(signature.copyOfRange(16, 48))
+                    misty.appendBytes(publicKey.copyOfRange(16, 32))
+                    misty.appendBytes(signature.copyOfRange(48, 64))
                 }
-
-                println("=== Guards the peace of Misty Lake ===")
 
                 mistylakeSign()
 
@@ -185,12 +198,7 @@ listOf("debug", "release").forEach { variantName ->
             } else {
                 println("no private_key found, this build will not be signed")
 
-                listOf(
-                    "bakacirno",
-                    "mistylake"
-                ).forEach { emptyFile ->
-                    File(moduleOutputDir, emptyFile).createNewFile()
-                }
+                misty.createNewFile()
 
                 sha256Sum()
             }
@@ -200,7 +208,7 @@ listOf("debug", "release").forEach { variantName ->
     tasks.register<Zip>("zip$variantCapped") {
         group = "module"
         dependsOn(signModuleTask)
-        archiveFileName.set(zipFileName)
+        archiveFileName.set("$moduleName-$verName-$verCode-$verHash-$variantName.zip".replace(' ', '-'))
         destinationDirectory.set(layout.buildDirectory.file("outputs/$variantLowered").get().asFile)
         from(moduleDir)
     }

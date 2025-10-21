@@ -1,4 +1,3 @@
-import com.android.build.gradle.internal.tasks.CompileArtProfileTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -15,8 +14,8 @@ val verCode: Int by rootProject.extra
 
 android {
     namespace = "io.github.xtrlumen.vbmeta"
-    buildToolsVersion = "35.0.1"
-    compileSdk = 34
+    buildToolsVersion = "35.0.0"
+    compileSdk = 35
     defaultConfig {
         minSdk = 24
         targetSdk = 34
@@ -35,7 +34,7 @@ android {
             }
         }
     }
-    
+
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
@@ -48,7 +47,7 @@ android {
             proguardFiles("proguard-rules.pro")
         }
     }
-    
+
     kotlin {
         jvmToolchain(21)
     }
@@ -79,13 +78,13 @@ android {
         abortOnError = false
         disable.add("AppCompatResource")
     }
-    
+
     dependenciesInfo {
         includeInApk = false
     }
 }
 
-tasks.withType(CompileArtProfileTask::class.java).configureEach {
+tasks.matching { it.name == "compileArtProfile" }.configureEach {
     enabled = false
 }
 

@@ -1,1 +1,8 @@
-# 空的混淆规则，后续可自定义
+-keepclasseswithmembers class ts.enhancer.xtr.Main {
+    public static void main(java.lang.String[]);
+}
+
+-repackageclasses
+-allowaccessmodification
+-overloadaggressively
+-renamesourcefileattribute SourceFile

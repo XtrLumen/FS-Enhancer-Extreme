@@ -248,7 +248,7 @@ case "$1" in
     ;;
   -start)
     (
-    exec /system/bin/app_process -Djava.class.path="$TSEEMODDIR/service.dex" / --nice-name=TSEnhancerExtreme ts.enhancer.xtr.Main
+    exec /system/bin/app_process -Djava.class.path="$TSEEMODDIR/service.dex" -Djava.library.path="$TSEEMODDIR/lib" / --nice-name=TSEnhancerExtreme ts.enhancer.xtr.Main
     ) &
     ;;
   -state)
@@ -557,6 +557,7 @@ wjw_hiderootauxiliarymod
 RMRFCONFLICT="
 TA_utl
 .TA_utl
+Yamabukiko
 "
 OFSCONFLICT="$RMRFCONFLICT $CONFLICT"
 case "$1" in

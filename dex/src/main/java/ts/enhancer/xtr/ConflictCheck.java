@@ -23,6 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class ConflictCheck implements Runnable {
+    static {
+        System.loadLibrary("sealer");
+        if (!Main.jsealer()) {
+            throw new NullPointerException();
+        }
+    }
 
     private static final String LOG_MODE;
     private static final File MONITOR_FILE;

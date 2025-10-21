@@ -19,6 +19,13 @@ import java.io.*;
 import java.util.*;
 
 public class Logger {
+    static {
+        System.loadLibrary("sealer");
+        if (!Main.jsealer()) {
+            throw new NullPointerException();
+        }
+    }
+
     private static final File LOG_FILE = new File("/data/adb/ts_enhancer_extreme/log/log.log");
     private static final String prefix = " I System.out: [TSEE]<DEX>";
 

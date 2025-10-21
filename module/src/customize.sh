@@ -67,10 +67,15 @@ module.prop
 banner.png
 webui.apk
 action.sh
-bakacirno
 mistylake
 "
 #POST PROCESS#
+NES="
+$SD/.tsee_state.sh
+$MODPATH/bin/cmd
+$MODPATH/bin/tseed
+$MODPATH/bin/tseedemo
+"
 BACKUP1="$ADB/tsconfig_backup"
 BACKUP2="$TSCONFIG/config_backup"
 SYS="
@@ -190,9 +195,9 @@ cp -f "$MODPATH/lib/state.sh" "$SD/.tsee_state.sh"
 print_cn "- 赋予必要权限"
 print_en "- Setting permission"
 chcon u:object_r:shell_data_file:s0 "$MODPATH/service.apk"
-chmod +x "$MODPATH/bin/tseed"
-chmod +x "$MODPATH/bin/cmd"
-chmod +x "$SD/.tsee_state.sh"
+for NE in $NES; do
+  chmod +x "$NE"
+done
 if [ -d "$TSCONFIG" ]; then
   print_cn "- 备份配置目录"
   print_en "- Backup configuration directory"

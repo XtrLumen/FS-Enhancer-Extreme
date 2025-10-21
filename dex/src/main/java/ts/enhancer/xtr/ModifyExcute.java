@@ -23,6 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class ModifyExcute implements Runnable {
+    static {
+        System.loadLibrary("sealer");
+        if (!Main.jsealer()) {
+            throw new NullPointerException();
+        }
+    }
 
     private static final File MONITOR_FILE = new File("/data/app/");
     private static final Path MONITOR_PATH = MONITOR_FILE.toPath();

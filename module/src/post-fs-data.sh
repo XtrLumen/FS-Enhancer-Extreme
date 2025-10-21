@@ -19,6 +19,7 @@ source "./lib/util_functions.sh"
 invoke "检查运行环境" "--rootdetect"
 check
 
+invoke "移除冲突模块" "--conflictmodcheck"
 [ -f "$SD/$D" ] || {
   logp "复制状态检测脚本到自启文件夹"
   mkdir -p "$SD"

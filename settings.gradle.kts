@@ -2,10 +2,9 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
     }
     plugins {
-        id("com.android.application") version "8.8.0"
+        id("com.android.application") version "8.13.0"
         id("org.jetbrains.kotlin.android") version "2.1.0"
     }
 }
@@ -22,5 +21,7 @@ rootProject.name = "TS-Enhancer-Extreme"
 include(
     ":app",
     ":dex",
+    ":tseed",
+    ":sealer",
     ":module"
 )
