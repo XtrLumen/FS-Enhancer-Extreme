@@ -16,7 +16,7 @@
 
 cd ${0%/*}
 source "./lib/util_functions.sh"
-invoke "检查运行环境" "--rootdetect"
+$TSEEBIN/tseed --rootdetect
 check
 
 invoke "移除冲突模块" "--conflictmodcheck"

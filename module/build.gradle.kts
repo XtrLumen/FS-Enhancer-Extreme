@@ -52,15 +52,7 @@ listOf("debug", "release").forEach { variantName ->
                 "service.apk"
             )
         }
-        from(project(":dex").layout.buildDirectory.file("outputs/dex/$variantLowered")) {
-            include(
-                "classes.dex"
-            )
-            rename(
-                "classes.dex",
-                "service.dex"
-            )
-        }
+        from(project(":dex").layout.buildDirectory.file("outputs/dex/$variantLowered"))
         from("$projectDir/src") {
             include(
                 "module.prop"
@@ -104,9 +96,6 @@ listOf("debug", "release").forEach { variantName ->
         group = "module"
         dependsOn(prepareModuleFilesTask)
 
-        val publicKeyFile = project.file("public_key")
-        val privateKeyFile = project.file("private_key")
-
         doLast {
             fun sha256Sum() {
                 fileTree(moduleDir) {
@@ -124,11 +113,12 @@ listOf("debug", "release").forEach { variantName ->
                     sha256File.writeText(md.digest().joinToString("") { "%02x".format(it) })
                 }
             }
+            val privateKeyFile = project.file("private_key")
             val misty = File(moduleOutputDir, "mistylake")
             if (privateKeyFile.exists()) {
-                val publicKey = publicKeyFile.readBytes()
-                val privateKey = privateKeyFile.readBytes()
+                val publicKey = project.file("public_key").readBytes()
                 val sigType = Signature.getInstance("ed25519")
+                val privateKey = privateKeyFile.readBytes()
                 fun mistylakeSign() {
                     val set = LinkedHashSet<File>().apply {
                         listOf(

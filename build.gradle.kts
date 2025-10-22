@@ -5,7 +5,7 @@ val verType by extra("-Beta")
 val verCode by extra(
     providers.exec { 
         commandLine("git", "rev-list", "HEAD", "--count") 
-    }.standardOutput.asText.get().trim().toInt() + 51
+    }.standardOutput.asText.get().trim().toInt() + 50
 )
 val verHash by extra(
     providers.exec { 

@@ -23,44 +23,21 @@ android {
         versionName = verName
     }
 
-    signingConfigs {
-        getByName("debug") {
-            val storeFileProp = properties["storeFile"] as String?
-            if (storeFileProp != null) {
-                storeFile = file(storeFileProp)
-                storePassword = properties["storePassword"] as String?
-                keyAlias = properties["keyAlias"] as String?
-                keyPassword = properties["keyPassword"] as String?
-            }
-        }
-    }
-
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = true
-            isShrinkResources = true
             vcsInfo.include = false
-            signingConfig = signingConfigs.getByName("debug")
             proguardFiles("proguard-rules.pro")
+            signingConfig = android.signingConfigs.getByName("debug")
         }
-    }
-
-    kotlin {
-        jvmToolchain(21)
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    buildFeatures {
-        viewBinding = false
-        buildConfig = true
-        aidl = false
     }
 
     packaging {
@@ -69,23 +46,9 @@ android {
         }
     }
 
-    androidResources {
-        generateLocaleConfig = false
-    }
-
     lint {
         checkReleaseBuilds = false
-        abortOnError = false
-        disable.add("AppCompatResource")
     }
-
-    dependenciesInfo {
-        includeInApk = false
-    }
-}
-
-tasks.matching { it.name == "compileArtProfile" }.configureEach {
-    enabled = false
 }
 
 configurations.configureEach {
