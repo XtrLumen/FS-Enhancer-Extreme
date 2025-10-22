@@ -28,7 +28,7 @@ Enhances the TrickyStore experience, while providing extreme hiding of detection
 ### Other
 - [x] Monitors and displays operating status
 - [x] Displays prompts in zh-Hans or en-US based on system language for runtime status and installation processes
-- [x] Backs up the TrickyStore module configuration directory during installation and restores the backup during uninstallation. Path: `/data/adb/tricky_store/config_backup`
+- [x] Backup the Keybox during installation, and restore the backup during uninstallation. Path: `/data/adb/tricky_store/keybox_backup/keybox.xml`
 
 ### TSEE-CLI
 **With the WebUI still under development, it can only be configured manually for now**

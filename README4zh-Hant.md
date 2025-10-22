@@ -28,7 +28,7 @@
 ### 其他
 - [x] 監控並顯示運行狀態
 - [x] 根據系統語言分別提供zh-Hans/en-US提示: 執行狀態/安裝過程
-- [x] 安裝時備份TrickyStore模組配置目錄，於卸載時恢復備份。路徑：`/data/adb/tricky_store/config_backup`
+- [x] 安裝時備份Keybox，於卸載時恢復備份。路徑：`/data/adb/tricky_store/keybox_backup/keybox.xml`
 
 ### TSEE-CLI
 **WebUI仍在開發中，目前只能手動配置**

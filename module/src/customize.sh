@@ -76,8 +76,8 @@ $MODPATH/bin/cmd
 $MODPATH/bin/tseed
 $MODPATH/bin/tseedemo
 "
-BACKUP1="$ADB/tsconfig_backup"
-BACKUP2="$TSCONFIG/config_backup"
+KEYBOX="$TSCONFIG/keybox.xml"
+BACKUP="$TSCONFIG/keybox_backup"
 SYS="
 com.android.vending
 com.google.android.gsf
@@ -166,6 +166,7 @@ print_cn "- 删除旧版文件"
 print_en "- Delete older version files"
 rm -f "$SD/.tsee_state.sh"
 rm -rf "$ADB/tricky_store_old"
+rm -rf "$TSCONFIG/config_backup"
 rm -f "$TSEECONFIG/hash.txt"
 rm -f "$TSEECONFIG/boothash.txt"
 rm -f "$TSEECONFIG/log/service.log"
@@ -198,25 +199,19 @@ chcon u:object_r:shell_data_file:s0 "$MODPATH/service.apk"
 for NE in $NES; do
   chmod +x "$NE"
 done
-if [ -d "$TSCONFIG" ]; then
-  print_cn "- 备份配置目录"
-  print_en "- Backup configuration directory"
-  rm -rf "$BACKUP2"
-  mv "$TSCONFIG" "$BACKUP1"
-  mkdir -p "$TSCONFIG"
-  mv "$BACKUP1" "$BACKUP2"
-  cp -f "$BACKUP2/tee_status" "$TSCONFIG/tee_status"
-  print_cn "- 重建配置目录"
-  print_en "- Rebuild configuration directory"
-else
-  print_cn "- 配置目录不存在,跳过备份"
-  print_en "- Config directory does not exist, skip backup"
-  print_cn "- 创建配置目录"
-  print_en "- Creating configuration directory"
-fi
-mkdir -p "$TSEECONFIG"
+[ -f "$KEYBOX" ] && {
+  print_cn "- 备份密钥文件"
+  print_en "- Backup keybox file"
+  rm -rf "$BACKUP"
+  mkdir -p "$BACKUP"
+  mv "$KEYBOX" "$BACKUP"
+}
+mkdir -p "$TSCONFIG"
 mkdir -p "$TSEECONFIG/log"
-touch "$TSCONFIG/target.txt"
+print_cn "- 提取密钥文件"
+print_en "- Extract keybox file"
+extract "$ZIPFILE" 'keybox.xml' "$TSEECONFIG"
+cp -f "$TSEECONFIG/keybox.xml" "$KEYBOX"
 [ ! -f "$TSEECONFIG/usr.txt" ] || [ ! -f "$TSEECONFIG/sys.txt" ] && {
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
@@ -255,10 +250,6 @@ touch "$TSCONFIG/target.txt"
 print_cn "- 获取包名添加"
 print_en "- Getting package list & adding target"
 { pm list packages -3 | sed 's/^package://' | grep -vFf "$TSEECONFIG/usr.txt" ; cat "$TSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
-print_cn "- 提取密钥文件"
-print_en "- Extract google signature keybox"
-extract "$ZIPFILE" 'keybox.xml' "$TSEECONFIG"
-cp "$TSEECONFIG/keybox.xml" "$TSCONFIG/keybox.xml"
 ##END##
 
 ##CONFLICT CHECK##
