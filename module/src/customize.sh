@@ -85,8 +85,6 @@ $MODPATH/bin/fseed
 $MODPATH/bin/fsees
 $MODPATH/bin/fseedemo
 "
-KEYBOX="$TSCONFIG/keybox.xml"
-BACKUP="$TSCONFIG/keybox_backup"
 SYS="
 com.android.vending
 com.google.android.gsf
@@ -227,19 +225,11 @@ chcon u:object_r:shell_data_file:s0 "$MODPATH/service.apk"
 for NE in $NES; do
   chmod +x "$NE"
 done
-[ -f "$KEYBOX" ] && {
-  print_cn "- 备份密钥文件"
-  print_en "- Backup keybox file"
-  rm -rf "$BACKUP"
-  mkdir -p "$BACKUP"
-  mv "$KEYBOX" "$BACKUP"
-}
 mkdir -p "$TSCONFIG"
 mkdir -p "$FSEECONFIG/log"
 print_cn "- 提取密钥文件"
 print_en "- Extract keybox file"
 extract "$ZIPFILE" 'keybox.xml' "$FSEECONFIG"
-cp -f "$FSEECONFIG/keybox.xml" "$KEYBOX"
 [ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ] && {
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
