@@ -73,7 +73,6 @@ service.apk
 service.sh
 module.prop
 banner.png
-webui.apk
 action.sh
 mistylake
 "
@@ -209,13 +208,6 @@ for FILE in $FILES; do
 done
 mkdir -p "$SD"
 cp -f "$MODPATH/script/state.sh" "$SD/.fsee_state.sh"
-[ "$Magisk" ] && {
-  pm path com.dergoogler.mmrl.wx > /dev/null 2>&1 || pm path io.github.a13e300.ksuwebui > /dev/null 2>&1 || {
-    print_cn "- 安装 WebUI 软件"
-    print_en "- install WebUI Sortware"
-    pm install "$MODPATH/webui.apk" > /dev/null 2>&1
-  }
-}
 ##END##
 
 ##POST PROCESS##

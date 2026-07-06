@@ -39,7 +39,6 @@ fn verify() -> bool {
         "service.apk",
         "service.sh",
         "uninstall.sh",
-        "webui.apk",
         action
     ];
 

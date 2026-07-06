@@ -144,7 +144,6 @@ listOf(
                             "service.apk",
                             "service.sh",
                             "uninstall.sh",
-                            "webui.apk",
                             "action.sh"
                         ).forEach { fileName ->
                             add(File(moduleDirAsFile, fileName))
