@@ -1,15 +1,7 @@
 name: Build
 
 on:
-  push:
-    branches: '**'
-    paths-ignore:
-      - '**/*.md'
-    tags-ignore:
-      - '**'
-  pull_request:
-    paths-ignore:
-      - '**/*.md'
+  workflow_dispatch:
 
 jobs:
   build:

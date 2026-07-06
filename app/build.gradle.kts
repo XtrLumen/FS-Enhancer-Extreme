@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,19 +12,16 @@ val verCode: Int by rootProject.extra
 
 android {
     namespace = "io.github.xtrlumen.vbmeta"
-    buildToolsVersion = "35.0.0"
-    compileSdk = 35
+    buildToolsVersion = "34.0.0"
+    compileSdk = 34
     defaultConfig {
-        minSdk = 24
+        minSdk = 29
         targetSdk = 34
         versionCode = verCode
         versionName = verName
     }
 
     buildTypes {
-        debug {
-            versionNameSuffix = "-debug"
-        }
         release {
             isMinifyEnabled = true
             vcsInfo.include = false
@@ -35,23 +30,28 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
     packaging {
         resources {
             excludes += setOf("**")
         }
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
     lint {
         checkReleaseBuilds = false
     }
-}
 
-configurations.configureEach {
-    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
-    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    dependenciesInfo {
+        includeInApk = false
+    }
+
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-Xlint:unchecked")
+        options.compilerArgs.add("-Xdiags:verbose")
+    }
 }
