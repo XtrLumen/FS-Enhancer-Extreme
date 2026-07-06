@@ -39,9 +39,9 @@ listOf(
 
         dependsOn(
             ":app:assemble${variantCapped}",
-            ":tseed:buildBind${variantCapped}",
-            ":tsees:buildBins${variantCapped}",
-            ":tseev:buildLib${variantCapped}"
+            ":fseed:buildBind${variantCapped}",
+            ":fsees:buildBins${variantCapped}",
+            ":fseev:buildLib${variantCapped}"
         )
 
         doFirst {
@@ -90,13 +90,13 @@ listOf(
                 )
             )
         into("bin") {
-            from(project(":tseed").file("target/aarch64-linux-android/${variantLowered}"))
-            include("tseedemo")
-            from(project(":tsees").file("target/aarch64-linux-android/${variantLowered}"))
-            include("tsees")
+            from(project(":fseed").file("target/aarch64-linux-android/${variantLowered}"))
+            include("fseedemo")
+            from(project(":fsees").file("target/aarch64-linux-android/${variantLowered}"))
+            include("fsees")
         }
         into("lib") {
-            from(project(":tseev").file("target/aarch64-linux-android/${variantLowered}"))
+            from(project(":fseev").file("target/aarch64-linux-android/${variantLowered}"))
             include("libverify.so")
         }
     }
@@ -134,8 +134,8 @@ listOf(
                     val set = LinkedHashSet<File>().apply {
                         listOf(
                             "bin/cmd",
-                            "bin/tseed",
-                            "bin/tsees",
+                            "bin/fseed",
+                            "bin/fsees",
                             "lib/libverify.so",
                             "script/state.sh",
                             "script/util_functions.sh",

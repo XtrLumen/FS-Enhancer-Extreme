@@ -17,11 +17,11 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TS-Enhancer-Extreme"
+rootProject.name = "FS-Enhancer-Extreme"
 include(
     ":app",
     ":module",
-    ":tseed",
-    ":tsees",
-    ":tseev"
+    ":fseed",
+    ":fsees",
+    ":fseev"
 )

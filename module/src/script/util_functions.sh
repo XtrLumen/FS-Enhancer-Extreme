@@ -1,41 +1,40 @@
 #
-# This file is part of TS-Enhancer-Extreme.
+# This file is part of FS-Enhancer-Extreme.
 #
-# TS-Enhancer-Extreme is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 #
-# TS-Enhancer-Extreme is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with TS-Enhancer-Extreme.
+# You should have received a copy of the GNU General Public License along with this program;
 # If not, see <https://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2025 TheGeniusClub (Organization)
-# Copyright (C) 2025 XtrLumen (Developer)
+# Copyright (C) 2025-2026 XtrLumen
 #
 
 ##VARIABLE##
 #ALIAS#
 TS="tricky_store"
-TSEE="ts_enhancer_extreme"
+FSEE="fs_enhancer_extreme"
 S="service.sh"
-D=".tsee_state.sh"
+D=".fsee_state.sh"
 P="post-fs-data.sh"
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
 MODULESDIR="$ADB/modules"
-TSEECONFIG="$ADB/$TSEE"
+FSEECONFIG="$ADB/$FSEE"
 SD="$ADB/service.d"
 #TWO LEVEL#
-TSEEMODDIR="$MODULESDIR/$TSEE"
+FSEEMODDIR="$MODULESDIR/$FSEE"
 TSMODDIR="$MODULESDIR/$TS"
 #THREE LEVEL#
-MULTIPLETYPE="$TSEECONFIG/multiple.txt"
-KERNELTYPE="$TSEECONFIG/kernel.txt"
-TSEELOG="$TSEECONFIG/log/log.log"
-TSEEBIN="$TSEEMODDIR/bin"
-TYPE="$TSEECONFIG/root.txt"
+MULTIPLETYPE="$FSEECONFIG/multiple.txt"
+KERNELTYPE="$FSEECONFIG/kernel.txt"
+FSEELOG="$FSEECONFIG/log/log.log"
+FSEEBIN="$FSEEMODDIR/bin"
+TYPE="$FSEECONFIG/root.txt"
 #OTHER#
 ORIGIN=$(basename "$0")
 ##END##
@@ -57,7 +56,7 @@ println() {
 echo_cn() { println "CN" "$@"; }
 echo_en() { println "EN" "$@"; }
 #OTHER#
-logout() { echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $1 System.out: [TSEE]$2" >> "$TSEELOG"; }
+logout() { echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $1 System.out: [FSEE]$2" >> "$FSEELOG"; }
 logs() { logout "$1" "<Service>$2"; }
 logd() { logout "$1" "<Service.D>$2"; }
 logp() { logout "$1" "<Post-Fs-Data>$2"; }
@@ -74,7 +73,7 @@ invoke() {
       ;;
   esac
   "$class" "I" "$1"
-  if $TSEEBIN/tseed $2; then
+  if $FSEEBIN/fseed $2; then
     "$class" "I" "完毕"
   else
     "$class" "W" "失败"
@@ -85,8 +84,8 @@ check() {
     case "$ORIGIN" in
       *"$P"*)
         logp "E" "环境异常,拦截执行"
-        mv "$TSEEMODDIR/webroot" "$TSEEMODDIR/.webroot"
-        mv "$TSEEMODDIR/action.sh" "$TSEEMODDIR/.action.sh"
+        mv "$FSEEMODDIR/webroot" "$FSEEMODDIR/.webroot"
+        mv "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
         ;;
       *"$S"*)
         exit
@@ -95,11 +94,11 @@ check() {
   else
     [[ "$ORIGIN" == *"$P"* ]] && {
       logp "I" "环境正常,继续执行"
-      mv "$TSEEMODDIR/.webroot" "$TSEEMODDIR/webroot"
+      mv "$FSEEMODDIR/.webroot" "$FSEEMODDIR/webroot"
       if [[ ! "$APATCH" && ! "$KSU" ]]; then
-        mv "$TSEEMODDIR/.action.sh" "$TSEEMODDIR/action.sh"
+        mv "$FSEEMODDIR/.action.sh" "$FSEEMODDIR/action.sh"
       else
-        mv "$TSEEMODDIR/action.sh" "$TSEEMODDIR/.action.sh"
+        mv "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
       fi
     }
   fi
@@ -123,6 +122,6 @@ initwait() {
 [[ "$ORIGIN" == *"$P"* ]] && {
   rm -f "$MULTIPLETYPE"
   rm -f "$KERNELTYPE"
-  rm -f "$TSEELOG"
+  rm -f "$FSEELOG"
   rm -f "$TYPE"
 }
