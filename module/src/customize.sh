@@ -52,8 +52,10 @@ conflictdes_all() { sed -i "s|^description=.*|description=$DES$WAY|" "/data/adb/
 ADB="/data/adb"
 SD="$ADB/service.d"
 MODULESDIR="$ADB/modules"
-TSCONFIG="$ADB/tricky_store"
+FSCONFIG="$ADB/forgestore"
+FSMODDIR="$MODULESDIR/forgestore"
 FSEECONFIG="$ADB/fs_enhancer_extreme"
+TSEECONFIG="$ADB/ts_enhancer_extreme"
 if [ "$KSU" ]; then
   KernelSU=true
 elif [ "$APATCH" ]; then
@@ -109,6 +111,7 @@ Tricky_store-bm
 Hide_Bootloader
 ShamikoManager
 extreme_hide_root
+ts_enhancer_extreme
 Tricky_Store-xiaoyi
 tricky_store_assistant
 extreme_hide_bootloader
@@ -188,16 +191,8 @@ sleep 1s
 #DELETE OLD FILES#
 print_cn "- 删除旧版文件"
 print_en "- Delete older version files"
-rm -rf "$ADB/tricky_store_old"
-rm -rf "$TSCONFIG/config_backup"
-rm -f "$SD/.fsee_state.sh"
-rm -f "$FSEECONFIG/hash.txt"
-rm -f "$FSEECONFIG/boothash.txt"
-rm -f "$FSEECONFIG/log/service.log"
-rm -f "$FSEECONFIG/log/inotifyd.log"
-rm -f "$FSEECONFIG/log/dex-service.log"
-rm -f "$FSEECONFIG/log/post-fs-data.log"
-rm -f "$MODULESDIR/tricky_store/action.sh"
+rm -rf "$TSEECONFIG"
+rm -f "$FSMODDIR/action.sh"
 ##END##
 
 ##EXTRACT MODULE FILES##
@@ -217,7 +212,7 @@ chcon u:object_r:shell_data_file:s0 "$MODPATH/service.apk"
 for NE in $NES; do
   chmod +x "$NE"
 done
-mkdir -p "$TSCONFIG"
+mkdir -p "$FSCONFIG"
 mkdir -p "$FSEECONFIG/log"
 print_cn "- 提取密钥文件"
 print_en "- Extract keybox file"
@@ -263,9 +258,9 @@ extract "$ZIPFILE" 'keybox.xml' "$FSEECONFIG"
 print_cn "- 获取包名添加"
 print_en "- Getting package list & adding target"
 if [ -f "$FSEECONFIG/blacklist" ]; then
-  cat "$FSEECONFIG/sys.txt" > "$TSCONFIG/target.txt"
+  cat "$FSEECONFIG/sys.txt" > "$FSCONFIG/target.txt"
 else
-  { pm list packages -3 | sed 's/^package://' | grep -vFf "$FSEECONFIG/usr.txt" ; cat "$FSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
+  { pm list packages -3 | sed 's/^package://' | grep -vFf "$FSEECONFIG/usr.txt" ; cat "$FSEECONFIG/sys.txt"; } > "$FSCONFIG/target.txt"
 fi
 ##END##
 
