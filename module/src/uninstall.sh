@@ -14,11 +14,7 @@
 #
 
 rm -rf /data/adb/fs_enhancer_extreme/
+
+rm -f /data/adb/modules/forgestore/action.sh
 rm -f /data/adb/service.d/.fsee_state.sh
 find /data/adb/service.d -empty -delete
-rm -f /data/adb/modules/tricky_store/action.sh
-[ -d /data/adb/tricky_store ] && {
-  cp -f /data/adb/tricky_store/keybox_backup/keybox.xml /data/adb/tricky_store/keybox.xml
-  rm -rf /data/adb/tricky_store/keybox_backup
-  [ ! -f /data/adb/tricky_store/keybox.xml ] && cp -f /data/adb/fs_enhancer_extreme/keybox.xml /data/adb/tricky_store/keybox.xml
-}
