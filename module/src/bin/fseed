@@ -86,12 +86,7 @@ operate() {
     shift
     case "$operation" in
       echo)
-        if [ "$1" = "-n" ]; then
-          shift
-          echo -n "$@"
-        else
-          echo "$@"
-        fi
+        echo "$@"
         ;;
       functions)
         eval "${1%=*}=\"${1#*=}\""
@@ -99,23 +94,22 @@ operate() {
     esac
   }
 }
-functions_cn() { operate "CN" "functions" "$@"; }
-functions_en() { operate "EN" "functions" "$@"; }
-echo_cn() { operate "CN" "echo" "$@"; }
-echo_en() { operate "EN" "echo" "$@"; }
+functions_cn() {
+  operate "CN" "functions" "$@"
+}
+functions_en() {
+  operate "EN" "functions" "$@"
+}
+echo_cn() {
+  operate "CN" "echo" "$@"
+}
+echo_en() {
+  operate "EN" "echo" "$@"
+}
 #OTHER#
 logce() { echo "$2" ; echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $1 System.out: [FSEE]<CLI>$2" >> "$FSEELOG"; }
 logcei() { logce "I" "$1"; }
 logcee() { logce "E" "$1"; }
-detect() {
-  if [ $? -eq 0 ]; then
-    echo_cn "完毕"
-    echo_en "Complete"
-  else
-    echo_cn "失败"
-    echo_en "Failed"
-  fi
-}
 crawl() {
   if command -v curl >/dev/null 2>&1; then
     curl --connect-timeout 10 -Ls "$1"
@@ -350,24 +344,21 @@ startwebui() {
     echo_en -n "- $1"
     shift
     "$@" >/dev/null 2>&1
-    detect
+    if [ $? -eq 0 ]; then
+      echo_cn "完毕"
+      echo_en "Complete"
+    else
+      echo_cn "失败"
+      echo_en "Failed"
+    fi
   )
   if pm path com.dergoogler.mmrl.wx >/dev/null 2>&1; then
     start "WebUI-X已安装,启动..." "WebUI-X installed, Launch..." am start -n com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity -e MOD_ID $FSEE
   elif pm path io.github.a13e300.ksuwebui > /dev/null 2>&1; then
     start "WebUI已安装,启动..." "WebUI-X installed, Launch..." am start -n io.github.a13e300.ksuwebui/.WebUIActivity -e id $FSEE
   else
-    echo_cn -n "- WebUI未安装,执行安装..."
-    echo_en -n "- WebUI not installed. Executing installation..."
-    if pm install "$FSEEMODDIR/webui.apk" >/dev/null 2>&1; then
-      echo_cn "完毕"
-      echo_en "Complete"
-      start "启动..." "Launch..." am start -n io.github.a13e300.ksuwebui/.WebUIActivity -e id $FSEE
-    else
-      echo_cn "失败"
-      echo_en "Failed"
-      exit 1
-    fi
+    echo_cn "- WebUI未安装,启动失败"
+    echo_en "- WebUI not installed, Start failed"
   fi
 }
 
