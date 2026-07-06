@@ -17,12 +17,12 @@ cd ${0%/*}
 source "./script/util_functions.sh"
 check
 
-logs "I" "启动后台服务"
-$FSEEBIN/fseed --fseectl -start
+logI "启动后台服务"
+fseed --fseectl -start
 initwait
-[[ $($FSEEBIN/fseed --fseectl -state) == "true" ]] || logs "E" "服务启动失败"
-invoke "更新目标文件" "--packagelistupdate"
-invoke "卸载冲突软件" "--conflictappcheck"
-invoke "同步安全补丁级别到属性" "--securitypatchpropsync"
-invoke "伪装引导程序状态为锁定" "--passpropstate"
-invoke "修正已验证启动哈希属性" "--passvbhash"
+[[ $(fseed --fseectl -state) == "true" ]] || logE "服务启动失败"
+invoke --packagelistupdate     "更新目标文件"
+invoke --conflictappcheck      "卸载冲突软件"
+invoke --securitypatchpropsync "同步安全补丁级别到属性"
+invoke --passpropstate         "伪装引导程序状态为锁定"
+invoke --passvbhash            "修正已验证启动哈希属性"

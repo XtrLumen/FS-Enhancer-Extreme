@@ -15,13 +15,13 @@
 
 cd ${0%/*}
 source "./script/util_functions.sh"
-$FSEEBIN/fseed --rootdetect
+fseed --rootdetect
 check
 
-invoke "移除冲突模块" "--conflictmodcheck"
-[ -f "$SD/$D" ] || {
-  logp "I" "复制状态检测脚本到自启文件夹"
+invoke --conflictmodcheck "移除冲突模块"
+[ -f "$SD/.fsee_state.sh" ] || {
+  logI "复制状态检测脚本到自启文件夹"
   mkdir -p "$SD"
-  cp -f "$FSEEMODDIR/sh/state.sh" "$SD/$D"
-  chmod +x "$SD/$D"
+  cp -f "$FSEEMODDIR/script/state.sh" "$SD/.fsee_state.sh"
+  chmod +x "$SD/.fsee_state.sh"
 }

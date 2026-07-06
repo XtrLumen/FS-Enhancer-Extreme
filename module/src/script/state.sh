@@ -18,4 +18,4 @@ cd ${0%/*}
 source "../modules/fs_enhancer_extreme/script/util_functions.sh"
 
 initwait
-invoke "刷新运行状态" "--staterefresh"
+invoke --staterefresh "刷新运行状态"
