@@ -1,17 +1,16 @@
 #
-# This file is part of TS-Enhancer-Extreme.
+# This file is part of FS-Enhancer-Extreme.
 #
-# TS-Enhancer-Extreme is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 #
-# TS-Enhancer-Extreme is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 # without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with TS-Enhancer-Extreme.
+# You should have received a copy of the GNU General Public License along with this program;
 # If not, see <https://www.gnu.org/licenses/>.
 #
-# Copyright (C) 2025 TheGeniusClub (Organization)
-# Copyright (C) 2025 XtrLumen (Developer)
+# Copyright (C) 2025-2026 XtrLumen
 #
 
 SKIPUNZIP=1
@@ -54,7 +53,7 @@ ADB="/data/adb"
 SD="$ADB/service.d"
 MODULESDIR="$ADB/modules"
 TSCONFIG="$ADB/tricky_store"
-TSEECONFIG="$ADB/ts_enhancer_extreme"
+FSEECONFIG="$ADB/fs_enhancer_extreme"
 if [ "$KSU" ]; then
   KernelSU=true
 elif [ "$APATCH" ]; then
@@ -80,11 +79,11 @@ mistylake
 "
 #POST PROCESS#
 NES="
-$SD/.tsee_state.sh
+$SD/.fsee_state.sh
 $MODPATH/bin/cmd
-$MODPATH/bin/tseed
-$MODPATH/bin/tsees
-$MODPATH/bin/tseedemo
+$MODPATH/bin/fseed
+$MODPATH/bin/fsees
+$MODPATH/bin/fseedemo
 "
 KEYBOX="$TSCONFIG/keybox.xml"
 BACKUP="$TSCONFIG/keybox_backup"
@@ -123,9 +122,9 @@ RMRFCONFLICT="
 TA_utl
 .TA_utl
 "
-functions_cn DES="此模块与TS-Enhancer-Extreme模块证实冲突,已被添加移除标签,将在"
+functions_cn DES="此模块与FS-Enhancer-Extreme模块证实冲突,已被添加移除标签,将在"
 functions_cn WAY="下一次启动时被移除."
-functions_en DES="This module has been confirmed to conflict with the TS-Enhancer-Extreme module. It has been tagged for removal and will be removed "
+functions_en DES="This module has been confirmed to conflict with the FS-Enhancer-Extreme module. It has been tagged for removal and will be removed "
 functions_en WAY="upon the next boot."
 APPDETECTED=0
 APPCONFLICT="
@@ -186,24 +185,21 @@ elif [ "$Magisk" ]; then
   print_en "- Magisk version: $MAGISK_VER"
 fi
 #PRINT INFORMATION#
-print_cn "- 正在安装模块: TS-Enhancer-Extreme#XtrLumen#$MODULE_VER"
-print_en "- Install module TS-Enhancer-Extreme#XtrLumen#$MODULE_VER"
-print_cn "- 本模块完全免费"
-print_cn "- 如付费途径获取"
-print_cn "- 请直接申请退款"
+print_cn "- 正在安装模块: FS-Enhancer-Extreme $MODULE_VER"
+print_en "- Install module FS-Enhancer-Extreme $MODULE_VER"
 sleep 1s
 #DELETE OLD FILES#
 print_cn "- 删除旧版文件"
 print_en "- Delete older version files"
 rm -rf "$ADB/tricky_store_old"
 rm -rf "$TSCONFIG/config_backup"
-rm -f "$SD/.tsee_state.sh"
-rm -f "$TSEECONFIG/hash.txt"
-rm -f "$TSEECONFIG/boothash.txt"
-rm -f "$TSEECONFIG/log/service.log"
-rm -f "$TSEECONFIG/log/inotifyd.log"
-rm -f "$TSEECONFIG/log/dex-service.log"
-rm -f "$TSEECONFIG/log/post-fs-data.log"
+rm -f "$SD/.fsee_state.sh"
+rm -f "$FSEECONFIG/hash.txt"
+rm -f "$FSEECONFIG/boothash.txt"
+rm -f "$FSEECONFIG/log/service.log"
+rm -f "$FSEECONFIG/log/inotifyd.log"
+rm -f "$FSEECONFIG/log/dex-service.log"
+rm -f "$FSEECONFIG/log/post-fs-data.log"
 rm -f "$MODULESDIR/tricky_store/action.sh"
 ##END##
 
@@ -214,7 +210,7 @@ for FILE in $FILES; do
   extract "$ZIPFILE" "$FILE" "$MODPATH"
 done
 mkdir -p "$SD"
-cp -f "$MODPATH/script/state.sh" "$SD/.tsee_state.sh"
+cp -f "$MODPATH/script/state.sh" "$SD/.fsee_state.sh"
 [ "$Magisk" ] && {
   pm path com.dergoogler.mmrl.wx > /dev/null 2>&1 || pm path io.github.a13e300.ksuwebui > /dev/null 2>&1 || {
     print_cn "- 安装 WebUI 软件"
@@ -239,16 +235,16 @@ done
   mv "$KEYBOX" "$BACKUP"
 }
 mkdir -p "$TSCONFIG"
-mkdir -p "$TSEECONFIG/log"
+mkdir -p "$FSEECONFIG/log"
 print_cn "- 提取密钥文件"
 print_en "- Extract keybox file"
-extract "$ZIPFILE" 'keybox.xml' "$TSEECONFIG"
-cp -f "$TSEECONFIG/keybox.xml" "$KEYBOX"
-[ ! -f "$TSEECONFIG/usr.txt" ] || [ ! -f "$TSEECONFIG/sys.txt" ] && {
+extract "$ZIPFILE" 'keybox.xml' "$FSEECONFIG"
+cp -f "$FSEECONFIG/keybox.xml" "$KEYBOX"
+[ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ] && {
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
-  [ ! -f "$TSEECONFIG/sys.txt" ] && {
-    touch "$TSEECONFIG/sys.txt"
+  [ ! -f "$FSEECONFIG/sys.txt" ] && {
+    touch "$FSEECONFIG/sys.txt"
     echo "$SYS" | awk '
       NF {
           lines[++n] = $0
@@ -260,10 +256,10 @@ cp -f "$TSEECONFIG/keybox.xml" "$KEYBOX"
                   printf "\n"
           }
       }
-    ' > "$TSEECONFIG/sys.txt"
+    ' > "$FSEECONFIG/sys.txt"
   }
-  [ ! -f "$TSEECONFIG/usr.txt" ] && {
-    touch "$TSEECONFIG/usr.txt"
+  [ ! -f "$FSEECONFIG/usr.txt" ] && {
+    touch "$FSEECONFIG/usr.txt"
     echo "$USR" | awk '
       NF {
           lines[++n] = $0
@@ -275,19 +271,19 @@ cp -f "$TSEECONFIG/keybox.xml" "$KEYBOX"
                   printf "\n"
           }
       }
-    ' > "$TSEECONFIG/usr.txt"
+    ' > "$FSEECONFIG/usr.txt"
   }
 }
 [[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && {
-  grep -qx "com.oplus.engineermode" "$TSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$TSEECONFIG/sys.txt"
-  grep -qx "com.coloros.sceneservice" "$TSEECONFIG/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "$TSEECONFIG/sys.txt"
+  grep -qx "com.oplus.engineermode" "$FSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$FSEECONFIG/sys.txt"
+  grep -qx "com.coloros.sceneservice" "$FSEECONFIG/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "$FSEECONFIG/sys.txt"
 }
 print_cn "- 获取包名添加"
 print_en "- Getting package list & adding target"
-if [ -f "$TSEECONFIG/blacklist" ]; then
-  cat "$TSEECONFIG/sys.txt" > "$TSCONFIG/target.txt"
+if [ -f "$FSEECONFIG/blacklist" ]; then
+  cat "$FSEECONFIG/sys.txt" > "$TSCONFIG/target.txt"
 else
-  { pm list packages -3 | sed 's/^package://' | grep -vFf "$TSEECONFIG/usr.txt" ; cat "$TSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
+  { pm list packages -3 | sed 's/^package://' | grep -vFf "$FSEECONFIG/usr.txt" ; cat "$FSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
 fi
 ##END##
 

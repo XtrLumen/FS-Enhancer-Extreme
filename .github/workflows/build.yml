@@ -47,7 +47,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: TS-Enhancer-Extreme
+          name: FS-Enhancer-Extreme
           path: |
             module/build/outputs/release/*.zip
             module/build/outputs/debug/*.zip
