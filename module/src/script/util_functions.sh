@@ -26,9 +26,8 @@ FSEEMODDIR="$MODULESDIR/fs_enhancer_extreme"
 #THREE LEVEL#
 MULTIPLETYPE="$FSEECONFIG/multiple.txt"
 KERNELTYPE="$FSEECONFIG/kernel.txt"
+SINGLETYPE="$FSEECONFIG/root.txt"
 FSEELOG="$FSEECONFIG/log/log.log"
-TYPE="$FSEECONFIG/root.txt"
-FSEEBIN="$FSEEMODDIR/bin"
 #OTHER#
 ORIGIN=$(basename "$0")
 ##END##
@@ -49,44 +48,51 @@ echo_en() {
   println "EN" "$@"
 }
 #OTHER#
-logout() { echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $1 System.out: [FSEE]$2" >> "$FSEELOG"; }
-logs() { logout "$1" "<Service>$2"; }
-logd() { logout "$1" "<Service.D>$2"; }
-logp() { logout "$1" "<Post-Fs-Data>$2"; }
-invoke() {
+fseed() {
+  $FSEEMODDIR/bin/fseed "$@"
+}
+logout() {
   case "$ORIGIN" in
-    *"service.sh"*)
-      class="logs"
-      ;;
     *"post-fs-data.sh"*)
-      class="logp"
+      ID="<Post-Fs-Data>"
+      ;;
+    *"service.sh"*)
+      ID="<Service>"
       ;;
     *".fsee_state.sh"*)
-      class="logd"
+      ID="<Service.D>"
       ;;
   esac
-  "$class" "I" "$1"
-  if $FSEEBIN/fseed $2; then
-    "$class" "I" "完毕"
-  else
-    "$class" "W" "失败"
-  fi
+  LEVEL=$1
+  shift
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL System.out: [FSEE]$ID$@" >> "$FSEELOG"
+}
+logI() {
+  logout "I" "$@"
+}
+logW() {
+  logout "W" "$@"
+}
+logE() {
+  logout "E" "$@"
+}
+initwait() {
+  until [ "$(getprop sys.boot_completed)" -eq 1 ]; do
+    sleep 1s
+  done
 }
 check() {
-  if [ "$(cat "$TYPE")" = "Multiple" ] || [ ! -d "$FSMODDIR" ] || [ -f "$FSMODDIR/disable" ] || sed -n '5p' "$FSMODDIR/module.prop" | grep -q -F "Enginex0"; then
-    case "$ORIGIN" in
-      *"post-fs-data.sh"*)
-        logp "E" "环境异常,拦截执行"
-        mv "$FSEEMODDIR/webroot" "$FSEEMODDIR/.webroot"
-        mv "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
-        ;;
-      *"service.sh"*)
-        exit
-        ;;
-    esac
+  if [ "$(cat "$SINGLETYPE")" = "Multiple" ] || [ ! -d "$FSMODDIR" ] || [ -f "$FSMODDIR/disable" ] || sed -n '5p' "$FSMODDIR/module.prop" | grep -q -F "Enginex0"; then
+    if [[ $ORIGIN == *"post-fs-data.sh"* ]]; then
+      logE "环境异常,拦截执行"
+      mv "$FSEEMODDIR/webroot" "$FSEEMODDIR/.webroot"
+      mv "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
+    else
+      exit
+    fi
   else
     [[ "$ORIGIN" == *"post-fs-data.sh"* ]] && {
-      logp "I" "环境正常,继续执行"
+      logI "环境正常,继续执行"
       mv "$FSEEMODDIR/.webroot" "$FSEEMODDIR/webroot"
       if [[ ! "$APATCH" && ! "$KSU" ]]; then
         mv "$FSEEMODDIR/.action.sh" "$FSEEMODDIR/action.sh"
@@ -96,16 +102,21 @@ check() {
     }
   fi
 }
-initwait() {
-  until [ $(getprop sys.boot_completed) -eq 1 ]; do
-    sleep 1s
-  done
+invoke() {
+  COMMAND=$1
+  shift
+  logI "$@"
+  if fseed $COMMAND; then
+    logI "完毕"
+  else
+    logW "失败"
+  fi
 }
 ##END##
 
 [[ "$ORIGIN" == *"post-fs-data.sh"* ]] && {
   rm -f "$MULTIPLETYPE"
   rm -f "$KERNELTYPE"
+  rm -f "$SINGLETYPE"
   rm -f "$FSEELOG"
-  rm -f "$TYPE"
 }
