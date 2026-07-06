@@ -1,9 +1,10 @@
 import java.security.Signature
 import java.security.KeyFactory
 import java.security.MessageDigest
-import io.github.rctcwyvrn.blake3.Blake3
 import java.security.spec.EdECPrivateKeySpec
 import java.security.spec.NamedParameterSpec
+
+import io.github.rctcwyvrn.blake3.Blake3
 
 buildscript {
     dependencies {
@@ -15,40 +16,47 @@ plugins {
     id("base")
 }
 
-val moduleId: String by rootProject.extra
+val moduleId:   String by rootProject.extra
 val moduleName: String by rootProject.extra
-val verName: String by rootProject.extra
-val verType: String by rootProject.extra
-val verCode: Int by rootProject.extra
-val verHash: String by rootProject.extra
+val verName:    String by rootProject.extra
+val verType:    String by rootProject.extra
+val verCode:       Int by rootProject.extra
+val verHash:    String by rootProject.extra
 
-listOf("debug", "release").forEach { variantName ->
+listOf(
+    "debug",
+    "release"
+).forEach { variantName ->
     val variantCapped = variantName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     val variantLowered = variantName.lowercase()
-    val moduleDir = layout.buildDirectory.dir("outputs/module/$variantLowered")
-    val moduleOutputDir = moduleDir.get().asFile
+    val moduleDir = layout.buildDirectory.dir("outputs/module/${variantLowered}")
+    val moduleDirAsFile = moduleDir.get().asFile
+    val zipFileName = "${moduleName}-${verName}-${verCode}-${verHash}-${variantName}.zip".replace(' ', '-')
 
-    val prepareModuleFilesTask = tasks.register<Copy>("prepareModuleFiles$variantCapped") {
+    val prepareModuleFilesTask = tasks.register<Copy>("prepareModuleFiles${variantCapped}") {
         group = "module"
+        description = "Prepares module files for ${variantName}."
 
         dependsOn(
-            ":app:assemble$variantCapped",
-            ":tseed:buildBind$variantCapped",
-            ":tsees:buildBins$variantCapped",
-            ":tseev:buildLib$variantCapped"
+            ":app:assemble${variantCapped}",
+            ":tseed:buildBind${variantCapped}",
+            ":tsees:buildBins${variantCapped}",
+            ":tseev:buildLib${variantCapped}"
         )
+
         doFirst {
-            with(moduleOutputDir) {
+            with(moduleDirAsFile) {
                 deleteRecursively()
             }
         }
+
         into(moduleDir)
-            from(project(":app").layout.buildDirectory.file("outputs/apk/$variantLowered")) {
+            from(project(":app").layout.buildDirectory.file("outputs/apk/${variantLowered}")) {
                 include(
-                    "app-$variantLowered.apk"
+                    "app-${variantLowered}.apk"
                 )
                 rename(
-                    "app-$variantLowered.apk",
+                    "app-${variantLowered}.apk",
                     "service.apk"
                 )
             }
@@ -59,7 +67,7 @@ listOf("debug", "release").forEach { variantName ->
                 expand(
                     "moduleId" to "$moduleId",
                     "moduleName" to "$moduleName",
-                    "versionName" to "$verName$verType ($verCode-$verHash-$variantLowered)",
+                    "versionName" to "$verName$verType ($verCode-$verHash-${variantLowered})",
                     "versionCode" to "$verCode"
                 )
             }
@@ -82,19 +90,21 @@ listOf("debug", "release").forEach { variantName ->
                 )
             )
         into("bin") {
-            from(project(":tseed").file("target/aarch64-linux-android/$variantLowered"))
+            from(project(":tseed").file("target/aarch64-linux-android/${variantLowered}"))
             include("tseedemo")
-            from(project(":tsees").file("target/aarch64-linux-android/$variantLowered"))
+            from(project(":tsees").file("target/aarch64-linux-android/${variantLowered}"))
             include("tsees")
         }
         into("lib") {
-            from(project(":tseev").file("target/aarch64-linux-android/$variantLowered"))
+            from(project(":tseev").file("target/aarch64-linux-android/${variantLowered}"))
             include("libverify.so")
         }
     }
 
-    val signModuleTask = tasks.register("signModule$variantCapped") {
+    val signModuleFilesTask = tasks.register("signModule${variantCapped}") {
         group = "module"
+        description = "Sign module files for ${variantName}."
+
         dependsOn(prepareModuleFilesTask)
 
         doLast {
@@ -104,18 +114,18 @@ listOf("debug", "release").forEach { variantName ->
                 }.visit {
                     if (isDirectory) return@visit
 
-                    val md = MessageDigest.getInstance("SHA3-256")
+                    val messageDigest = MessageDigest.getInstance("SHA3-256")
                     file.forEachBlock(4096) { bytes, size ->
-                        md.update(bytes, 0, size)
+                        messageDigest.update(bytes, 0, size)
                     }
 
-                    val sha256File = File(moduleOutputDir, "MANIFEST/${file.relativeTo(moduleOutputDir)}.sha256")
+                    val sha256File = File(moduleDirAsFile, "MANIFEST/${file.relativeTo(moduleDirAsFile)}.sha256")
                     sha256File.parentFile.mkdirs()
-                    sha256File.writeText(md.digest().joinToString("") { "%02x".format(it) })
+                    sha256File.writeText(messageDigest.digest().joinToString("") { "%02x".format(it) })
                 }
             }
             val privateKeyFile = project.file("private_key")
-            val misty = File(moduleOutputDir, "mistylake")
+            val mistyFile = File(moduleDirAsFile, "mistylake")
             if (privateKeyFile.exists()) {
                 val publicKey = project.file("public_key").readBytes()
                 val sigType = Signature.getInstance("ed25519")
@@ -137,12 +147,12 @@ listOf("debug", "release").forEach { variantName ->
                             "webui.apk",
                             "action.sh"
                         ).forEach { fileName ->
-                            add(File(moduleOutputDir, fileName))
+                            add(File(moduleDirAsFile, fileName))
                         }
                     }
 
                     set.forEach {
-                        println(it.absolutePath.replace("${moduleOutputDir.absolutePath}/", ""))
+                        println(it.absolutePath.replace("${moduleDirAsFile.absolutePath}/", ""))
                     }
 
                     val BLAKE3Builder = StringBuilder()
@@ -173,11 +183,11 @@ listOf("debug", "release").forEach { variantName ->
 
                     val signature = sigType.sign()
 
-                    misty.writeBytes(signature.copyOfRange(0, 16))
-                    misty.appendBytes(publicKey.copyOfRange(0, 16))
-                    misty.appendBytes(signature.copyOfRange(16, 48))
-                    misty.appendBytes(publicKey.copyOfRange(16, 32))
-                    misty.appendBytes(signature.copyOfRange(48, 64))
+                    mistyFile.writeBytes(signature.copyOfRange(0, 16))
+                    mistyFile.appendBytes(publicKey.copyOfRange(0, 16))
+                    mistyFile.appendBytes(signature.copyOfRange(16, 48))
+                    mistyFile.appendBytes(publicKey.copyOfRange(16, 32))
+                    mistyFile.appendBytes(signature.copyOfRange(48, 64))
                 }
 
                 mistylakeSign()
@@ -188,24 +198,56 @@ listOf("debug", "release").forEach { variantName ->
             } else {
                 println("no private_key found, this build will not be signed")
 
-                misty.createNewFile()
+                mistyFile.createNewFile()
 
                 sha256Sum()
             }
         }
     }
 
-    tasks.register<Zip>("zip$variantCapped") {
+    val zipTask = tasks.register<Zip>("zip${variantCapped}") {
         group = "module"
-        dependsOn(signModuleTask)
-        archiveFileName.set("$moduleName-$verName-$verCode-$verHash-$variantName.zip".replace(' ', '-'))
-        destinationDirectory.set(layout.buildDirectory.file("outputs/$variantLowered").get().asFile)
+        description = "Create module zip for ${variantCapped}."
+
+        dependsOn(signModuleFilesTask)
+
+        archiveFileName.set(zipFileName)
+        destinationDirectory.set(layout.buildDirectory.file("outputs/${variantLowered}").get().asFile)
         from(moduleDir)
+    }
+
+    val pushTask = tasks.register<Exec>("push${variantCapped}") {
+        group = "module"
+        description = "Push module to device."
+
+        dependsOn(zipTask)
+
+        commandLine("adb", "push", zipTask.get().archiveFile.get().asFile, "/data/local/tmp")
+    }
+
+    tasks.register<Exec>("Magisk${variantCapped}") {
+        group = "module"
+        description = "Installs module via Magisk."
+
+        dependsOn(pushTask)
+
+        commandLine("adb", "shell", "su", "-c", "magisk --install-module /data/local/tmp/${zipFileName}")
+    }
+
+    tasks.register<Exec>("KernelSU${variantCapped}") {
+        group = "module"
+        description = "Installs module via KernelSU."
+
+        dependsOn(pushTask)
+
+        commandLine("adb", "shell", "su", "-c", "ksud module install /data/local/tmp/${zipFileName}")
     }
 }
 
 tasks.register("zip") {
     group = "module"
+    description = "Create module zip for Github Release."
+
     dependsOn(
         "zipDebug",
         "zipRelease"
