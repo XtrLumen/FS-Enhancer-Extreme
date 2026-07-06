@@ -57,7 +57,6 @@ Enhances the ForgeStore experience, while providing extreme hiding of detection 
 >     - Native support
 >   - **Magisk** 
 >     - Provide action button to navigate to [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) or [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
->       - Automatically install [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) when no WebUI standalone software is installed
 
 ## Acknowledgement
 - [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff)

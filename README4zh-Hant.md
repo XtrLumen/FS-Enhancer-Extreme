@@ -57,7 +57,6 @@
 >     - 原生支援
 >   - **Magisk**
 >     - 提供跳轉至 [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) 或 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) 的操作按鈕
->       - 在未安裝任何 WebUI 獨立軟體時自動安裝 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
 
 ## 致謝
 - [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff)
