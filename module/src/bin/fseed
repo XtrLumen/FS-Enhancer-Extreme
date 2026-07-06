@@ -438,9 +438,9 @@ stealkeybox() {
 Usage: fseed stealkeybox <Basic arguments>
 
 Arguments:
-  -a (By Tricky Addon)
-  -b (By Integrity Box)
-  -c (By YuriKey Manager)
+  -a (By STUB)
+  -b (By STUB)
+  -c (By STUB)
 
 Options:
   -h, -help"
@@ -450,99 +450,13 @@ Options:
       help
       ;;
     -a)
-      MAINLINK="https://raw.githubusercontent.com/KOWX712/Tricky-Addon-Update-Target-List/main/.extra"
-      SPARELINK="https://raw.gitmirror.com/KOWX712/Tricky-Addon-Update-Target-List/main/.extra"
-      echo -n "- 下载文件..."
-      if crawl "$MAINLINK" > "$TMPDIR/keybox.hex" || crawl "$SPARELINK" > "$TMPDIR/keybox.hex"; then
-        echo "完毕"
-      else
-        echo "失败"
-        exit 1
-      fi
-      echo -n "- 解码密钥..."
-      echo "$(printf "$(sed 's/\(..\)/\\x\1/g' "$TMPDIR/keybox.hex")" | tr -d '\0' | base64 -d)" > "$TMPDIR/keybox.xml"
-      if grep -q -F -e "-----BEGIN EC PRIVATE KEY-----" "$TMPDIR/keybox.xml"; then
-        echo "完毕"
-      else
-        echo "失败"
-        exit 1
-      fi
-      echo -n "- 写出文件..."
-      [ -f "$TSCONFIG/keybox.xml" ] && mv "$TSCONFIG/keybox.xml" "$TSCONFIG/keybox.xml.bak"
-      if mv "$TMPDIR/keybox.xml" "$TSCONFIG/keybox.xml"; then
-        echo "完毕"
-      else
-        [ -f "$TSCONFIG/keybox.xml.bak" ] && mv "$TSCONFIG/keybox.xml.bak" "$TSCONFIG/keybox.xml"
-        echo "失败"
-        exit 1
-      fi
-      echo "- 清理缓存"
-      rm -f "$TMPDIR/keybox.hex"
-      rm -f "$TMPDIR/keybox.bin"
+      echo "-a"
       ;;
     -b)
-      MAINLINK="https://raw.githubusercontent.com/MeowDump/MeowDump/refs/heads/main/NullVoid/ShockWave.tar"
-      SPARELINK="https://raw.gitmirror.com/MeowDump/MeowDump/refs/heads/main/NullVoid/ShockWave.tar"
-      echo -n "- 下载文件..."
-      if crawl "$MAINLINK" > "$TMPDIR/keybox.b64" || crawl "$SPARELINK" > "$TMPDIR/keybox.b64"; then
-        echo "完毕"
-      else
-        echo "失败"
-        exit 1
-      fi
-      echo -n "- 解码密钥..."
-      base64 -d "$TMPDIR/keybox.b64" | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | xxd -r -p | tr 'A-Za-z' 'N-ZA-Mn-za-m' > "$TMPDIR/keybox.xml"
-      for WORD in every soul will taste death; do
-        sed -i "s/$WORD//g" "$TMPDIR/keybox.xml"
-      done
-      if grep -q -F -e "-----BEGIN EC PRIVATE KEY-----" "$TMPDIR/keybox.xml"; then
-        echo "完毕"
-      else
-        echo "失败"
-        exit 1
-      fi
-      echo -n "- 写出文件..."
-      [ -f "$TSCONFIG/keybox.xml" ] && mv "$TSCONFIG/keybox.xml" "$TSCONFIG/keybox.xml.bak"
-      if mv "$TMPDIR/keybox.xml" "$TSCONFIG/keybox.xml"; then
-        echo "完毕"
-      else
-        [ -f "$TSCONFIG/keybox.xml.bak" ] && mv "$TSCONFIG/keybox.xml.bak" "$TSCONFIG/keybox.xml"
-        echo "失败"
-        exit 1
-      fi
-      echo "- 清理缓存"
-      rm -f "$TMPDIR/keybox.b64"
+      echo "-b"
       ;;
     -c)
-      MAINLINK="https://raw.githubusercontent.com/Yurii0307/yurikey/main/key"
-      SPARELINK="https://raw.gitmirror.com/Yurii0307/yurikey/main/key"
-      echo -n "- 下载文件..."
-      if crawl "$MAINLINK" > "$TMPDIR/keybox.bin" || crawl "$SPARELINK" > "$TMPDIR/keybox.bin"; then
-        echo "完毕"
-      else
-        echo "失败"
-        exit 1
-      fi
-      echo -n "- 解码密钥..."
-      base64 -d "$TMPDIR/keybox.bin" > "$TMPDIR/keybox.xml"
-      if grep -q -F -e "-----BEGIN EC PRIVATE KEY-----" "$TMPDIR/keybox.xml"; then
-        echo "完毕"
-      else
-        echo "失败"
-        exit 1
-      fi
-      echo -n "- 写出文件..."
-      [ -f "$TSCONFIG/keybox.xml" ] && mv "$TSCONFIG/keybox.xml" "$TSCONFIG/keybox.xml.bak"
-      if mv "$TMPDIR/keybox.xml" "$TSCONFIG/keybox.xml"; then
-        echo "完毕"
-      else
-        [ -f "$TSCONFIG/keybox.xml.bak" ] && mv "$TSCONFIG/keybox.xml.bak" "$TSCONFIG/keybox.xml"
-        echo "失败"
-        exit 1
-      fi
-      echo "- 清理缓存"
-      rm -f "$TMPDIR/keybox.bin"
-      rm -f "$TMPDIR/keybox.sh"
+      echo "-c"
       ;;
     *) error "$1" "stealkeybox <Basic arguments>" "-help";;
   esac
