@@ -629,6 +629,12 @@ securitypatchdatefetch() {
   fi
 }
 
+isEnvironmentNormal() {
+  [ "$(cat "$SINGLETYPE")" = "Multiple" ] || [ ! -d "$FSMODDIR" ] || [ -f "$FSMODDIR/disable" ] || sed -n '5p' "$FSMODDIR/module.prop" | grep -q -F "Enginex0" && {
+    exit 0
+  }
+}
+
 case "$1:$2" in
   "--conflictmodcheck:-s") conflictmodcheck -servicemode; exit 0;;
   "--packagelistupdate:-a") packagelistupdate -action; exit ;;
@@ -654,6 +660,7 @@ for ARG in "$@"; do
     --conflictmodcheck) conflictmodcheck; exit 0;;
     --securitypatchpropsync) securitypatchpropsync ;;
     --securitypatchdatefetch) securitypatchdatefetch ;;
+    --isEnvironmentNormal) isEnvironmentNormal ;;
     *) error "$ARG" "<Arguments> <Extra arguments>" "--help";;
   esac
 done

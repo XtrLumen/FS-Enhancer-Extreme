@@ -21,8 +21,13 @@ logI "启动后台服务"
 fseed --fseectl -start
 initwait
 [[ $(fseed --fseectl -state) == "true" ]] || logE "服务启动失败"
-invoke --packagelistupdate     "更新目标文件"
-invoke --conflictappcheck      "卸载冲突软件"
-invoke --securitypatchpropsync "同步安全补丁级别到属性"
-invoke --passpropstate         "伪装引导程序状态为锁定"
-invoke --passvbhash            "修正已验证启动哈希属性"
+logI "更新目标文件"
+invoke --packagelistupdate
+logI "卸载冲突软件"
+invoke --conflictappcheck
+logI "同步安全补丁级别到属性"
+invoke --securitypatchpropsync
+logI "伪装引导程序状态为锁定"
+invoke --passpropstate
+logI "修正已验证启动哈希属性"
+invoke --passvbhash

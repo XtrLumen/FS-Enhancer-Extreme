@@ -39,7 +39,7 @@
     - FSEnhancerExtreme後台服務狀態檢測/停止進程/啟動服務: `fseed --fseectl` `[-stop|-start|-state]`
 - 配置
   - 配置目錄路徑: `/data/adb/fs_enhancer_extreme`
-  - 日誌檔案路徑`/data/adb/fs_enhancer_extreme/log`，若遇到問題，請建立 issue 並附上日誌。
+  - 日誌檔案路徑`/data/adb/fs_enhancer_extreme/log/log.log`，若遇到問題，請建立 issue 並附上日誌。
 
 ### WebUI
 - 導出日誌
