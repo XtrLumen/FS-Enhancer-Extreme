@@ -13,11 +13,13 @@
 # Copyright (C) 2025-2026 XtrLumen
 #
 
-SKIPUNZIP=1
-MIN_RELEASE=10
-RELEASE=$(grep_get_prop ro.build.version.release)
-MODULE_VER=$(grep_prop version "$TMPDIR/module.prop")
-[[ "$(grep_get_prop persist.sys.locale)" == *"zh"* || "$(grep_get_prop ro.product.locale)" == *"zh"* ]] && LOCALE="CN" || LOCALE="EN"
+##FUNCTIONS##
+#MULTILINGUAL#
+if [[ "$(getprop persist.sys.locale)" == *"zh"* || "$(getprop ro.product.locale)" == *"zh"* ]]; then
+  LOCALE="CN"
+else
+  LOCALE="EN"
+fi
 operate() {
   [ "$LOCALE" = "$1" ] && {
     shift
@@ -46,16 +48,24 @@ abort_cn() { operate "CN" "abort_verify" "$@"; }
 abort_en() { operate "EN" "abort_verify" "$@"; }
 functions_cn() { operate "CN" "functions" "$@"; }
 functions_en() { operate "EN" "functions" "$@"; }
+#OTHER#
 conflictdes_all() { sed -i "s|^description=.*|description=$DES$WAY|" "/data/adb/modules/$MODULE/module.prop"; }
-#VARIABLE#
+##END##
+
+##VARIABLE##
+#INSTALL PROCESS#
+SKIPUNZIP=1
 #PUBLIC#
+#ZERO LEVEL#
 ADB="/data/adb"
-SD="$ADB/service.d"
+#ONE LEVEL#
 MODULESDIR="$ADB/modules"
-FSCONFIG="$ADB/forgestore"
-FSMODDIR="$MODULESDIR/forgestore"
-FSEECONFIG="$ADB/fs_enhancer_extreme"
-TSEECONFIG="$ADB/ts_enhancer_extreme"
+FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
+#TWO LEVEL#
+FSEECONFIG="$FSEECONFIGDIR/config"
+#CHECK ENVIRONMENT#
+MIN_RELEASE=10
+RELEASE=$(grep_get_prop ro.build.version.release)
 if [ "$KSU" ]; then
   KernelSU=true
 elif [ "$APATCH" ]; then
@@ -63,24 +73,24 @@ elif [ "$APATCH" ]; then
 elif [ "$MAGISK_VER" ]; then
   Magisk=true
 fi
+#PRINT INFORMATION#
+MODULE_VER=$(grep_prop version "$TMPDIR/module.prop")
 #EXTRACT MODULE FILES#
 FILES="
 bin/*
 lib/*
 script/*
-webroot/*
+action.sh
+banner.png
+mistylake
+module.prop
 post-fs-data.sh
-uninstall.sh
 provider.apk
 service.sh
-module.prop
-banner.png
-action.sh
-mistylake
+uninstall.sh
 "
 #POST PROCESS#
 NES="
-$SD/.fsee_state.sh
 $MODPATH/bin/cmd
 $MODPATH/bin/fseed
 $MODPATH/bin/fsees
@@ -158,11 +168,13 @@ source "$TMPDIR/verify.sh"
   print_en "! Minimal supported android version is $MIN_RELEASE"
   abort "***********************************************"
 }
-[ -f "$ADB/.overlayfs_enable" ] || { [ -f "$ADB/ksu/mount_system" ] && cat "$ADB/ksu/mount_system" | grep -q "OVERLAYFS"; } && {
+[ -f "$ADB/.overlayfs_enable" ] || {
+  [ -f "$ADB/ksu/mount_system" ] && cat "$ADB/ksu/mount_system" | grep -q "OVERLAYFS"
+} && {
   ui_print "***********************************************"
   print_cn "! 不受支持的挂载系统 OverlayFS"
   print_cn "! 由于冲突模块排除功能在此模式无法正常工作"
-  print_cn "! 请切换到魔术挂载系统或元模块挂载系统后再次安装"
+  print_cn "! 请切换到 Magic Mount 挂载系统或元模块挂载系统后再次安装"
   print_en "! Unsupported mount system: OverlayFS"
   print_en "! Conflict module exclusion cannot work in this mode"
   print_en "! Please switch to Magic Mount mount system or Meta Module mount system before installing again"
@@ -191,8 +203,7 @@ sleep 1s
 #DELETE OLD FILES#
 print_cn "- 删除旧版文件"
 print_en "- Delete older version files"
-rm -rf "$TSEECONFIG"
-rm -f "$FSMODDIR/action.sh"
+rm -f "$ADB/service.d/.fsee_state.sh"
 ##END##
 
 ##EXTRACT MODULE FILES##
@@ -201,8 +212,6 @@ print_en "- Extracting module files"
 for FILE in $FILES; do
   extract "$ZIPFILE" "$FILE" "$MODPATH"
 done
-mkdir -p "$SD"
-cp -f "$MODPATH/script/state.sh" "$SD/.fsee_state.sh"
 ##END##
 
 ##POST PROCESS##
@@ -212,55 +221,48 @@ chcon u:object_r:shell_data_file:s0 "$MODPATH/provider.apk"
 for NE in $NES; do
   chmod +x "$NE"
 done
-mkdir -p "$FSCONFIG"
+mkdir -p "$FSEECONFIG"
 print_cn "- 提取密钥文件"
 print_en "- Extract keybox file"
 extract "$ZIPFILE" 'keybox.xml' "$FSEECONFIG"
-[ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ] && {
+if [ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ]; then
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
-  [ ! -f "$FSEECONFIG/sys.txt" ] && {
+  [ -f "$FSEECONFIG/sys.txt" ] || {
     touch "$FSEECONFIG/sys.txt"
     echo "$SYS" | awk '
       NF {
-          lines[++n] = $0
+        lines[++n] = $0
       }
       END {
-          for (i = 1; i <= n; i++) {
-              printf "%s", lines[i]
-              if (i < n)
-                  printf "\n"
-          }
+        for (i = 1; i <= n; i++) {
+          printf "%s", lines[i]
+            if (i < n)
+              printf "\n"
+        }
       }
     ' > "$FSEECONFIG/sys.txt"
   }
-  [ ! -f "$FSEECONFIG/usr.txt" ] && {
+  [ -f "$FSEECONFIG/usr.txt" ] || {
     touch "$FSEECONFIG/usr.txt"
     echo "$USR" | awk '
       NF {
-          lines[++n] = $0
+        lines[++n] = $0
       }
       END {
-          for (i = 1; i <= n; i++) {
-              printf "%s", lines[i]
-              if (i < n)
-                  printf "\n"
-          }
+        for (i = 1; i <= n; i++) {
+          printf "%s", lines[i]
+            if (i < n)
+              printf "\n"
+        }
       }
     ' > "$FSEECONFIG/usr.txt"
   }
-}
+fi
 [[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && {
   grep -qx "com.oplus.engineermode" "$FSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$FSEECONFIG/sys.txt"
   grep -qx "com.coloros.sceneservice" "$FSEECONFIG/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "$FSEECONFIG/sys.txt"
 }
-print_cn "- 获取包名添加"
-print_en "- Getting package list & adding target"
-if [ -f "$FSEECONFIG/blacklist" ]; then
-  cat "$FSEECONFIG/sys.txt" > "$FSCONFIG/target.txt"
-else
-  { pm list packages -3 | sed 's/^package://' | grep -vFf "$FSEECONFIG/usr.txt" ; cat "$FSEECONFIG/sys.txt"; } > "$FSCONFIG/target.txt"
-fi
 ##END##
 
 ##CONFLICT CHECK##

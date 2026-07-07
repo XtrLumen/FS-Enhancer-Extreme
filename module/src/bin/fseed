@@ -50,21 +50,16 @@ For more information, try '"$3"'."
 [ $# -eq 0 ] && help && exit 2
 
 ##VARIABLE##
-#ALIAS#
-TS="tricky_store"
-FSEE="fs_enhancer_extreme"
-S="service.sh"
-D=".fsee_state.sh"
-P="post-fs-data.sh"
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
-TSCONFIG="$ADB/$TS"
-FSEECONFIG="$ADB/$FSEE"
+FSCONFIG="$ADB/forgestore"
+FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
 MODULESDIR="$ADB/modules"
 #TWO LEVEL#
-FSEEMODDIR="$MODULESDIR/$FSEE"
-TSMODDIR="$MODULESDIR/$TS"
+FSEECONFIG="$FSEECONFIG/config"
+FSEEMODDIR="$MODULESDIR/fs_enhancer_extreme"
+TSMODDIR="$MODULESDIR/forgestore"
 #THREE LEVEL#
 MULTIPLETYPE="$FSEECONFIG/multiple.txt"
 KERNELTYPE="$FSEECONFIG/kernel.txt"
@@ -330,9 +325,9 @@ conflictappcheck() {
 
 packagelistupdate() {
   if [ -f "$FSEECONFIG/blacklist" ]; then
-    cat "$FSEECONFIG/sys.txt" > "$TSCONFIG/target.txt"
+    cat "$FSEECONFIG/sys.txt" > "$FSCONFIG/target.txt"
   else
-    { pm list packages -3 | sed 's/^package://' | grep -vFf "$FSEECONFIG/usr.txt" ; cat "$FSEECONFIG/sys.txt"; } > "$TSCONFIG/target.txt"
+    { pm list packages -3 | sed 's/^package://' | grep -vFf "$FSEECONFIG/usr.txt" ; cat "$FSEECONFIG/sys.txt"; } > "$FSCONFIG/target.txt"
   fi
 }
 
@@ -353,9 +348,9 @@ startwebui() {
     fi
   )
   if pm path com.dergoogler.mmrl.wx >/dev/null 2>&1; then
-    start "WebUI-X已安装,启动..." "WebUI-X installed, Launch..." am start -n com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity -e MOD_ID $FSEE
+    start "WebUI-X已安装,启动..." "WebUI-X installed, Launch..." am start -n com.dergoogler.mmrl.wx/.ui.activity.webui.WebUIActivity -e MOD_ID fs_enhancer_extreme
   elif pm path io.github.a13e300.ksuwebui > /dev/null 2>&1; then
-    start "WebUI已安装,启动..." "WebUI-X installed, Launch..." am start -n io.github.a13e300.ksuwebui/.WebUIActivity -e id $FSEE
+    start "WebUI已安装,启动..." "WebUI-X installed, Launch..." am start -n io.github.a13e300.ksuwebui/.WebUIActivity -e id fs_enhancer_extreme
   else
     echo_cn "- WebUI未安装,启动失败"
     echo_en "- WebUI not installed, Start failed"
@@ -597,7 +592,7 @@ Options:
 }
 
 securitypatchpropsync() {
-  SP="$TSCONFIG/security_patch.txt"
+  SP="$FSCONFIG/security_patch.txt"
   [ ! -f "$SP" ] && logcee "文件不存在" && exit 1
   RAW="$(grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' "$SP")"
   if [ -n "$RAW" ]; then
@@ -622,7 +617,7 @@ securitypatchdatefetch() {
   if [ -n "$DATE" ]; then
     logcei "拉取成功"
     DATE=${DATE//-/}
-    printf "%s" "$DATE" > "$TSCONFIG/security_patch.txt"
+    printf "%s" "$DATE" > "$FSCONFIG/security_patch.txt"
   elif ! ping -c 1 -W 5 "source.android.com" >/dev/null 2>&1; then
     logcee "拉取失败"
     exit 1

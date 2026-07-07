@@ -28,7 +28,6 @@ Enhances the ForgeStore experience, while providing extreme hiding of detection 
 ### Other
 - Display the running environment and startup results in the module description
 - Display zh-Hans or en-US according to the system language: Running Status or Installation Process
-- Backup the Keybox during installation, and restore the backup during uninstallation. Path: `/data/adb/tricky_store/keybox_backup/keybox.xml`
 
 ### FSEE-CLI
 - Invoke
@@ -38,7 +37,7 @@ Enhances the ForgeStore experience, while providing extreme hiding of detection 
     - ForgeStore Background Service Stop Process / Start Service / Status Check: `fseed --tsctl` `[-stop|-start|-state]`
     - FSEnhancerExtreme Background Service Stop Process / Start Service / Status Check: `fseed --fseectl` `[-stop|-start|-state]`
 - Configuration
-  - Config directory path: `/data/adb/fs_enhancer_extreme`
+  - Config directory path: `/data/adb/fs_enhancer_extreme/config`
   - Log file path: `/data/adb/fs_enhancer_extreme/log/log.log`. If you encounter problems, please create an issue and attach the logs.
 
 ### WebUI
