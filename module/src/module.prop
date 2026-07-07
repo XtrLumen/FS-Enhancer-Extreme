@@ -3,6 +3,6 @@ name=${moduleName}
 version=${versionName}
 versionCode=${versionCode}
 author=XtrLumen
-description=[🔄Need Reboot]Enhances the TrickyStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
+description=[🔄Need Reboot]Enhances the ForgeStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
 updateJson=https://xtrlumen.github.io/FS-Enhancer-Extreme/update.json
 banner=banner.png
