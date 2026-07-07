@@ -17,13 +17,13 @@
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
+FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
 FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
 #TWO LEVEL#
-FSEELOG="$LOGDIR/log.log"
-LOGDIR="$FSEECONFIGDIR/log"
-OLDLOG="$FSEECONFIGDIR/log.old"
 FSEECONFIG="$FSEECONFIGDIR/config"
-FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
+OLDLOG="$FSEECONFIGDIR/log.old"
+LOGDIR="$FSEECONFIGDIR/log"
+FSEELOG="$LOGDIR/log.log"
 #OTHER#
 isPostFsData=false
 isServiceD=false

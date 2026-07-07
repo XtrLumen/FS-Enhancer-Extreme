@@ -53,19 +53,19 @@ For more information, try '"$3"'."
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
-FSCONFIG="$ADB/forgestore"
+FSCONFIG="$ADB/forge_store"
 FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
 MODULESDIR="$ADB/modules"
 #TWO LEVEL#
-FSEECONFIG="$FSEECONFIG/config"
-FSEEMODDIR="$MODULESDIR/fs_enhancer_extreme"
-TSMODDIR="$MODULESDIR/forgestore"
+FSEECONFIG="$FSEECONFIGDIR/config"
+FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
+TSMODDIR="$MODULESDIR/forge_store"
 #THREE LEVEL#
 MULTIPLETYPE="$FSEECONFIG/multiple.txt"
 KERNELTYPE="$FSEECONFIG/kernel.txt"
-FSEELOG="$FSEECONFIG/log/log.log"
+SINGLETYPE="$FSEECONFIG/root.txt"
 FSEEBIN="$FSEEMODDIR/bin"
-TYPE="$FSEECONFIG/root.txt"
+FSEELOG="$FSEECONFIGDIR/log/log.log"
 #OTHERS#
 BACK="$PATH"
 PATH="$FSEEBIN:$PATH"
@@ -160,7 +160,7 @@ rootdetect() {
     ROOT="Magisk"
   fi
   [ -z "$ROOT" ] && ROOT="NULL"
-  echo -n "$ROOT" > "$TYPE"
+  echo -n "$ROOT" > "$SINGLETYPE"
   rm -f "$DMESGLOG"
   [ $(( KERNELSU_KTAG + APATCH_KTAG + MAGISK_KTAG )) -gt 1 ] && [ ! "$ROOT" = "Multiple" ] && {
     touch "$KERNELTYPE"
@@ -449,7 +449,7 @@ Options:
 }
 
 staterefresh() {
-  ROOT=$(cat "$TYPE")
+  ROOT=$(cat "$SINGLETYPE")
   functions_cn TRUEDES="提升TrickyStore的使用体验,同时极致隐藏由解锁引导加载程序产生的相关检测点."
   functions_en TRUEDES="Enhances the TrickyStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking."
   description_exit() {
