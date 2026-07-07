@@ -213,7 +213,6 @@ for NE in $NES; do
   chmod +x "$NE"
 done
 mkdir -p "$FSCONFIG"
-mkdir -p "$FSEECONFIG/log"
 print_cn "- 提取密钥文件"
 print_en "- Extract keybox file"
 extract "$ZIPFILE" 'keybox.xml' "$FSEECONFIG"

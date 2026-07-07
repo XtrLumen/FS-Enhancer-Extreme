@@ -15,13 +15,23 @@
 
 cd ${0%/*}
 source "./script/util_functions.sh"
+rm   -rf "$OLDLOG"
+mv    -f "$LOGDIR" "$OLDLOG"
+mkdir -p "$LOGDIR"
+touch    "$FSEELOG"
+logI "轮换日志目录结束"
+logI "清理临时文件"
+rm -f "$FSEECONFIG/multiple.txt"
+rm -f "$FSEECONFIG/kernel.txt"
+rm -f "$FSEECONFIG/root.txt"
 fseed --rootdetect
 check
 
-invoke --conflictmodcheck "移除冲突模块"
-[ -f "$SD/.fsee_state.sh" ] || {
+logI "移除冲突模块"
+invoke --conflictmodcheck
+if [ ! -f "$ADB/service.d/.fsee_state.sh" ]; then
   logI "复制状态检测脚本到自启文件夹"
-  mkdir -p "$SD"
-  cp -f "$FSEEMODDIR/script/state.sh" "$SD/.fsee_state.sh"
-  chmod +x "$SD/.fsee_state.sh"
-}
+  mkdir -p "$ADB/service.d"
+  cp -f "$FSEEMODDIR/script/state.sh" "$ADB/service.d/.fsee_state.sh"
+  chmod +x "$ADB/service.d/.fsee_state.sh"
+fi

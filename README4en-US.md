@@ -39,7 +39,7 @@ Enhances the ForgeStore experience, while providing extreme hiding of detection 
     - FSEnhancerExtreme Background Service Stop Process / Start Service / Status Check: `fseed --fseectl` `[-stop|-start|-state]`
 - Configuration
   - Config directory path: `/data/adb/fs_enhancer_extreme`
-  - Log file path: `/data/adb/fs_enhancer_extreme/log`. If you encounter problems, please create an issue and attach the logs.
+  - Log file path: `/data/adb/fs_enhancer_extreme/log/log.log`. If you encounter problems, please create an issue and attach the logs.
 
 ### WebUI
 - Export Log

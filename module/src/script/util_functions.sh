@@ -17,24 +17,40 @@
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
-SD="$ADB/service.d"
-MODULESDIR="$ADB/modules"
 FSEECONFIG="$ADB/fs_enhancer_extreme"
 #TWO LEVEL#
-FSMODDIR="$MODULESDIR/forgestore"
-FSEEMODDIR="$MODULESDIR/fs_enhancer_extreme"
-#THREE LEVEL#
-MULTIPLETYPE="$FSEECONFIG/multiple.txt"
-KERNELTYPE="$FSEECONFIG/kernel.txt"
-SINGLETYPE="$FSEECONFIG/root.txt"
-FSEELOG="$FSEECONFIG/log/log.log"
+LOGDIR="$FSEECONFIG/log"
+FSEELOG="$LOGDIR/log.log"
+OLDLOG="$FSEECONFIG/log.old"
+FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
 #OTHER#
-ORIGIN=$(basename "$0")
+isPostFsData=false
+isServiceD=false
+isService=false
+logID="<Undefine>"
+case "$(basename "$0")" in
+  *"post-fs-data.sh"*)
+    isPostFsData=true
+    logID="<Post-Fs-Data>"
+    ;;
+  *".fsee_state.sh"*)
+    isServiceD=true
+    logID="<Service.D>"
+    ;;
+  *"service.sh"*)
+    isService=true
+    logID="<Service>"
+    ;;
+esac
 ##END##
 
 ##FUNCTIONS##
 #MULTILINGUAL#
-[[ "$(getprop persist.sys.locale)" == *"zh"* || "$(getprop ro.product.locale)" == *"zh"* ]] && LOCALE="CN" || LOCALE="EN"
+if [[ "$(getprop persist.sys.locale)" == *"zh"* || "$(getprop ro.product.locale)" == *"zh"* ]]; then
+  LOCALE="CN"
+else
+  LOCALE="EN"
+fi
 println() {
   [ "$LOCALE" = "$1" ] && {
     shift
@@ -52,20 +68,9 @@ fseed() {
   $FSEEMODDIR/bin/fseed "$@"
 }
 logout() {
-  case "$ORIGIN" in
-    *"post-fs-data.sh"*)
-      ID="<Post-Fs-Data>"
-      ;;
-    *"service.sh"*)
-      ID="<Service>"
-      ;;
-    *".fsee_state.sh"*)
-      ID="<Service.D>"
-      ;;
-  esac
   LEVEL=$1
   shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL System.out: [FSEE]$ID$@" >> "$FSEELOG"
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL System.out: [FSEE]$logID$@" >> "$FSEELOG"
 }
 logI() {
   logout "I" "$@"
@@ -82,41 +87,31 @@ initwait() {
   done
 }
 check() {
-  if [ "$(cat "$SINGLETYPE")" = "Multiple" ] || [ ! -d "$FSMODDIR" ] || [ -f "$FSMODDIR/disable" ] || sed -n '5p' "$FSMODDIR/module.prop" | grep -q -F "Enginex0"; then
-    if [[ $ORIGIN == *"post-fs-data.sh"* ]]; then
+  if fseed --isEnvironmentNormal; then
+    if $isPostFsData; then
+      logI "环境正常,继续执行"
+      mv -f "$FSEEMODDIR/.webroot" "$FSEEMODDIR/webroot"
+      if [[ ! "$APATCH" && ! "$KSU" ]]; then
+        mv -f "$FSEEMODDIR/.action.sh" "$FSEEMODDIR/action.sh"
+      else
+        mv -f "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
+      fi
+    fi
+  else
+    if $isPostFsData; then
       logE "环境异常,拦截执行"
-      mv "$FSEEMODDIR/webroot" "$FSEEMODDIR/.webroot"
-      mv "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
+      mv -f "$FSEEMODDIR/webroot" "$FSEEMODDIR/.webroot"
+      mv -f "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
     else
       exit
     fi
-  else
-    [[ "$ORIGIN" == *"post-fs-data.sh"* ]] && {
-      logI "环境正常,继续执行"
-      mv "$FSEEMODDIR/.webroot" "$FSEEMODDIR/webroot"
-      if [[ ! "$APATCH" && ! "$KSU" ]]; then
-        mv "$FSEEMODDIR/.action.sh" "$FSEEMODDIR/action.sh"
-      else
-        mv "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
-      fi
-    }
   fi
 }
 invoke() {
-  COMMAND=$1
-  shift
-  logI "$@"
-  if fseed $COMMAND; then
+  if fseed "$@"; then
     logI "完毕"
   else
     logW "失败"
   fi
 }
 ##END##
-
-[[ "$ORIGIN" == *"post-fs-data.sh"* ]] && {
-  rm -f "$MULTIPLETYPE"
-  rm -f "$KERNELTYPE"
-  rm -f "$SINGLETYPE"
-  rm -f "$FSEELOG"
-}
