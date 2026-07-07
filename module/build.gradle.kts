@@ -57,7 +57,7 @@ listOf(
                 )
                 rename(
                     "app-${variantLowered}.apk",
-                    "service.apk"
+                    "provider.apk"
                 )
             }
             from("$projectDir/src") {
@@ -141,7 +141,7 @@ listOf(
                             "script/util_functions.sh",
                             "banner.png",
                             "post-fs-data.sh",
-                            "service.apk",
+                            "provider.apk",
                             "service.sh",
                             "uninstall.sh",
                             "action.sh"

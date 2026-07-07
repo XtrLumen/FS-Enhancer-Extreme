@@ -4,8 +4,7 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        id("com.android.application") version "8.13.0"
-        id("org.jetbrains.kotlin.android") version "2.1.0"
+        id("com.android.application") version "8.7.3"
     }
 }
 
@@ -20,8 +19,8 @@ dependencyResolutionManagement {
 rootProject.name = "FS-Enhancer-Extreme"
 include(
     ":app",
-    ":module",
     ":fseed",
     ":fsees",
-    ":fseev"
+    ":fseev",
+    ":module"
 )

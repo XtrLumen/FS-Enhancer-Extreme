@@ -71,7 +71,7 @@ script/*
 webroot/*
 post-fs-data.sh
 uninstall.sh
-service.apk
+provider.apk
 service.sh
 module.prop
 banner.png
@@ -208,7 +208,7 @@ cp -f "$MODPATH/script/state.sh" "$SD/.fsee_state.sh"
 ##POST PROCESS##
 print_cn "- 赋予必要权限"
 print_en "- Setting permission"
-chcon u:object_r:shell_data_file:s0 "$MODPATH/service.apk"
+chcon u:object_r:shell_data_file:s0 "$MODPATH/provider.apk"
 for NE in $NES; do
   chmod +x "$NE"
 done
