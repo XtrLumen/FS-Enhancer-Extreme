@@ -30,7 +30,7 @@ check
 logI "移除冲突模块"
 invoke --conflictmodcheck
 if [ ! -f "$ADB/service.d/.fsee_state.sh" ]; then
-  logI "复制状态检测脚本到自启文件夹"
+  logI "配置状态检测脚本"
   mkdir -p "$ADB/service.d"
   cp -f "$FSEEMODDIR/script/state.sh" "$ADB/service.d/.fsee_state.sh"
   chmod +x "$ADB/service.d/.fsee_state.sh"

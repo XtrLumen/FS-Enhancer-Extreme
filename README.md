@@ -28,7 +28,6 @@
 ### 其他
 - 在模块描述显示运行环境和启动结果
 - 根据系统语言分别显示zh-Hans或en-US: 运行状态/安装过程
-- 安装时备份Keybox，于卸载时恢复备份。路径: `/data/adb/tricky_store/keybox_backup/keybox.xml`
 
 ### FSEE-CLI
 - 调用
@@ -38,7 +37,7 @@
     - ForgeStore后台服务停止进程/启动服务/状态检测: `fseed --tsctl` `[-stop|-start|-state]`
     - FSEnhancerExtreme后台服务停止进程/启动服务/状态检测: `fseed --fseectl` `[-stop|-start|-state]`
 - 配置
-  - 配置目录路径: `/data/adb/fs_enhancer_extreme`
+  - 配置目录路径: `/data/adb/fs_enhancer_extreme/config`
   - 日志文件路径: `/data/adb/fs_enhancer_extreme/log/log.log`，若遇到问题，请创建 issue 并附上日志。
 
 ### WebUI

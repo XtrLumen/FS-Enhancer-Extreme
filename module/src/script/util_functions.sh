@@ -17,11 +17,12 @@
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
-FSEECONFIG="$ADB/fs_enhancer_extreme"
+FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
 #TWO LEVEL#
-LOGDIR="$FSEECONFIG/log"
 FSEELOG="$LOGDIR/log.log"
-OLDLOG="$FSEECONFIG/log.old"
+LOGDIR="$FSEECONFIGDIR/log"
+OLDLOG="$FSEECONFIGDIR/log.old"
+FSEECONFIG="$FSEECONFIGDIR/config"
 FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
 #OTHER#
 isPostFsData=false
@@ -57,10 +58,10 @@ println() {
     echo "$@"
   }
 }
-echo_cn() {
+print_cn() {
   println "CN" "$@"
 }
-echo_en() {
+print_en() {
   println "EN" "$@"
 }
 #OTHER#
