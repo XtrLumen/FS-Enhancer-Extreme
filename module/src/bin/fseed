@@ -365,7 +365,7 @@ startwebui() {
 passvbhash() {
   contentapp() {
     logcei "安装服务"
-    if pm install "$FSEEMODDIR/service.apk" >/dev/null 2>&1; then
+    if pm install "$FSEEMODDIR/provider.apk" >/dev/null 2>&1; then
       logcei "安装完毕"
       logcei "尝试启动"
       ORIGINAL="$(content call --uri content://Provider --method GET)"
@@ -390,7 +390,7 @@ passvbhash() {
       pm uninstall io.github.xtrlumen.vbmeta >/dev/null 2>&1
     else
       logcee "安装失败,开始DEBUG"
-      logcee "$(pm install $FSEEMODDIR/service.apk 2>&1)"
+      logcee "$(pm install $FSEEMODDIR/provider.apk 2>&1)"
       eval "$1"
     fi
   }

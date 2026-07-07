@@ -36,7 +36,7 @@ fn verify() -> bool {
         "script/util_functions.sh",
         "banner.png",
         "post-fs-data.sh",
-        "service.apk",
+        "provider.apk",
         "service.sh",
         "uninstall.sh",
         action
