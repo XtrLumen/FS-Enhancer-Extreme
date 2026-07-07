@@ -29,9 +29,6 @@ operate() {
       ui_print)
         ui_print "$@"
         ;;
-      functions)
-        eval "${1%=*}=\"${1#*=}\""
-        ;;
       abort_verify)
         ui_print "***********************************************"
         ui_print "! $@"
@@ -42,14 +39,18 @@ operate() {
     esac
   }
 }
-print_cn() { operate "CN" "ui_print" "$@"; }
-print_en() { operate "EN" "ui_print" "$@"; }
-abort_cn() { operate "CN" "abort_verify" "$@"; }
-abort_en() { operate "EN" "abort_verify" "$@"; }
-functions_cn() { operate "CN" "functions" "$@"; }
-functions_en() { operate "EN" "functions" "$@"; }
-#OTHER#
-conflictdes_all() { sed -i "s|^description=.*|description=$DES$WAY|" "/data/adb/modules/$MODULE/module.prop"; }
+print_cn() {
+  operate "CN" "ui_print" "$@"
+}
+print_en() {
+  operate "EN" "ui_print" "$@"
+}
+abort_cn() {
+  operate "CN" "abort_verify" "$@"
+}
+abort_en() {
+  operate "EN" "abort_verify" "$@"
+}
 ##END##
 
 ##VARIABLE##
@@ -109,8 +110,11 @@ me.garfieldhan.apatch.next
 #CONFLICT CHECK#
 DETECTED=0
 CONFLICT="
+TA_utl
+.TA_utl
 Yurikey
 xiaocaiye
+Yamabukiko
 safetynet-fix
 vbmeta-fixer
 playintegrity
@@ -127,15 +131,6 @@ tricky_store_assistant
 extreme_hide_bootloader
 wjw_hiderootauxiliarymod
 "
-RMRFDETECTED=0
-RMRFCONFLICT="
-TA_utl
-.TA_utl
-"
-functions_cn DES="此模块与FS-Enhancer-Extreme模块证实冲突,已被添加移除标签,将在"
-functions_cn WAY="下一次启动时被移除."
-functions_en DES="This module has been confirmed to conflict with the FS-Enhancer-Extreme module. It has been tagged for removal and will be removed "
-functions_en WAY="upon the next boot."
 APPDETECTED=0
 APPCONFLICT="
 com.lingqian.appbl
@@ -271,34 +266,15 @@ print_cn "- 检查冲突模块"
 print_en "- Checking conflicts module"
 for MODULE in $CONFLICT; do
   [ -d "$MODULESDIR/$MODULE" ] && {
-    conflictdes_all
-    touch "$MODULESDIR/$MODULE/update"
-    touch "$MODULESDIR/$MODULE/disable"
-    touch "$MODULESDIR/$MODULE/remove"
-    rm -f "$MODULESUPDATEDIR/uninstall.sh"
-    rm -f "$MODULESDIR/$MODULE/uninstall.sh"
+    (cd "$MODULESDIR/$MODULE" && ./uninstall.sh)
+    rm -rf "$MODULESDIR/$MODULE"
     DETECTED=$((DETECTED + 1))
   }
 done
-for RMRFMODULE in $RMRFCONFLICT; do
-  [ -d "$MODULESDIR/$RMRFMODULE" ] && {
-    (cd "$MODULESDIR/$RMRFMODULE"; ./uninstall.sh)
-    rm -rf "$MODULESDIR/$RMRFMODULE"
-    RMRFDETECTED=$((RMRFDETECTED + 1))
-  }
-done
-if [ $DETECTED -gt 0 ] && [ $RMRFDETECTED -gt 0 ]; then
-  print_cn "- 发现$DETECTED个普通冲突模块,已添加移除标签与提示"
-  print_cn "- 发现$RMRFDETECTED个隐藏冲突模块,已强制卸载"
-  print_en "- Detected $DETECTED conflicting modules, Added removal tags and notification"
-  print_en "- Detected $RMRFDETECTED hidden conflicting modules, Force uninstall"
-elif [ $DETECTED -gt 0 ] && [ $RMRFDETECTED -eq 0 ]; then
-  print_cn "- 发现$DETECTED个普通冲突模块,已添加移除标签与提示"
-  print_en "- Detected $DETECTED conflicting modules, Added removal tags and notification"
-elif [ $DETECTED -eq 0 ] && [ $RMRFDETECTED -gt 0 ]; then
-  print_cn "- 发现$RMRFDETECTED个隐藏冲突模块,已强制卸载"
-  print_en "- Detected $RMRFDETECTED hidden conflicting modules, Force uninstall"
-elif [ $DETECTED -eq 0 ] && [ $RMRFDETECTED -eq 0 ]; then
+if [ $DETECTED -gt 0 ]; then
+  print_cn "- 发现$DETECTED个冲突模块,已强制移除"
+  print_en "- Detected $DETECTED conflicting modules, Force remove"
+elif [ $DETECTED -eq 0 ]; then
   print_cn "- 未发现冲突模块"
   print_en "- No conflict module found"
 fi
