@@ -102,9 +102,17 @@ echo_en() {
   operate "EN" "echo" "$@"
 }
 #OTHER#
-logce() { echo "$2" ; echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $1 System.out: [FSEE]<CLI>$2" >> "$FSEELOG"; }
-logcei() { logce "I" "$1"; }
-logcee() { logce "E" "$1"; }
+logout() {
+  LEVEL=$1
+  shift
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: <CLI> $@" >> "$FSEELOG"
+}
+logI() {
+  logout "I" "$@"
+}
+logE() {
+  logout "E" "$@"
+}
 crawl() {
   if command -v curl >/dev/null 2>&1; then
     curl --connect-timeout 10 -Ls "$1"
@@ -359,33 +367,33 @@ startwebui() {
 
 passvbhash() {
   contentapp() {
-    logcei "安装服务"
+    logI "安装服务"
     if pm install "$FSEEMODDIR/provider.apk" >/dev/null 2>&1; then
-      logcei "安装完毕"
-      logcei "尝试启动"
-      ORIGINAL="$(content call --uri content://VBHashProvider --method GET --extra field:s:verifiedBootHash)"
+      logI "安装完毕"
+      logI "尝试启动"
+      ORIGINAL="$(content call --uri content://VBMetaProvider --method GET --extra field:s:verifiedBootHash)"
       VBHVALUE="$(echo "$ORIGINAL" | grep -oE '[a-f0-9]{64}=verifiedBootHash' | grep -oE '[a-f0-9]{64}')"
-      logcat -d | grep -F "[FSEE]" >> "$FSEELOG"
-      logcei "$ORIGINAL"
+      logI "$ORIGINAL"
       if [ ${#VBHVALUE} -eq 64 ] && echo "$VBHVALUE" | grep -q '^[a-f0-9]\{64\}$'; then
-        logcei "成功启动"
+        logI "成功"
         if [ "$NOW" = "$VBHVALUE" ]; then
-          logcei "无需修正,当前属性:"$NOW""
+          logI "无需修正,当前属性:"$NOW""
         else
-          resetprop -n ro.boot.vbmeta.digest "$VBHVALUE" && logcei "修正完毕,当前属性:"$(getprop ro.boot.vbmeta.digest)""
+          resetprop -n ro.boot.vbmeta.digest "$VBHVALUE" && logI "修正完毕,当前属性:"$(getprop ro.boot.vbmeta.digest)""
         fi
         [ "$2" = "TS245" ] && {
-          logcei "缓存数据"
+          logI "缓存数据"
           printf "$VBHVALUE" > "$FSEECONFIG/verifiedboothash.txt"
         }
       else
-        logcee "启动失败"
+        logE "失败"
+        logcat -d | grep -F "[FSEE]" >> "$FSEELOG"
       fi
-      logcei "卸载服务"
+      logI "卸载服务"
       pm uninstall io.github.xtrlumen.vbmeta >/dev/null 2>&1
     else
-      logcee "安装失败,开始DEBUG"
-      logcee "$(pm install $FSEEMODDIR/provider.apk 2>&1)"
+      logE "安装失败,开始DEBUG"
+      logE "$(pm install $FSEEMODDIR/provider.apk 2>&1)"
       eval "$1"
     fi
   }
@@ -395,20 +403,20 @@ passvbhash() {
       PERSISTENCE=$(sed -n '1p' "$FSEECONFIG/verifiedboothash.txt")
       if [ ${#PERSISTENCE} -eq 64 ] && echo "$PERSISTENCE" | grep -q '^[a-f0-9]\{64\}$'; then
         if [ "$NOW" = "$PERSISTENCE" ]; then
-          logcei "无需修正,当前属性:"$NOW""
+          logI "无需修正,当前属性:"$NOW""
         else
-          resetprop -n ro.boot.vbmeta.digest "$PERSISTENCE" && logcei "修正完毕,当前属性:"$(getprop ro.boot.vbmeta.digest)""
+          resetprop -n ro.boot.vbmeta.digest "$PERSISTENCE" && logI "修正完毕,当前属性:"$(getprop ro.boot.vbmeta.digest)""
         fi
       else
-        logcee "缓存无效,重新获取"
+        logE "缓存无效,重新获取"
         contentapp "return 1" "TS245" || {
-          logcei "获取失败,生成并持久化随机已验证的启动哈希值"
+          logI "获取失败,生成并持久化随机已验证的启动哈希值"
           xxd -l 32 -p /dev/urandom | tr -d '\n' > "$FSEECONFIG/verifiedboothash.txt"
         }
       fi
     else
       contentapp "return 1" "TS245" || {
-        logcei "获取失败,生成并持久化随机已验证的启动哈希值"
+        logI "获取失败,生成并持久化随机已验证的启动哈希值"
         xxd -l 32 -p /dev/urandom | tr -d '\n' > "$FSEECONFIG/verifiedboothash.txt"
       }
     fi
@@ -593,7 +601,7 @@ Options:
 
 securitypatchpropsync() {
   SP="$FSCONFIG/security_patch.txt"
-  [ ! -f "$SP" ] && logcee "文件不存在" && exit 1
+  [ ! -f "$SP" ] && logE "文件不存在" && exit 1
   RAW="$(grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' "$SP")"
   if [ -n "$RAW" ]; then
     DATE="$RAW"
@@ -605,9 +613,9 @@ securitypatchpropsync() {
     resetprop ro.vendor.build.security_patch "$DATE"
     resetprop ro.build.version.security_patch "$DATE"
     kill -9 "$(pidof com.google.android.gms.unstable)" 2>/dev/null
-    logcei "同步完毕"
+    logI "同步完毕"
   else
-    logcee "格式错误"
+    logE "格式错误"
     exit 1
   fi
 }
@@ -615,11 +623,11 @@ securitypatchpropsync() {
 securitypatchdatefetch() {
   DATE="$(crawl "https://source.android.com/docs/security/bulletin/pixel" | sed -n 's/.*<td>\([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\)<\/td>.*/\1/p' | head -n 1)"
   if [ -n "$DATE" ]; then
-    logcei "拉取成功"
+    logI "拉取成功"
     DATE=${DATE//-/}
     printf "%s" "$DATE" > "$FSCONFIG/security_patch.txt"
   elif ! ping -c 1 -W 5 "source.android.com" >/dev/null 2>&1; then
-    logcee "拉取失败"
+    logE "拉取失败"
     exit 1
   fi
 }

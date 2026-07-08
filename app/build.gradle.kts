@@ -18,7 +18,7 @@ android {
     compileSdk = 36
     defaultConfig {
         minSdk = 29
-        targetSdk = 34
+        targetSdk = 29
         versionCode = verCode
         versionName = verName
     }

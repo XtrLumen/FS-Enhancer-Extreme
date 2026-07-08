@@ -16,23 +16,27 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
+import io.github.xtrlumen.vbmeta.log;
+
+import java.util.List;
+import java.util.ArrayList;
+
 import co.nstant.in.cbor.CborDecoder;
 import co.nstant.in.cbor.CborException;
-import co.nstant.in.cbor.model.Array;
-import co.nstant.in.cbor.model.ByteString;
-import co.nstant.in.cbor.model.DataItem;
+
 import co.nstant.in.cbor.model.Map;
+import co.nstant.in.cbor.model.Array;
+import co.nstant.in.cbor.model.DataItem;
+import co.nstant.in.cbor.model.ByteString;
 import co.nstant.in.cbor.model.SimpleValue;
 import co.nstant.in.cbor.model.SimpleValueType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class CborUtils {
     public static Boolean getBoolean(Map map, DataItem index) {
         SimpleValueType value = ((SimpleValue) map.get(index)).getSimpleValueType();
         if (value != SimpleValueType.TRUE && value != SimpleValueType.FALSE) {
-            throw new RuntimeException("Only expecting boolean values for " + index);
+            log.E("Only expecting boolean values for " + index);
+            throw new RuntimeException();
         }
         return (value == SimpleValueType.TRUE);
     }
@@ -47,7 +51,8 @@ class CborUtils {
             } else if (value == SimpleValueType.TRUE) {
                 result.add(true);
             } else {
-                throw new RuntimeException("Map contains more than booleans: " + map);
+                log.E("Map contains more than booleans: " + map);
+                throw new RuntimeException();
             }
         }
         return result;

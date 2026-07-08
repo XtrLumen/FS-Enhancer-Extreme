@@ -16,8 +16,10 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
-import org.bouncycastle.asn1.ASN1Encodable;
+import io.github.xtrlumen.vbmeta.log;
+
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 
 import java.security.cert.CertificateParsingException;
@@ -31,11 +33,13 @@ public class AuthorizationList {
 
     public AuthorizationList(ASN1Encodable asn1Encodable) throws CertificateParsingException {
         if (!(asn1Encodable instanceof ASN1Sequence sequence)) {
-            throw new CertificateParsingException("Expected sequence for authorization list, found " + asn1Encodable.getClass().getName());
+            log.E("Expected sequence for authorization list, found " + asn1Encodable.getClass().getName());
+            throw new CertificateParsingException();
         }
         for (var entry : sequence) {
             if (!(entry instanceof ASN1TaggedObject taggedObject)) {
-                throw new CertificateParsingException("Expected tagged object, found " + entry.getClass().getName());
+                log.E("Expected tagged object, found " + entry.getClass().getName());
+                throw new CertificateParsingException();
             }
             int tag = taggedObject.getTagNo();
             var value = taggedObject.getBaseObject().toASN1Primitive();

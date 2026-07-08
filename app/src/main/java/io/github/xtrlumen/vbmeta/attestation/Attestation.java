@@ -16,8 +16,10 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
-import java.security.cert.CertificateParsingException;
+import io.github.xtrlumen.vbmeta.log;
+
 import java.security.cert.X509Certificate;
+import java.security.cert.CertificateParsingException;
 
 import co.nstant.in.cbor.CborException;
 
@@ -30,16 +32,19 @@ public abstract class Attestation {
 
     public static Attestation loadFromCertificate(X509Certificate x509Cert) throws CertificateParsingException {
         if (x509Cert.getExtensionValue(EAT_OID) == null && x509Cert.getExtensionValue(ASN1_OID) == null) {
-            throw new CertificateParsingException("No attestation extensions found");
+            log.E("No attestation extensions found");
+            throw new CertificateParsingException();
         }
         if (x509Cert.getExtensionValue(EAT_OID) != null) {
             if (x509Cert.getExtensionValue(ASN1_OID) != null) {
-                throw new CertificateParsingException("Multiple attestation extensions found");
+                log.E("Multiple attestation extensions found");
+                throw new CertificateParsingException();
             }
             try {
                 return new EatAttestation(x509Cert);
             } catch (CborException cbe) {
-                throw new CertificateParsingException("Unable to parse EAT extension", cbe);
+                log.E("Unable to parse EAT extension", cbe);
+                throw new CertificateParsingException();
             }
         }
         return new Asn1Attestation(x509Cert);
