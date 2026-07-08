@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation("org.bouncycastle:bcprov-jdk18on:1.80")
-    implementation("com.google.guava:guava:33.4.0-android")
-    implementation("co.nstant.in:cbor:0.9")
     compileOnly("androidx.annotation:annotation:1.9.1")
+    implementation("com.google.guava:guava:33.4.0-android")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.80")
+    implementation("co.nstant.in:cbor:0.9")
 }
 
 val verName: String by rootProject.extra
@@ -14,8 +14,8 @@ val verCode: Int by rootProject.extra
 
 android {
     namespace = "io.github.xtrlumen.vbmeta"
-    buildToolsVersion = "35.0.1"
-    compileSdk = 35
+    buildToolsVersion = "36.0.0"
+    compileSdk = 36
     defaultConfig {
         minSdk = 29
         targetSdk = 34
@@ -24,11 +24,13 @@ android {
     }
 
     buildFeatures {
-        aidl = true
         buildConfig = true
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix = "-d"
+        }
         release {
             isMinifyEnabled = true
             vcsInfo.include = false
@@ -39,7 +41,9 @@ android {
 
     packaging {
         resources {
-            excludes += setOf("**")
+            excludes += setOf(
+                "org/**"
+            )
         }
     }
 

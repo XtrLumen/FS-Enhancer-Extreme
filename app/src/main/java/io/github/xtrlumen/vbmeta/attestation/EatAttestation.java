@@ -48,6 +48,7 @@ public class EatAttestation extends Attestation {
         super(x509Cert);
         extension = getEatExtension(x509Cert);
 
+        //类型               //变量名                  //类名      //实例
         RootOfTrust.Builder rootOfTrustBuilder = new RootOfTrust.Builder();
         List<Boolean> bootState = null;
         boolean officialBuild = false;
@@ -57,7 +58,6 @@ public class EatAttestation extends Attestation {
             switch (keyInt) {
                 default:
                     throw new CertificateParsingException("Unknown EAT tag: " + key + "\n in EAT extension:\n" + this);
-
                 case EatClaim.ATTESTATION_VERSION:
                     attestationVersion = CborUtils.getInt(extension, key);
                     break;
@@ -98,29 +98,13 @@ public class EatAttestation extends Attestation {
         }
 
         if (bootState != null) {
-            rootOfTrustBuilder.setVerifiedBootState(
-                    eatBootStateTypeToVerifiedBootState(bootState, officialBuild));
+            rootOfTrustBuilder.setVerifiedBootState(eatBootStateTypeToVerifiedBootState(bootState, officialBuild));
         }
         rootOfTrust = rootOfTrustBuilder.build();
     }
 
-    /** Find the submod containing the key information, and return its security level. */
-    public int getAttestationSecurityLevel() {
-        if (teeEnforced != null && teeEnforced.getAlgorithm() != null) {
-            return teeEnforced.getSecurityLevel();
-        } else if (softwareEnforced != null && softwareEnforced.getAlgorithm() != null) {
-            return softwareEnforced.getSecurityLevel();
-        } else {
-            return -1;
-        }
-    }
-
     public RootOfTrust getRootOfTrust() {
         return rootOfTrust;
-    }
-
-    public String toString() {
-        return super.toString() + "\nEncoded CBOR: " + extension;
     }
 
     Map getEatExtension(X509Certificate x509Cert)
