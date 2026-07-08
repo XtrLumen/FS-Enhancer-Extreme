@@ -16,10 +16,12 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
+import io.github.xtrlumen.vbmeta.log;
+
 import org.bouncycastle.asn1.ASN1Sequence;
 
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.security.cert.CertificateParsingException;
 
 public class Asn1Attestation extends Attestation {
     static final int SW_ENFORCED_INDEX = 6;
@@ -44,7 +46,8 @@ public class Asn1Attestation extends Attestation {
     ASN1Sequence getAttestationSequence(X509Certificate x509Cert) throws CertificateParsingException {
         byte[] attestationExtensionBytes = x509Cert.getExtensionValue(Attestation.ASN1_OID);
         if (attestationExtensionBytes == null || attestationExtensionBytes.length == 0) {
-            throw new CertificateParsingException("Did not find extension with OID " + ASN1_OID);
+            log.E("Did not find extension with OID " + ASN1_OID);
+            throw new CertificateParsingException();
         }
         return Asn1Utils.getAsn1SequenceFromBytes(attestationExtensionBytes);
     }

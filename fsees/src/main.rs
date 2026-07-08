@@ -36,7 +36,7 @@ fn logout(level: char, msg: &str) {
     };
     OpenOptions::new().create(true).append(true).open("/data/adb/fs_enhancer_extreme/log/log.log").and_then(|mut f|
         f.write_all(
-            format!("{}  {}  {} {} System.out: [FSEE]<Daemon>{}\n", timestamp, pid, tid, level, msg).as_bytes()
+            format!("{}  {}  {} {} [FSEE]: <Daemon> {}\n", timestamp, pid, tid, level, msg).as_bytes()
         )
     ).ok();
 }

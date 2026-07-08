@@ -16,16 +16,20 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
-import co.nstant.in.cbor.CborException;
-import co.nstant.in.cbor.model.DataItem;
-import co.nstant.in.cbor.model.Map;
-import co.nstant.in.cbor.model.Number;
+import io.github.xtrlumen.vbmeta.log;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
 import java.util.List;
+
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateParsingException;
+
+import co.nstant.in.cbor.CborException;
+
+import co.nstant.in.cbor.model.Map;
+import co.nstant.in.cbor.model.Number;
+import co.nstant.in.cbor.model.DataItem;
 
 public class EatAttestation extends Attestation {
     final RootOfTrust rootOfTrust;
@@ -74,6 +78,7 @@ public class EatAttestation extends Attestation {
     Map getEatExtension(X509Certificate x509Cert) throws CertificateParsingException, CborException {
         byte[] attestationExtensionBytes = x509Cert.getExtensionValue(Attestation.EAT_OID);
         if (attestationExtensionBytes == null || attestationExtensionBytes.length == 0) {
+            log.E("Did not find extension with OID " + EAT_OID);
             throw new CertificateParsingException("Did not find extension with OID " + EAT_OID);
         }
         ASN1Encodable asn1 = Asn1Utils.getAsn1EncodableFromBytes(attestationExtensionBytes);
@@ -83,19 +88,23 @@ public class EatAttestation extends Attestation {
 
     static int eatBootStateTypeToVerifiedBootState(List<Boolean> bootState, Boolean officialBuild) {
         if (bootState.size() != 5) {
-            throw new RuntimeException("Boot state map has unexpected size: " + bootState.size());
+            log.E("Boot state map has unexpected size: " + bootState.size());
+            throw new RuntimeException();
         }
         if (bootState.get(4)) {
-            throw new RuntimeException("debug-permanent-disable must never be true: " + bootState);
+            log.E("debug-permanent-disable must never be true: " + bootState);
+            throw new RuntimeException();
         }
         boolean verifiedOrSelfSigned = bootState.get(0);
         if (verifiedOrSelfSigned != bootState.get(1) && verifiedOrSelfSigned != bootState.get(2) && verifiedOrSelfSigned != bootState.get(3)) {
-            throw new RuntimeException("Unexpected boot state: " + bootState);
+            log.E("Unexpected boot state: " + bootState);
+            throw new RuntimeException();
         }
 
         if (officialBuild) {
             if (!verifiedOrSelfSigned) {
-                throw new AssertionError("Non-verified official build");
+                log.E("Non-verified official build");
+                throw new AssertionError();
             }
             return RootOfTrust.KM_VERIFIED_BOOT_VERIFIED;
         } else {

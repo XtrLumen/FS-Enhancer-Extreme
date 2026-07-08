@@ -71,7 +71,7 @@ fseed() {
 logout() {
   LEVEL=$1
   shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL System.out: [FSEE]$logID$@" >> "$FSEELOG"
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: $logID $@" >> "$FSEELOG"
 }
 logI() {
   logout "I" "$@"

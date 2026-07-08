@@ -16,10 +16,12 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
+import io.github.xtrlumen.vbmeta.log;
+
 import com.google.common.io.BaseEncoding;
 
-import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1Encodable;
 
 import java.security.cert.CertificateParsingException;
 
@@ -41,7 +43,8 @@ public class RootOfTrust {
 
     public RootOfTrust(ASN1Encodable asn1Encodable) throws CertificateParsingException {
         if (!(asn1Encodable instanceof ASN1Sequence sequence)) {
-            throw new CertificateParsingException("Expected sequence for root of trust, found " + asn1Encodable.getClass().getName());
+            log.E("Expected sequence for root of trust, found " + asn1Encodable.getClass().getName());
+            throw new CertificateParsingException();
         }
 
         verifiedBootKey = Asn1Utils.getByteArrayFromAsn1(sequence.getObjectAt(VERIFIED_BOOT_KEY_INDEX));

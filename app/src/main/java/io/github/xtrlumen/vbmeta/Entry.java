@@ -40,61 +40,65 @@ import com.google.common.io.BaseEncoding;
 import io.github.xtrlumen.vbmeta.attestation.Attestation;
 import io.github.xtrlumen.vbmeta.attestation.RootOfTrust;
 
-public class Provider extends ContentProvider {
+public class Entry extends ContentProvider {
     private RootOfTrust loadRootOfTrust() throws Exception {
-        String KEY_ALIAS = "vbmeta_root_of_trust";
+        String KEY_ALIAS = "root_of_trust";
+
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
         if (keyStore.containsAlias(KEY_ALIAS)) {
             keyStore.deleteEntry(KEY_ALIAS);
         }
 
-        KeyPairGenerator generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(KEY_ALIAS, KeyProperties.PURPOSE_SIGN)
-            .setAlgorithmParameterSpec(new ECGenParameterSpec("secp256r1"))
-            .setDigests(KeyProperties.DIGEST_SHA256)
-            .setAttestationChallenge("vbmeta".getBytes())
-            .build();
-        generator.initialize(spec);
-        generator.generateKeyPair();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
+        KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(KEY_ALIAS, KeyProperties.PURPOSE_SIGN).setAlgorithmParameterSpec(new ECGenParameterSpec("secp256r1")).setDigests(KeyProperties.DIGEST_SHA256).setAttestationChallenge("stub".getBytes()).build();
+        keyPairGenerator.initialize(keyGenParameterSpec);
+        keyPairGenerator.generateKeyPair();
 
         Certificate[] chain = keyStore.getCertificateChain(KEY_ALIAS);
         if (chain == null || chain.length == 0) {
             throw new IllegalStateException("Empty attestation certificate chain");
         }
+
         return Attestation.loadFromCertificate((X509Certificate) chain[0]).getRootOfTrust();
     }
 
     @Override
     public Bundle call(String method, String stub, Bundle extra) {
         Bundle result = new Bundle();
+
         if (!"GET".equals(method)) {
             result.putString("undefined", method);
             return result;
         }
+
+        RootOfTrust rootOfTrust;
         try {
-            RootOfTrust rootOfTrust = loadRootOfTrust();
-            if (rootOfTrust == null) {
-                result.putString("error", "No RootOfTrust present in attestation certificate");
-                return result;
-            }
-            String field = extra.getString("field");
-            if (field == null) {
-                result.putString("rootOfTrust", "\n" + rootOfTrust + "\n");
-            } else if ("verifiedBootKey".equals(field)) {
-                result.putString(field, BaseEncoding.base16().lowerCase().encode(rootOfTrust.getVerifiedBootKey()) + "=" + field);
-            } else if ("deviceLocked".equals(field)) {
-                result.putBoolean(field, rootOfTrust.isDeviceLocked());
-            } else if ("verifiedBootState".equals(field)) {
-                result.putString(field, RootOfTrust.verifiedBootStateToString(rootOfTrust.getVerifiedBootState()));
-            } else if ("verifiedBootHash".equals(field)) {
-                result.putString(field, BaseEncoding.base16().lowerCase().encode(rootOfTrust.getVerifiedBootHash()) + "=" + field);
-            } else {
-                result.putString("undefined", field);
-            }
+            rootOfTrust = loadRootOfTrust();
         } catch (Exception e) {
             result.putString("error", e.toString());
+            return result;
         }
+        if (rootOfTrust == null) {
+            result.putString("error", "No RootOfTrust present in attestation certificate");
+            return result;
+        }
+
+        String field = extra.getString("field");
+        if (field == null) {
+            result.putString("rootOfTrust", "\n" + rootOfTrust + "\n");
+        } else if ("verifiedBootKey".equals(field)) {
+            result.putString(field, BaseEncoding.base16().lowerCase().encode(rootOfTrust.getVerifiedBootKey()) + "=" + field);
+        } else if ("deviceLocked".equals(field)) {
+            result.putBoolean(field, rootOfTrust.isDeviceLocked());
+        } else if ("verifiedBootState".equals(field)) {
+            result.putString(field, RootOfTrust.verifiedBootStateToString(rootOfTrust.getVerifiedBootState()));
+        } else if ("verifiedBootHash".equals(field)) {
+            result.putString(field, BaseEncoding.base16().lowerCase().encode(rootOfTrust.getVerifiedBootHash()) + "=" + field);
+        } else {
+            result.putString("undefined", field);
+        }
+
         return result;
     }
 
