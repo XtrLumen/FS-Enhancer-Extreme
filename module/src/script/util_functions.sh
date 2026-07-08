@@ -28,7 +28,7 @@ FSEELOG="$LOGDIR/log.log"
 isPostFsData=false
 isServiceD=false
 isService=false
-logID="<Undefine>"
+logID="<Undefined>"
 case "$(basename "$0")" in
   *"post-fs-data.sh"*)
     isPostFsData=true

@@ -363,8 +363,8 @@ passvbhash() {
     if pm install "$FSEEMODDIR/provider.apk" >/dev/null 2>&1; then
       logcei "安装完毕"
       logcei "尝试启动"
-      ORIGINAL="$(content call --uri content://Provider --method GET)"
-      VBHVALUE="$(echo "$ORIGINAL" | grep -oE '[a-f0-9]{64}=VBHash' | grep -oE '[a-f0-9]{64}')"
+      ORIGINAL="$(content call --uri content://VBHashProvider --method GET --extra field:s:verifiedBootHash)"
+      VBHVALUE="$(echo "$ORIGINAL" | grep -oE '[a-f0-9]{64}=verifiedBootHash' | grep -oE '[a-f0-9]{64}')"
       logcat -d | grep -F "[FSEE]" >> "$FSEELOG"
       logcei "$ORIGINAL"
       if [ ${#VBHVALUE} -eq 64 ] && echo "$VBHVALUE" | grep -q '^[a-f0-9]\{64\}$'; then
