@@ -16,8 +16,6 @@
 
 package io.github.xtrlumen.vbmeta.attestation;
 
-import com.google.common.collect.ImmutableSet;
-
 import org.bouncycastle.asn1.ASN1Boolean;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Enumerated;
@@ -26,50 +24,32 @@ import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DEROctetString;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateParsingException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Set;
 
 public class Asn1Utils {
 
-    public static int getIntegerFromAsn1(ASN1Encodable asn1Value)
-            throws CertificateParsingException {
+    public static int getIntegerFromAsn1(ASN1Encodable asn1Value) throws CertificateParsingException {
         if (asn1Value instanceof ASN1Integer) {
             return bigIntegerToInt(((ASN1Integer) asn1Value).getValue());
         } else if (asn1Value instanceof ASN1Enumerated) {
             return bigIntegerToInt(((ASN1Enumerated) asn1Value).getValue());
         } else {
-            throw new CertificateParsingException(
-                    "Integer value expected, " + asn1Value.getClass().getName() + " found.");
+            throw new CertificateParsingException("Integer value expected, " + asn1Value.getClass().getName() + " found.");
         }
     }
 
-    public static Long getLongFromAsn1(ASN1Encodable asn1Value) throws CertificateParsingException {
-        if (asn1Value instanceof ASN1Integer) {
-            return bigIntegerToLong(((ASN1Integer) asn1Value).getValue());
-        } else {
-            throw new CertificateParsingException(
-                    "Integer value expected, " + asn1Value.getClass().getName() + " found.");
-        }
-    }
-
-    public static byte[] getByteArrayFromAsn1(ASN1Encodable asn1Encodable)
-            throws CertificateParsingException {
+    public static byte[] getByteArrayFromAsn1(ASN1Encodable asn1Encodable) throws CertificateParsingException {
         if (!(asn1Encodable instanceof DEROctetString derOctectString)) {
             throw new CertificateParsingException("Expected DEROctetString");
         }
         return derOctectString.getOctets();
     }
 
-    public static ASN1Encodable getAsn1EncodableFromBytes(byte[] bytes)
-            throws CertificateParsingException {
+    public static ASN1Encodable getAsn1EncodableFromBytes(byte[] bytes) throws CertificateParsingException {
         try (ASN1InputStream asn1InputStream = new ASN1InputStream(bytes)) {
             return asn1InputStream.readObject();
         } catch (IOException e) {
@@ -77,8 +57,7 @@ public class Asn1Utils {
         }
     }
 
-    public static ASN1Sequence getAsn1SequenceFromBytes(byte[] bytes)
-            throws CertificateParsingException {
+    public static ASN1Sequence getAsn1SequenceFromBytes(byte[] bytes) throws CertificateParsingException {
         try (ASN1InputStream asn1InputStream = new ASN1InputStream(bytes)) {
             return getAsn1SequenceFromStream(asn1InputStream);
         } catch (IOException e) {
@@ -86,57 +65,23 @@ public class Asn1Utils {
         }
     }
 
-    public static ASN1Sequence getAsn1SequenceFromStream(final ASN1InputStream asn1InputStream)
-            throws IOException, CertificateParsingException {
+    public static ASN1Sequence getAsn1SequenceFromStream(final ASN1InputStream asn1InputStream) throws IOException, CertificateParsingException {
         ASN1Primitive asn1Primitive = asn1InputStream.readObject();
         if (!(asn1Primitive instanceof ASN1OctetString)) {
-            throw new CertificateParsingException(
-                    "Expected octet stream, found " + asn1Primitive.getClass().getName());
+            throw new CertificateParsingException("Expected octet stream, found " + asn1Primitive.getClass().getName());
         }
-        try (ASN1InputStream seqInputStream = new ASN1InputStream(
-                ((ASN1OctetString) asn1Primitive).getOctets())) {
+        try (ASN1InputStream seqInputStream = new ASN1InputStream(((ASN1OctetString) asn1Primitive).getOctets())) {
             asn1Primitive = seqInputStream.readObject();
             if (!(asn1Primitive instanceof ASN1Sequence)) {
-                throw new CertificateParsingException(
-                        "Expected sequence, found " + asn1Primitive.getClass().getName());
+                throw new CertificateParsingException("Expected sequence, found " + asn1Primitive.getClass().getName());
             }
             return (ASN1Sequence) asn1Primitive;
         }
     }
 
-    public static Set<Integer> getIntegersFromAsn1Set(ASN1Encodable set)
-            throws CertificateParsingException {
-        if (!(set instanceof ASN1Set)) {
-            throw new CertificateParsingException(
-                    "Expected set, found " + set.getClass().getName());
-        }
-
-        ImmutableSet.Builder<Integer> builder = ImmutableSet.builder();
-        for (Enumeration<?> e = ((ASN1Set) set).getObjects(); e.hasMoreElements();) {
-            builder.add(getIntegerFromAsn1((ASN1Integer) e.nextElement()));
-        }
-        return builder.build();
-    }
-
-    public static String getStringFromAsn1OctetStreamAssumingUTF8(ASN1Encodable encodable)
-            throws CertificateParsingException {
-        if (!(encodable instanceof ASN1OctetString octetString)) {
-            throw new CertificateParsingException(
-                    "Expected octet string, found " + encodable.getClass().getName());
-        }
-
-        return new String(octetString.getOctets(), StandardCharsets.UTF_8);
-    }
-
-    public static Date getDateFromAsn1(ASN1Primitive value) throws CertificateParsingException {
-        return new Date(getLongFromAsn1(value));
-    }
-
-    public static boolean getBooleanFromAsn1(ASN1Encodable value)
-            throws CertificateParsingException {
+    public static boolean getBooleanFromAsn1(ASN1Encodable value) throws CertificateParsingException {
         if (!(value instanceof ASN1Boolean booleanValue)) {
-            throw new CertificateParsingException(
-                    "Expected boolean, found " + value.getClass().getName());
+            throw new CertificateParsingException("Expected boolean, found " + value.getClass().getName());
         }
         if (booleanValue.equals(ASN1Boolean.TRUE)) {
             return true;
@@ -144,23 +89,13 @@ public class Asn1Utils {
             return false;
         }
 
-        throw new CertificateParsingException(
-                "DER-encoded boolean values must contain either 0x00 or 0xFF");
+        throw new CertificateParsingException("DER-encoded boolean values must contain either 0x00 or 0xFF");
     }
 
     private static int bigIntegerToInt(BigInteger bigInt) throws CertificateParsingException {
-        if (bigInt.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0
-                || bigInt.compareTo(BigInteger.ZERO) < 0) {
+        if (bigInt.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0 || bigInt.compareTo(BigInteger.ZERO) < 0) {
             throw new CertificateParsingException("INTEGER out of bounds");
         }
         return bigInt.intValue();
-    }
-
-    private static long bigIntegerToLong(BigInteger bigInt) throws CertificateParsingException {
-        if (bigInt.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0
-                || bigInt.compareTo(BigInteger.ZERO) < 0) {
-            throw new CertificateParsingException("INTEGER out of bounds");
-        }
-        return bigInt.longValue();
     }
 }

@@ -1,127 +1,60 @@
+/*
+ * This file is part of FS-Enhancer-Extreme.
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program;
+ * If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Copyright (C) 2025-2026 XtrLumen
+ */
+
 package io.github.xtrlumen.vbmeta;
 
-import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.database.Cursor;
+import android.content.ContentProvider;
+
 import android.net.Uri;
+
 import android.os.Bundle;
-import android.security.keystore.KeyGenParameterSpec;
+
+import android.database.Cursor;
+
 import android.security.keystore.KeyProperties;
+import android.security.keystore.KeyGenParameterSpec;
 
-import com.google.common.io.BaseEncoding;
-
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyPairGenerator;
+
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+
 import java.security.spec.ECGenParameterSpec;
+
+import com.google.common.io.BaseEncoding;
 
 import io.github.xtrlumen.vbmeta.attestation.Attestation;
 import io.github.xtrlumen.vbmeta.attestation.RootOfTrust;
 
 public class Provider extends ContentProvider {
-    private static final String METHOD_GET = "GET";
-    private static final String KEY_ALIAS = "vbmeta_root_of_trust";
-    private static final String DEFAULT_CHALLENGE = "vbmeta";
-
-    @Override
-    public boolean onCreate() {
-        return true;
-    }
-
-    @Override
-    public Bundle call(String method, String arg, Bundle extras) {
-        Bundle result = new Bundle();
-        if (!METHOD_GET.equalsIgnoreCase(method)) {
-            result.putString("error", "Unsupported method: " + method);
-            return result;
-        }
-        try {
-            String challenge = pickString(arg, extras, "challenge", DEFAULT_CHALLENGE);
-            RootOfTrust rootOfTrust = loadRootOfTrust(challenge);
-            if (rootOfTrust == null) {
-                result.putString("error", "No RootOfTrust present in attestation certificate");
-                return result;
-            }
-            String field = extras != null ? extras.getString("field") : null;
-            if (field == null || field.isEmpty() || "all".equalsIgnoreCase(field)) {
-                putAll(result, rootOfTrust);
-            } else if (!putField(result, rootOfTrust, field)) {
-                result.putString("error", "Unknown field: " + field);
-            }
-        } catch (Exception e) {
-            result.putString("error", e.getClass().getName() + ": " + e.getMessage());
-        }
-        return result;
-    }
-
-    private static String pickString(String arg, Bundle extras, String key, String fallback) {
-        if (arg != null && !arg.isEmpty()) {
-            return arg;
-        }
-        if (extras != null) {
-            String value = extras.getString(key);
-            if (value != null && !value.isEmpty()) {
-                return value;
-            }
-        }
-        return fallback;
-    }
-
-    private static void putAll(Bundle result, RootOfTrust rootOfTrust) {
-        result.putString("rootOfTrust", rootOfTrust.toString());
-        putField(result, rootOfTrust, "deviceLocked");
-        putField(result, rootOfTrust, "verifiedBootState");
-        putField(result, rootOfTrust, "verifiedBootStateName");
-        putField(result, rootOfTrust, "verifiedBootKey");
-        putField(result, rootOfTrust, "verifiedBootHash");
-    }
-
-    private static boolean putField(Bundle result, RootOfTrust rootOfTrust, String field) {
-        switch (field) {
-            case "rootOfTrust":
-                result.putString("rootOfTrust", rootOfTrust.toString());
-                return true;
-            case "deviceLocked":
-                result.putBoolean("deviceLocked", rootOfTrust.isDeviceLocked());
-                return true;
-            case "verifiedBootState":
-                result.putInt("verifiedBootState", rootOfTrust.getVerifiedBootState());
-                return true;
-            case "verifiedBootStateName":
-                result.putString("verifiedBootStateName",
-                        RootOfTrust.verifiedBootStateToString(rootOfTrust.getVerifiedBootState()));
-                return true;
-            case "verifiedBootKey":
-                result.putString("verifiedBootKey", encode(rootOfTrust.getVerifiedBootKey()));
-                return true;
-            case "verifiedBootHash":
-                result.putString("verifiedBootHash", encode(rootOfTrust.getVerifiedBootHash()));
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private static String encode(byte[] bytes) {
-        return bytes == null ? null : BaseEncoding.base16().lowerCase().encode(bytes);
-    }
-
-    private RootOfTrust loadRootOfTrust(String challenge) throws Exception {
+    private RootOfTrust loadRootOfTrust() throws Exception {
+        String KEY_ALIAS = "vbmeta_root_of_trust";
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
         if (keyStore.containsAlias(KEY_ALIAS)) {
             keyStore.deleteEntry(KEY_ALIAS);
         }
 
-        KeyPairGenerator generator = KeyPairGenerator.getInstance(
-                KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
-        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
-                KEY_ALIAS, KeyProperties.PURPOSE_SIGN)
-                .setAlgorithmParameterSpec(new ECGenParameterSpec("secp256r1"))
-                .setDigests(KeyProperties.DIGEST_SHA256)
-                .setAttestationChallenge(challenge.getBytes())
-                .build();
+        KeyPairGenerator generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
+        KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(KEY_ALIAS, KeyProperties.PURPOSE_SIGN)
+            .setAlgorithmParameterSpec(new ECGenParameterSpec("secp256r1"))
+            .setDigests(KeyProperties.DIGEST_SHA256)
+            .setAttestationChallenge("vbmeta".getBytes())
+            .build();
         generator.initialize(spec);
         generator.generateKeyPair();
 
@@ -133,28 +66,60 @@ public class Provider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-                        String[] selectionArgs, String sortOrder) {
-        return null;
+    public Bundle call(String method, String stub, Bundle extra) {
+        Bundle result = new Bundle();
+        if (!"GET".equals(method)) {
+            result.putString("undefined", method);
+            return result;
+        }
+        try {
+            RootOfTrust rootOfTrust = loadRootOfTrust();
+            if (rootOfTrust == null) {
+                result.putString("error", "No RootOfTrust present in attestation certificate");
+                return result;
+            }
+            String field = extra.getString("field");
+            if (field == null) {
+                result.putString("rootOfTrust", "\n" + rootOfTrust + "\n");
+            } else if ("verifiedBootKey".equals(field)) {
+                result.putString(field, BaseEncoding.base16().lowerCase().encode(rootOfTrust.getVerifiedBootKey()) + "=" + field);
+            } else if ("deviceLocked".equals(field)) {
+                result.putBoolean(field, rootOfTrust.isDeviceLocked());
+            } else if ("verifiedBootState".equals(field)) {
+                result.putString(field, RootOfTrust.verifiedBootStateToString(rootOfTrust.getVerifiedBootState()));
+            } else if ("verifiedBootHash".equals(field)) {
+                result.putString(field, BaseEncoding.base16().lowerCase().encode(rootOfTrust.getVerifiedBootHash()) + "=" + field);
+            } else {
+                result.putString("undefined", field);
+            }
+        } catch (Exception e) {
+            result.putString("error", e.toString());
+        }
+        return result;
     }
 
     @Override
-    public String getType(Uri uri) {
+    public boolean onCreate() {
+        return true;
+    }
+    @Override
+    public String getType(Uri stub1) {
         return null;
     }
-
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(Uri stub2, ContentValues stub3) {
         return null;
     }
-
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(Uri stub4, String stub5, String[] stub6) {
         return 0;
     }
-
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(Uri stub7, ContentValues stub8, String stub9, String[] stub10) {
         return 0;
+    }
+    @Override
+    public Cursor query(Uri stub11, String[] stub12, String stub13, String[] stub14, String stub15) {
+        return null;
     }
 }

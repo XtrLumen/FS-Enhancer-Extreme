@@ -22,40 +22,13 @@ import co.nstant.in.cbor.model.Array;
 import co.nstant.in.cbor.model.ByteString;
 import co.nstant.in.cbor.model.DataItem;
 import co.nstant.in.cbor.model.Map;
-import co.nstant.in.cbor.model.Number;
 import co.nstant.in.cbor.model.SimpleValue;
 import co.nstant.in.cbor.model.SimpleValueType;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 
 class CborUtils {
-    public static int getInt(Map map, DataItem index) {
-        DataItem item = map.get(index);
-        return ((Number) item).getValue().intValue();
-    }
-
-    public static long getLong(Map map, DataItem index) {
-        DataItem item = map.get(index);
-        return ((Number) item).getValue().longValue();
-    }
-
-    public static Set<Integer> getIntSet(Map map, DataItem index) {
-        Array array = (Array) map.get(index);
-        Set<Integer> result = new HashSet<>();
-        for (DataItem item : array.getDataItems()) {
-            result.add(((Number) item).getValue().intValue());
-        }
-        return result;
-    }
-
     public static Boolean getBoolean(Map map, DataItem index) {
         SimpleValueType value = ((SimpleValue) map.get(index)).getSimpleValueType();
         if (value != SimpleValueType.TRUE && value != SimpleValueType.FALSE) {
@@ -80,20 +53,9 @@ class CborUtils {
         return result;
     }
 
-    public static Date getDate(Map map, DataItem index) {
-        DataItem item = map.get(index);
-        long epochMillis = ((Number) item).getValue().longValue();
-        return new Date(epochMillis);
-    }
-
     public static byte[] getBytes(Map map, DataItem index) {
         DataItem item = map.get(index);
         return ((ByteString) item).getBytes();
-    }
-
-    public static String getString(Map map, DataItem index) {
-        byte[] bytes = getBytes(map, index);
-        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public static DataItem decodeCbor(byte[] encodedBytes) throws CborException {
