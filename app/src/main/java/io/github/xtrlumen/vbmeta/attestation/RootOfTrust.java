@@ -92,22 +92,6 @@ public class RootOfTrust {
         return verifiedBootHash;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder()
-                .append("verifiedBootKey: ")
-                .append(BaseEncoding.base16().lowerCase().encode(verifiedBootKey))
-                .append("\ndeviceLocked: ")
-                .append(deviceLocked)
-                .append("\nverifiedBootState: ")
-                .append(verifiedBootStateToString(verifiedBootState));
-        if (verifiedBootHash != null) {
-            sb.append("\nverifiedBootHash: ")
-              .append(BaseEncoding.base16().lowerCase().encode(verifiedBootHash));
-        }
-        return sb.toString();
-    }
-
     public static class Builder {
         private byte[] verifiedBootKey;
         private boolean deviceLocked = false;
@@ -137,5 +121,21 @@ public class RootOfTrust {
         public RootOfTrust build() {
             return new RootOfTrust(verifiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash);
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder()
+            .append("verifiedBootKey: ")
+            .append(BaseEncoding.base16().lowerCase().encode(verifiedBootKey))
+            .append("\ndeviceLocked: ")
+            .append(deviceLocked)
+            .append("\nverifiedBootState: ")
+            .append(verifiedBootStateToString(verifiedBootState));
+        if (verifiedBootHash != null) {
+            sb.append("\nverifiedBootHash: ")
+              .append(BaseEncoding.base16().lowerCase().encode(verifiedBootHash));
+        }
+        return sb.toString();
     }
 }
