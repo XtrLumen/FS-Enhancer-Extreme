@@ -21,8 +21,7 @@ extract() {
     local zip=$1
     local file=$2
     local dir=$3
-    local quiet=$4
-    local skip=$5
+    local args=$4
     unzip -o "$zip" "$file" -d "$dir" >&2
     file_path="$dir/$file"
     if [ -f "$file_path" ]; then
@@ -33,7 +32,7 @@ extract() {
           abort_cn "$file 被篡改!"
           abort_en "Failed to verify $file"
         }
-      elif [ ! "$skip" = "-s" ]; then
+      elif [[ ! "$args" == *"-s"* ]]; then
         abort_cn "$file.sha256 不存在!"
         abort_en "$file.sha256 not exists"
       fi
@@ -41,14 +40,14 @@ extract() {
       abort_cn "$file 不存在!"
       abort_en "$file not exists"
     fi
-    [ "$quiet" = "-q" ] || {
+    [[ "$args" == *"-q"* ]] || {
       print_cn "- $file 未篡改"
       print_en "- Verified $file" >&1
     }
   }
   if [[ "$2" == */\* ]]; then
-    for files in $(unzip -l "$1" "$2" | awk 'NR>3 {print $4}' | grep -v '\.sha256$' | grep -v '/$' | grep -v '^$'); do
-      unpack "$1" "$files" "$3" "$4" "$5"
+    for file in $(unzip -l "$1" "$2" | awk 'NR>3 {print $4}' | grep -v '/$' | grep -v '^$'); do
+      unpack "$1" "$file" "$3" "$4 $5"
     done
   else
     unpack "$@"
