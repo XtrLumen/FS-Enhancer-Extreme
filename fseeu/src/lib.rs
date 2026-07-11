@@ -36,7 +36,6 @@ fn verify() -> bool {
         "lib/libutils.so",
         "script/state.sh",
         "script/util_functions.sh",
-        "banner.png",
         "post-fs-data.sh",
         "provider.apk",
         "service.sh",

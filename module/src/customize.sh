@@ -82,7 +82,6 @@ bin/*
 lib/*
 script/*
 action.sh
-banner.png
 mistylake
 module.prop
 post-fs-data.sh
