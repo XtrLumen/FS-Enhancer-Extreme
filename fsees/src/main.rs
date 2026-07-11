@@ -64,7 +64,6 @@ fn init_lib() {
     std::mem::forget(lib_instance);
 }
 
-
 const TAG: &str = "daemon";
 fn log_i(msg: &str) {
     unsafe {(FUNCTIONS.get().unwrap().log_i)(TAG, msg)}
