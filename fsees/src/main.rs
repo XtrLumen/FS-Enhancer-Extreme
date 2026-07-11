@@ -15,48 +15,78 @@
 
 use std::thread;
 use std::process;
-use std::io::Write;
 use std::path::Path;
 use std::ffi::CString;
-use std::fs::OpenOptions;
-use libloading::{Library, Symbol};
+use std::sync::OnceLock;
+use libloading::Library;
 
-fn logout(level: char, msg: &str) {
-    let (timestamp, pid, tid) = unsafe {
-        //创建时间结构体
-        let mut ts: libc::timespec = std::mem::zeroed();
-        let mut tm: libc::tm = std::mem::zeroed();
-        //赋值时间结构体
-        libc::clock_gettime(libc::CLOCK_REALTIME, &mut ts);
-        //时间格式转换
-        libc::localtime_r(&ts.tv_sec, &mut tm);
-        //时间格式分割
-        let finaltime = format!("{:02}-{:02} {:02}:{:02}:{:02}.{:03}", tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec / 1_000_000);
-        (finaltime, libc::getpid(), libc::gettid())
+struct Functions {
+    log_i: unsafe fn(&str, &str),
+    log_w: unsafe fn(&str, &str),
+    log_e: unsafe fn(&str, &str),
+    log_d: unsafe fn(&str, &str),
+    verify: unsafe fn() -> bool
+}
+
+static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
+
+fn init_lib() {
+    let lib_instance = match unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")} {
+        Ok(success) => success,
+        Err(_) => {
+            panic!("加载libutils.so失败");
+        }
     };
-    OpenOptions::new().create(true).append(true).open("/data/adb/fs_enhancer_extreme/log/log.log").and_then(|mut f|
-        f.write_all(
-            format!("{}  {}  {} {} [FSEE]: <Daemon> {}\n", timestamp, pid, tid, level, msg).as_bytes()
-        )
-    ).ok();
+    let log_functions_load = |function_name: &str| -> unsafe fn(&str, &str) {
+        match unsafe {lib_instance.get::<unsafe fn(&str, &str)>(function_name.as_bytes())} {
+            Ok(pointer) => *pointer,
+            Err(_) => {
+                panic!("加载失败:libutils.so不存在日志函数");
+            }
+        }
+    };
+    let verify_functions_load = |function_name: &str| -> unsafe fn() -> bool {
+        match unsafe {lib_instance.get::<unsafe fn() -> bool>(function_name.as_bytes())} {
+            Ok(pointer) => *pointer,
+            Err(_) => {
+                panic!("加载失败:libutils.so不存在验证函数");
+            }
+        }
+    };
+    let functions = Functions {
+        log_i: log_functions_load("log_i_bridge"),
+        log_w: log_functions_load("log_w_bridge"),
+        log_e: log_functions_load("log_e_bridge"),
+        log_d: log_functions_load("log_d_bridge"),
+        verify: verify_functions_load("verify_bridge")
+    };
+    FUNCTIONS.set(functions).ok();
+    std::mem::forget(lib_instance);
 }
-fn log(msg: &str) {
-    logout('I', msg)
+
+
+const TAG: &str = "daemon";
+fn log_i(msg: &str) {
+    unsafe {(FUNCTIONS.get().unwrap().log_i)(TAG, msg)}
 }
-fn logw(msg: &str) {
-    logout('W', msg)
+fn log_w(msg: &str) {
+    unsafe {(FUNCTIONS.get().unwrap().log_w)(TAG, msg)}
 }
-fn loge(msg: &str) {
-    logout('E', msg)
+fn log_e(msg: &str) {
+    unsafe {(FUNCTIONS.get().unwrap().log_e)(TAG, msg)}
 }
 #[allow(unused)]
-fn logd(msg: &str) {
-    logout('D', msg)
+fn log_d(msg: &str) {
+    unsafe {(FUNCTIONS.get().unwrap().log_d)(TAG, msg)}
 }
 
-fn watch(path: &str, args: Vec<&str>, events: u32, tx: std::sync::mpsc::Sender<bool>) {
+fn verify() -> bool {
+    unsafe {(FUNCTIONS.get().unwrap().verify)()}
+}
+
+fn watch(path: &str, args: &[&[&str]], events: u32, tx: std::sync::mpsc::Sender<bool>) {
     if !Path::new(path).exists() {
-        loge(&format!("目录{}不存在,结束线程", path));
+        log_e(&format!("目录{}不存在,结束线程", path));
         //发送状态
         tx.send(false).ok();
         return;
@@ -64,7 +94,7 @@ fn watch(path: &str, args: Vec<&str>, events: u32, tx: std::sync::mpsc::Sender<b
     //创建实例
     let instance = unsafe {libc::inotify_init()};
     if instance < 0 {
-        loge("实例创建失败");
+        log_e("实例创建失败");
         //发送状态
         tx.send(false).ok();
         return;
@@ -75,13 +105,13 @@ fn watch(path: &str, args: Vec<&str>, events: u32, tx: std::sync::mpsc::Sender<b
         libc::inotify_add_watch(instance, cstring.as_ptr(), events)
     };
     if watch < 0 {
-        loge("监听添加失败");
+        log_e("监听添加失败");
         //发送状态
         tx.send(false).ok();
         unsafe { libc::close(instance); }
         return;
     }
-    log("线程就绪");
+    log_i("线程就绪");
     //发送状态
     tx.send(true).ok();
     //创建缓冲区
@@ -96,42 +126,28 @@ fn watch(path: &str, args: Vec<&str>, events: u32, tx: std::sync::mpsc::Sender<b
             instance, buffer.as_mut_ptr() as *mut libc::c_void, buffer.len()
         )};
         if last.elapsed() >= speed {
-            log(&format!("触发执行fseed {}", args.join(" ")));
+            let all_args: Vec<String> = args.iter().map(|content|
+                content.join(" ")
+            ).collect();
+            log_i(&format!("触发执行fseed {}", all_args.join(" | ")));
             last = std::time::Instant::now();
         }
         //执行
-        process::Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(&args).status().ok();
-    }
-}
-
-fn verify() -> Result<bool, &'static str> {
-    let libpath = match unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libverify.so")} {
-        Ok(lib) => lib,
-        Err(_) => return Err("验证失败:libverify.so不存在")
-    };
-    let invoke_bridge: Symbol<unsafe fn() -> bool> = match unsafe {libpath.get(b"invoke_bridge")} {
-        Ok(func) => func,
-        Err(_) => return Err("验证失败:libverify.so不存在验证函数")
-    };
-    if unsafe {invoke_bridge()} {
-        Ok(true)
-    } else {
-        Ok(false)
+        for arg in args {
+            process::Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(*arg).status().ok();
+        }
     }
 }
 
 fn main() {
+    //函数导入
+    init_lib();
     //验证
-    match verify() {
-        Ok(true) => log("开始启动线程"),
-        Ok(false) => {
-            loge("拒绝启动:模块文件被篡改!");
-            unsafe {*(0xDEADBEEF as *mut u8) = 0}
-        }
-        Err(e) => {
-            loge(e);
-            process::abort();
-        }
+    if verify() {
+        log_i("开始启动线程");
+    } else {
+        log_e("拒绝启动:文件被篡改!");
+        unsafe {*(0xDEADBEEF as *mut u8) = 0}
     }
     //创建通道
     let (tx1, rx1) = std::sync::mpsc::channel();
@@ -140,7 +156,7 @@ fn main() {
     thread::spawn(move || {
         watch(
             "/data/adb/modules_update",
-            vec!["--conflictmodcheck", "-s"],
+            &[&["--conflictmodcheck", "-s"]],
             libc::IN_CREATE | libc::IN_ISDIR,
             tx1
         );
@@ -148,7 +164,8 @@ fn main() {
     thread::spawn(move || {
         watch(
             "/data/app",
-            vec!["--conflictappcheck", "--packagelistupdate"],
+            &[&["--conflictappcheck"],
+            &["--packagelistupdate"]],
             libc::IN_CREATE | libc::IN_DELETE,
             tx2
         );
@@ -157,11 +174,11 @@ fn main() {
     let res1 = rx1.recv().unwrap();
     let res2 = rx2.recv().unwrap();
     if res1 && res2 {
-        log("成功启动服务");
+        log_i("成功启动服务");
     } else if res1 || res2 {
-        logw("线程部分就绪");
+        log_w("线程部分就绪");
     } else {
-        loge("服务启动失败");
+        log_e("服务启动失败");
         process::abort();
     }
     //挂起

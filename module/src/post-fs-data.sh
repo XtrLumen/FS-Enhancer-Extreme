@@ -21,9 +21,9 @@ mkdir -p "$LOGDIR"
 touch    "$FSEELOG"
 logI "轮换日志目录结束"
 logI "清理临时文件"
-rm -f "$FSEECONFIG/multiple.txt"
-rm -f "$FSEECONFIG/kernel.txt"
-rm -f "$FSEECONFIG/root.txt"
+rm -f "$FSEECONFIGDIR/multiple"
+rm -f "$FSEECONFIGDIR/kernel"
+rm -f "$FSEECONFIGDIR/root"
 fseed --rootdetect
 check
 

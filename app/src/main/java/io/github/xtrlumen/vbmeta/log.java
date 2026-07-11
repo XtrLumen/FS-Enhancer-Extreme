@@ -19,9 +19,9 @@ import android.util.Log;
 
 public class log {
     public static void E(String msg) {
-        Log.e("[FSEE]", "<VBMetaProvider> " + msg);
+        Log.e("[FSEE]", "<vbmeta-provider> " + msg);
     }
     public static void E(String msg, Throwable t) {
-        Log.e("[FSEE]", "<VBMetaProvider> " + msg, t);
+        Log.e("[FSEE]", "<vbmeta-provider> " + msg, t);
     }
 }

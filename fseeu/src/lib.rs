@@ -15,7 +15,9 @@
 
 use std::fs::File;
 use std::io::Read;
+use std::io::Write;
 use std::path::Path;
+use std::fs::OpenOptions;
 use ed25519_compact::{PublicKey, Signature};
 
 fn verify() -> bool {
@@ -31,7 +33,7 @@ fn verify() -> bool {
         "bin/cmd",
         "bin/fseed",
         "bin/fsees",
-        "lib/libverify.so",
+        "lib/libutils.so",
         "script/state.sh",
         "script/util_functions.sh",
         "banner.png",
@@ -89,7 +91,43 @@ fn verify() -> bool {
     PublicKey::new(pb_bytes).verify(&blake3hash, &Signature::new(sg_bytes)).is_ok()
 }
 
+fn log(level: char, tag: &str, msg: &str) {
+    let (timestamp, pid, tid) = unsafe {
+        //创建时间结构体
+        let mut ts: libc::timespec = std::mem::zeroed();
+        let mut tm: libc::tm = std::mem::zeroed();
+        //赋值时间结构体
+        libc::clock_gettime(libc::CLOCK_REALTIME, &mut ts);
+        //时间格式转换
+        libc::localtime_r(&ts.tv_sec, &mut tm);
+        //时间格式分割
+        let finaltime = format!("{:02}-{:02} {:02}:{:02}:{:02}.{:03}", tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec / 1_000_000);
+        (finaltime, libc::getpid(), libc::gettid())
+    };
+    OpenOptions::new().create(true).append(true).open("/data/adb/fs_enhancer_extreme/log/log.log").and_then(|mut content|
+        content.write_all(
+            format!("{}  {}  {} {} [FSEE]: <{}> {}\n", timestamp, pid, tid, level, tag, msg).as_bytes()
+        )
+    ).ok();
+}
+
 #[unsafe(no_mangle)]
-pub fn invoke_bridge() -> bool {
+pub fn log_i_bridge(tag: &str, msg: &str) {
+    log('I', tag, msg)
+}
+#[unsafe(no_mangle)]
+pub fn log_w_bridge(tag: &str, msg: &str) {
+    log('W', tag, msg)
+}
+#[unsafe(no_mangle)]
+pub fn log_e_bridge(tag: &str, msg: &str) {
+    log('E', tag, msg)
+}
+#[unsafe(no_mangle)]
+pub fn log_d_bridge(tag: &str, msg: &str) {
+    log('D', tag, msg)
+}
+#[unsafe(no_mangle)]
+pub fn verify_bridge() -> bool {
     verify()
 }

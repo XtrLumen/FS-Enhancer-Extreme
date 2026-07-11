@@ -28,19 +28,19 @@ FSEELOG="$LOGDIR/log.log"
 isPostFsData=false
 isServiceD=false
 isService=false
-logID="<Undefined>"
+LOG_TAG="<Undefined>"
 case "$(basename "$0")" in
   *"post-fs-data.sh"*)
     isPostFsData=true
-    logID="<Post-Fs-Data>"
+    LOG_TAG="<post-fs-data>"
     ;;
   *".fsee_state.sh"*)
     isServiceD=true
-    logID="<Service.D>"
+    LOG_TAG="<service.d>"
     ;;
   *"service.sh"*)
     isService=true
-    logID="<Service>"
+    LOG_TAG="<service>"
     ;;
 esac
 ##END##
@@ -71,7 +71,7 @@ fseed() {
 logout() {
   LEVEL=$1
   shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: $logID $@" >> "$FSEELOG"
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: $LOG_TAG $@" >> "$FSEELOG"
 }
 logI() {
   logout "I" "$@"
