@@ -23,7 +23,7 @@ Enhances the ForgeStore experience, while providing extreme hiding of detection 
 - At startup, Automatically correct abnormal VerifiedBootHash Property
 - At startup, Masquerade the bootloader status as locked
 - At startup, Synchronize Security Patch Level to Property
-- Provides Google Hardware Attestation Root Certificate signing keybox<sup>Revoked(About to move from the installation process to inside the WebUI)</sup>
+- Provides Google Hardware Attestation Root Certificate signing keybox
 
 ### Other
 - Display the running environment and startup results in the module description
@@ -58,5 +58,6 @@ Enhances the ForgeStore experience, while providing extreme hiding of detection 
 >     - Provide action button to navigate to [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) or [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone)
 
 ## Acknowledgement
+- [bmax121/APatch](https://github.com/bmax121/APatch)
 - [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff)
 - [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation)

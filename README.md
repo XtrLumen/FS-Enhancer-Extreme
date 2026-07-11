@@ -23,7 +23,7 @@
 - 启动时全自动修正异常VerifiedBootHash属性
 - 启动时伪装引导加载程序状态为锁定
 - 启动时将安全补丁级别同步到属性
-- 提供谷歌硬件认证根证书签名的keybox<sup>已吊销(即将从安装过程移到WebUI内部)</sup>
+- 提供谷歌硬件认证根证书签名的keybox
 
 ### 其他
 - 在模块描述显示运行环境和启动结果
@@ -58,5 +58,6 @@
 >     - 提供跳转到 [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) 或 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) 的操作按钮
 
 ## 致谢
+- [bmax121/APatch](https://github.com/bmax121/APatch)
 - [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff)
 - [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation)

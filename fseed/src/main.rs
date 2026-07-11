@@ -13,38 +13,48 @@
  * Copyright (C) 2025-2026 XtrLumen
  */
 
-use libloading::{Library, Symbol};
+use std::sync::OnceLock;
+use libloading::Library;
 
-unsafe fn verify() -> Result<bool, &'static str> {
-    let libpath = match Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libverify.so") {
-        Ok(lib) => lib,
-        Err(_) => return Err("验证失败,libverify.so不存在")
+struct Functions {
+    verify: unsafe fn() -> bool
+}
+
+static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
+
+fn init_lib() {
+    let lib_instance = match unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")} {
+        Ok(success) => success,
+        Err(_) => {
+            panic!("加载libutils.so失败");
+        }
     };
-    let invoke_bridge: Symbol<unsafe fn() -> bool> = match libpath.get(b"invoke_bridge") {
-        Ok(func) => func,
-        Err(_) => return Err("验证失败,libverify.so不存在验证函数")
+    let verify_functions_load = |function_name: &str| -> unsafe fn() -> bool {
+        match unsafe {lib_instance.get::<unsafe fn() -> bool>(function_name.as_bytes())} {
+            Ok(pointer) => *pointer,
+            Err(_) => {
+                panic!("加载失败:libutils.so不存在验证函数");
+            }
+        }
     };
-    if invoke_bridge() {
-        Ok(true)
-    } else {
-        Ok(false)
-    }
+    let functions = Functions {
+        verify: verify_functions_load("verify_bridge")
+    };
+    FUNCTIONS.set(functions).ok();
+    std::mem::forget(lib_instance);
+}
+
+fn verify() -> bool {
+    unsafe {(FUNCTIONS.get().unwrap().verify)()}
 }
 
 fn main() {
+    //函数导入
+    init_lib();
     //验证
-    unsafe {
-        match verify() {
-            Ok(true) => {},
-            Ok(false) => {
-                println!("拒绝执行:模块文件被篡改!");
-                *(0xDEADBEEF as *mut u8) = 0
-            }
-            Err(e) => {
-                println!("{}", e);
-                *(0xDEADBEEF as *mut u8) = 0
-            }
-        }
+    if !verify() {
+        eprintln!("拒绝执行:文件被篡改!");
+        unsafe {*(0xDEADBEEF as *mut u8) = 0}
     }
     println!("Pass!");
 }

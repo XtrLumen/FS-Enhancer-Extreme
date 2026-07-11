@@ -1,16 +1,17 @@
 cargo-features = ["trim-paths"]
 
 [package]
-name = "fseev"
+name = "fseeu"
 edition = "2024"
 authors = ["XtrLumen"]
 
 [lib]
-name = "verify"
+name = "utils"
 crate-type = ["dylib"]
 
 [dependencies]
 hex = "0.4"
+libc = "1.0.0-alpha.3"
 blake3 = "1.8"
 ed25519-compact = "2.0"
 

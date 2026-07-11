@@ -9,7 +9,6 @@ authors = ["XtrLumen"]
 libc = "1.0.0-alpha.3"
 libloading = "0.9.0"
 
-
 [profile.release]
 lto = true
 strip = true

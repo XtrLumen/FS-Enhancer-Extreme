@@ -61,11 +61,11 @@ FSEECONFIG="$FSEECONFIGDIR/config"
 FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
 TSMODDIR="$MODULESDIR/forge_store"
 #THREE LEVEL#
-MULTIPLETYPE="$FSEECONFIG/multiple.txt"
-KERNELTYPE="$FSEECONFIG/kernel.txt"
-SINGLETYPE="$FSEECONFIG/root.txt"
-FSEEBIN="$FSEEMODDIR/bin"
+MULTIPLETYPE="$FSEECONFIGDIR/multiple"
+KERNELTYPE="$FSEECONFIGDIR/kernel"
+SINGLETYPE="$FSEECONFIGDIR/root"
 FSEELOG="$FSEECONFIGDIR/log/log.log"
+FSEEBIN="$FSEEMODDIR/bin"
 #OTHERS#
 BACK="$PATH"
 PATH="$FSEEBIN:$PATH"
@@ -105,7 +105,7 @@ echo_en() {
 logout() {
   LEVEL=$1
   shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: <CLI> $@" >> "$FSEELOG"
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: <cli> $@" >> "$FSEELOG"
 }
 logI() {
   logout "I" "$@"

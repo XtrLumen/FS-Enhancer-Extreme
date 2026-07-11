@@ -21,6 +21,6 @@ include(
     ":app",
     ":fseed",
     ":fsees",
-    ":fseev",
+    ":fseeu",
     ":module"
 )

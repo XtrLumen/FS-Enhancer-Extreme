@@ -23,7 +23,7 @@
 - 啟動時全自動修正異常VerifiedBootHash屬性
 - 啟動時將安全性修補程式等級同步至屬性
 - 啟動時偽裝引導載入程式狀態為鎖定
-- 提供Google硬體認證根憑證簽章的keybox<sup>已撤銷(即將從安裝過程移到WebUI內部)</sup>
+- 提供Google硬體認證根憑證簽章的keybox
 
 ### 其他
 - 在模組描述顯示運行環境和啟動結果
@@ -58,5 +58,6 @@
 >     - 提供跳轉至 [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) 或 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) 的操作按鈕
 
 ## 致謝
+- [bmax121/APatch](https://github.com/bmax121/APatch)
 - [5ec1cff/cmd-wrapper](https://gist.github.com/5ec1cff/4b3a3ef329094e1427e2397cfa2435ff)
 - [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation)

@@ -62,7 +62,7 @@ version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
 dependencies = [
- "libc",
+ "libc 0.2.181",
 ]
 
 [[package]]
@@ -88,12 +88,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 
 [[package]]
-name = "fseev"
+name = "fseeu"
 version = "0.0.0"
 dependencies = [
  "blake3",
  "ed25519-compact",
  "hex",
+ "libc 1.0.0-alpha.3",
 ]
 
 [[package]]
@@ -104,7 +105,7 @@ checksum = "899def5c37c4fd7b2664648c28120ecec138e4d395b459e5ca34f9cce2dd77fd"
 dependencies = [
  "cfg-if",
  "js-sys",
- "libc",
+ "libc 0.2.181",
  "r-efi",
  "wasip2",
  "wasm-bindgen",
@@ -131,6 +132,12 @@ name = "libc"
 version = "0.2.181"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "459427e2af2b9c839b132acb702a1c654d95e10f8c326bfc2ad11310e458b1c5"
+
+[[package]]
+name = "libc"
+version = "1.0.0-alpha.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e136bfa874086c78f34d6eba98c423fefe464ce57f38164d16893ba8ed358e70"
 
 [[package]]
 name = "once_cell"

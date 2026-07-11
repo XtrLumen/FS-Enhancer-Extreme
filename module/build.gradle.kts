@@ -39,9 +39,9 @@ listOf(
 
         dependsOn(
             ":app:assemble${variantCapped}",
-            ":fseed:buildBind${variantCapped}",
-            ":fsees:buildBins${variantCapped}",
-            ":fseev:buildLib${variantCapped}"
+            ":fseed:bind${variantCapped}",
+            ":fsees:bins${variantCapped}",
+            ":fseeu:libu${variantCapped}"
         )
 
         doFirst {
@@ -96,8 +96,8 @@ listOf(
             include("fsees")
         }
         into("lib") {
-            from(project(":fseev").file("target/aarch64-linux-android/${variantLowered}"))
-            include("libverify.so")
+            from(project(":fseeu").file("target/aarch64-linux-android/${variantLowered}"))
+            include("libutils.so")
         }
     }
 
@@ -136,7 +136,7 @@ listOf(
                             "bin/cmd",
                             "bin/fseed",
                             "bin/fsees",
-                            "lib/libverify.so",
+                            "lib/libutils.so",
                             "script/state.sh",
                             "script/util_functions.sh",
                             "banner.png",
