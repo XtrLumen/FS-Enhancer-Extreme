@@ -24,4 +24,7 @@ public class log {
     public static void E(String msg, Throwable t) {
         Log.e("[FSEE]", "<vbmeta-provider> " + msg, t);
     }
+    public static void D(String msg) {
+        Log.d("[FSEE]", "<vbmeta-provider> " + msg);
+    }
 }

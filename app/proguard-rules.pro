@@ -1,6 +1,6 @@
 -keep class io.github.xtrlumen.vbmeta.Entry
 -assumenosideeffects class android.util.Log {
-    public static int e(...);
+    public static int d(...);
 }
 
 -repackageclasses

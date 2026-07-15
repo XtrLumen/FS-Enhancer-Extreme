@@ -19,4 +19,4 @@ source "../modules/fs_enhancer_extreme/script/util_functions.sh"
 
 initwait
 logI "刷新运行状态"
-invoke --staterefresh
+invoke descrefresh

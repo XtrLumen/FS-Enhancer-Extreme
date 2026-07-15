@@ -2,7 +2,7 @@ cargo-features = ["trim-paths"]
 
 [package]
 name = "fsees"
-edition = "2021"
+edition = "2024"
 authors = ["XtrLumen"]
 
 [dependencies]

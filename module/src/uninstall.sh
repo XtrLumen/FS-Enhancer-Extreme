@@ -15,6 +15,5 @@
 
 rm -rf /data/adb/fs_enhancer_extreme/
 
-rm -f /data/adb/modules/forge_store/action.sh
 rm -f /data/adb/service.d/.fsee_state.sh
 find /data/adb/service.d -empty -delete

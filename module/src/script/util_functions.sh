@@ -18,11 +18,11 @@
 ADB="/data/adb"
 #ONE LEVEL#
 FSEEMODDIR="$ADB/modules/fs_enhancer_extreme"
-FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
+FSEEDIR="$ADB/fs_enhancer_extreme"
 #TWO LEVEL#
-FSEECONFIG="$FSEECONFIGDIR/config"
-OLDLOG="$FSEECONFIGDIR/log.old"
-LOGDIR="$FSEECONFIGDIR/log"
+FSEECONFIG="$FSEEDIR/config"
+OLDLOG="$FSEEDIR/log.old"
+LOGDIR="$FSEEDIR/log"
 FSEELOG="$LOGDIR/log.log"
 #OTHER#
 isPostFsData=false
@@ -71,7 +71,7 @@ fseed() {
 logout() {
   LEVEL=$1
   shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]: $LOG_TAG $@" >> "$FSEELOG"
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ $LEVEL [FSEE]  : $LOG_TAG $@" >> "$FSEELOG"
 }
 logI() {
   logout "I" "$@"
@@ -87,8 +87,8 @@ initwait() {
     sleep 1s
   done
 }
-check() {
-  if fseed --isEnvironmentNormal; then
+envcheck() {
+  if fseed envcheck; then
     if $isPostFsData; then
       logI "环境正常,继续执行"
       mv -f "$FSEEMODDIR/.webroot" "$FSEEMODDIR/webroot"
@@ -103,9 +103,8 @@ check() {
       logE "环境异常,拦截执行"
       mv -f "$FSEEMODDIR/webroot" "$FSEEMODDIR/.webroot"
       mv -f "$FSEEMODDIR/action.sh" "$FSEEMODDIR/.action.sh"
-    else
-      exit
     fi
+    exit
   fi
 }
 invoke() {
