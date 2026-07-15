@@ -19,19 +19,18 @@ rm   -rf "$OLDLOG"
 mv    -f "$LOGDIR" "$OLDLOG"
 mkdir -p "$LOGDIR"
 touch    "$FSEELOG"
-logI "轮换日志目录结束"
-logI "清理临时文件"
-rm -f "$FSEECONFIGDIR/multiple"
-rm -f "$FSEECONFIGDIR/kernel"
-rm -f "$FSEECONFIGDIR/root"
-fseed --rootdetect
-check
-
-logI "移除冲突模块"
-invoke --conflictmodcheck
-if [ ! -f "$ADB/service.d/.fsee_state.sh" ]; then
-  logI "配置状态检测脚本"
+logI "轮换日志结束"
+logI "重置描述文件"
+cp -f "$FSEEMODDIR/module.base" "$FSEEMODDIR/module.prop"
+[ -f "$ADB/service.d/.fsee_state.sh" ] || {
+  logI "配置描述文件刷新脚本"
   mkdir -p "$ADB/service.d"
   cp -f "$FSEEMODDIR/script/state.sh" "$ADB/service.d/.fsee_state.sh"
   chmod +x "$ADB/service.d/.fsee_state.sh"
-fi
+}
+logI "收集运行环境"
+invoke envcollect
+envcheck
+
+logI "处理冲突模块"
+invoke modcheck

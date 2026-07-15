@@ -61,9 +61,8 @@ SKIPUNZIP=1
 ADB="/data/adb"
 #ONE LEVEL#
 MODULESDIR="$ADB/modules"
-FSEECONFIGDIR="$ADB/fs_enhancer_extreme"
 #TWO LEVEL#
-FSEECONFIG="$FSEECONFIGDIR/config"
+FSEECONFIG="$ADB/fs_enhancer_extreme/config"
 #CHECK ENVIRONMENT#
 MIN_RELEASE=10
 RELEASE=$(grep_get_prop ro.build.version.release)
@@ -83,6 +82,7 @@ lib/*
 script/*
 action.sh
 mistylake
+module.base
 module.prop
 post-fs-data.sh
 provider.apk
@@ -91,10 +91,8 @@ uninstall.sh
 "
 #POST PROCESS#
 NES="
-$MODPATH/bin/cmd
 $MODPATH/bin/fseed
 $MODPATH/bin/fsees
-$MODPATH/bin/fseedemo
 "
 SYS="
 com.android.vending
@@ -114,15 +112,15 @@ TA_utl
 Yurikey
 xiaocaiye
 Yamabukiko
-safetynet-fix
 vbmeta-fixer
+safetynet-fix
 playintegrity
 integrity_box
 SukiSU_module
+ShamikoManager
 Reset_BootHash
 Tricky_store-bm
 Hide_Bootloader
-ShamikoManager
 extreme_hide_root
 ts_enhancer_extreme
 Tricky_Store-xiaoyi
@@ -175,9 +173,9 @@ source "$TMPDIR/verify.sh"
   abort "***********************************************"
 }
 if [ "$KernelSU" ]; then
-  print_cn "- KernelSU版本号: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+  print_cn "- KernelSU版本号: $KSU_KERNEL_VER_CODE(kernel) $KSU_VER_CODE(ksud)"
   print_cn "- KernelSU版本: $KSU_VER"
-  print_en "- KernelSU version code: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+  print_en "- KernelSU version code: $KSU_KERNEL_VER_CODE(kernel) $KSU_VER_CODE(ksud)"
   print_en "- KernelSU version: $KSU_VER"
 elif [ "$APatch" ]; then
   print_cn "- APatch版本号: $APATCH_VER_CODE"

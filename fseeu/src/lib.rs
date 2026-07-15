@@ -10,47 +10,56 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * If not, see <https://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2025-2026 XtrLumen
+ * Copyright (C) 2026 XtrLumen
  */
 
-use std::fs::File;
-use std::io::Read;
-use std::io::Write;
-use std::path::Path;
-use std::fs::OpenOptions;
-use ed25519_compact::{PublicKey, Signature};
+use std::{
+    fs,
+    mem,
+    path::Path,
+    io::{
+        Read,
+        Write
+    }
+};
+
+use blake3::Hasher;
+use ed25519_compact::{
+    PublicKey,
+    Signature
+};
+
+const FSEELOG: &str = "/data/adb/fs_enhancer_extreme/log/log.log";
 
 fn verify() -> bool {
-    let pwd = Path::new("/data/adb/modules/fs_enhancer_extreme");
+    let path = Path::new("/data/adb/modules/fs_enhancer_extreme");
     
-    //创建文件列表
-    let action = if pwd.join(".action.sh").exists() {
+    let action = if path.join(".action.sh").exists() {
         ".action.sh"
     } else {
         "action.sh"
     };
-    let lists = [
-        "bin/cmd",
+
+    //计算哈希拼接
+    let mut blake3hash = String::new();
+    for file in &[
         "bin/fseed",
         "bin/fsees",
         "lib/libutils.so",
         "script/state.sh",
         "script/util_functions.sh",
+        "module.base",
         "post-fs-data.sh",
         "provider.apk",
         "service.sh",
         "uninstall.sh",
         action
-    ];
+    ] {
+        let path = path.join(file);
 
-    //计算哈希拼接
-    let mut blake3hash = String::new();
-    for file in lists.iter() {
-        let path = pwd.join(file);
-
-        let mut hasher = blake3::Hasher::new();
-        let mut file = match File::open(&path) {
-            Ok(f) => f,
+        let mut hasher = Hasher::new();
+        let mut file = match fs::File::open(&path) {
+            Ok(exist) => exist,
             Err(_) => return false,
         };
         let mut buffer = [0u8; 4096];
@@ -70,7 +79,7 @@ fn verify() -> bool {
     }
 
     //读取集合文件
-    let ml_bytes = match std::fs::read(pwd.join("mistylake")) {
+    let ml_bytes = match fs::read(path.join("mistylake")) {
         Ok(bytes) => bytes,
         Err(_) => return false,
     };
@@ -92,24 +101,39 @@ fn verify() -> bool {
 
 fn log(level: char, tag: &str, msg: &str) {
     let (timestamp, pid, tid) = unsafe {
-        //创建时间结构体
-        let mut ts: libc::timespec = std::mem::zeroed();
-        let mut tm: libc::tm = std::mem::zeroed();
-        //赋值时间结构体
+        //创建时间结构
+        let mut ts: libc::timespec = mem::zeroed();
+        let mut tm: libc::tm = mem::zeroed();
+        //赋值纳秒
         libc::clock_gettime(libc::CLOCK_REALTIME, &mut ts);
-        //时间格式转换
+        //赋值时间
         libc::localtime_r(&ts.tv_sec, &mut tm);
         //时间格式分割
         let finaltime = format!("{:02}-{:02} {:02}:{:02}:{:02}.{:03}", tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec / 1_000_000);
         (finaltime, libc::getpid(), libc::gettid())
     };
-    OpenOptions::new().create(true).append(true).open("/data/adb/fs_enhancer_extreme/log/log.log").and_then(|mut content|
+    fs::OpenOptions::new().create(true).append(true).open(FSEELOG).and_then(|mut content|
         content.write_all(
-            format!("{}  {}  {} {} [FSEE]: <{}> {}\n", timestamp, pid, tid, level, tag, msg).as_bytes()
+            format!("{}  {}  {} {} [FSEE]  : <{}> {}\n", timestamp, pid, tid, level, tag, msg).as_bytes()
         )
     ).ok();
 }
 
+fn log_raw(raw: &str) {
+    fs::OpenOptions::new().create(true).append(true).open(FSEELOG).and_then(|mut content|
+        content.write_all(
+            format!("{}\n", raw).as_bytes()
+        )
+    ).ok();
+}
+
+#[unsafe(no_mangle)]
+pub fn verify_bridge() {
+    if !verify() {
+        log('E', "lib", "拦截:遭到篡改!");
+        unsafe {*(0xDEADBEEF as *mut u8) = 0}
+    }
+}
 #[unsafe(no_mangle)]
 pub fn log_i_bridge(tag: &str, msg: &str) {
     log('I', tag, msg)
@@ -127,6 +151,6 @@ pub fn log_d_bridge(tag: &str, msg: &str) {
     log('D', tag, msg)
 }
 #[unsafe(no_mangle)]
-pub fn verify_bridge() -> bool {
-    verify()
+pub fn log_raw_bridge(msg: &str) {
+    log_raw(msg);
 }

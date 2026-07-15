@@ -3,5 +3,5 @@ name=${moduleName}
 version=${versionName}
 versionCode=${versionCode}
 author=XtrLumen
-description=[🔄Need Reboot]Enhance ForgeStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
+description=Enhance ForgeStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
 updateJson=https://xtrlumen.github.io/FS-Enhancer-Extreme/update.json

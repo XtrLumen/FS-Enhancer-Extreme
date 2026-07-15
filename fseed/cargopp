@@ -1,0 +1,85 @@
+#!/bin/zsh
+
+[ $# -eq 0 ] && echo "no args" && exit 2
+
+name="fseed"
+targetDir="/data/local/tmp"
+
+buildRelease() {
+  echo "cargo ndk --target aarch64-linux-android build --release"
+  cargo ndk --target aarch64-linux-android build --release
+}
+buildDebug() {
+  echo "cargo ndk --target aarch64-linux-android build"
+  cargo ndk --target aarch64-linux-android build
+}
+pushRelease() {
+  buildRelease && {
+    binDir="./target/aarch64-linux-android/release/$name"
+    echo "adb push $binDir $targetDir"
+    adb push "$binDir" "$targetDir"
+  }
+}
+pushDebug() {
+  buildDebug && {
+    binDir="./target/aarch64-linux-android/debug/$name"
+    echo "adb push $binDir $targetDir"
+    adb push "$binDir" "$targetDir"
+  }
+}
+exe() {
+  echo "adb shell su -c $targetDir/$name $@"
+  adb shell su -c "$targetDir/$name" "$@"
+}
+testRelease() {
+  pushRelease && {
+    exe "$@"
+  }
+}
+testDebug() {
+  pushDebug && {
+    exe "$@"
+  }
+}
+clean() {
+  echo "cargo clean"
+  cargo clean
+}
+
+case "$1:$2" in
+  "build:--release")
+    buildRelease
+    exit
+    ;;
+  "push:--release")
+    pushRelease
+    exit
+    ;;
+  "test:--release")
+    shift 2
+    testRelease "$@"
+    exit
+    ;;
+esac
+case "$1" in
+  build)
+    buildDebug
+    ;;
+  push)
+    pushDebug
+    ;;
+  clean)
+    clean
+    ;;
+  test)
+    shift
+    testDebug "$@"
+    ;;
+  exe)
+    shift
+    exe "$@"
+    ;;
+  *)
+    echo "invalid args"
+    exit 1
+esac

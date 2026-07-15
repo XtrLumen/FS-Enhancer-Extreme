@@ -10,58 +10,61 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * If not, see <https://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2025-2026 XtrLumen
+ * Copyright (C) 2026 XtrLumen
  */
 
-use std::thread;
-use std::process;
-use std::path::Path;
-use std::ffi::CString;
-use std::sync::OnceLock;
 use libloading::Library;
 
+use std::{
+    mem,
+    thread,
+    process,
+    path::Path,
+    ffi::CString,
+    sync::{
+        mpsc,
+        OnceLock
+    },
+    time::{
+        Instant,
+        Duration
+    }
+};
+
 struct Functions {
+    verify: unsafe fn(),
     log_i: unsafe fn(&str, &str),
     log_w: unsafe fn(&str, &str),
-    log_e: unsafe fn(&str, &str),
-    log_d: unsafe fn(&str, &str),
-    verify: unsafe fn() -> bool
+    log_e: unsafe fn(&str, &str)
 }
 
 static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
 
-fn init_lib() {
-    let lib_instance = match unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")} {
-        Ok(success) => success,
-        Err(_) => {
-            panic!("加载libutils.so失败");
-        }
+pub fn load_bridge() {
+    let lib_instance = unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")
+        .expect("libutils.so加载失败")
     };
-    let log_functions_load = |function_name: &str| -> unsafe fn(&str, &str) {
-        match unsafe {lib_instance.get::<unsafe fn(&str, &str)>(function_name.as_bytes())} {
-            Ok(pointer) => *pointer,
-            Err(_) => {
-                panic!("加载失败:libutils.so不存在日志函数");
-            }
-        }
-    };
-    let verify_functions_load = |function_name: &str| -> unsafe fn() -> bool {
-        match unsafe {lib_instance.get::<unsafe fn() -> bool>(function_name.as_bytes())} {
-            Ok(pointer) => *pointer,
-            Err(_) => {
-                panic!("加载失败:libutils.so不存在验证函数");
-            }
-        }
-    };
+    let expect_msg: &str = "libutils.so符号缺失";
+    let void_void_load = |function_name: &str| -> unsafe fn() {unsafe{
+        *lib_instance.get::<unsafe fn()>(function_name.as_bytes())
+            .expect(expect_msg)
+    }};
+    let str_str_void_load = |function_name: &str| -> unsafe fn(&str, &str) {unsafe{
+        *lib_instance.get::<unsafe fn(&str, &str)>(function_name.as_bytes())
+            .expect(expect_msg)
+    }};
     let functions = Functions {
-        log_i: log_functions_load("log_i_bridge"),
-        log_w: log_functions_load("log_w_bridge"),
-        log_e: log_functions_load("log_e_bridge"),
-        log_d: log_functions_load("log_d_bridge"),
-        verify: verify_functions_load("verify_bridge")
+        verify: void_void_load("verify_bridge"),
+        log_i: str_str_void_load("log_i_bridge"),
+        log_w: str_str_void_load("log_w_bridge"),
+        log_e: str_str_void_load("log_e_bridge")
     };
     FUNCTIONS.set(functions).ok();
-    std::mem::forget(lib_instance);
+    mem::forget(lib_instance);
+}
+
+fn verify() {
+    unsafe {(FUNCTIONS.get().unwrap().verify)()}
 }
 
 const TAG: &str = "daemon";
@@ -74,16 +77,8 @@ fn log_w(msg: &str) {
 fn log_e(msg: &str) {
     unsafe {(FUNCTIONS.get().unwrap().log_e)(TAG, msg)}
 }
-#[allow(unused)]
-fn log_d(msg: &str) {
-    unsafe {(FUNCTIONS.get().unwrap().log_d)(TAG, msg)}
-}
 
-fn verify() -> bool {
-    unsafe {(FUNCTIONS.get().unwrap().verify)()}
-}
-
-fn watch(path: &str, args: &[&[&str]], events: u32, tx: std::sync::mpsc::Sender<bool>) {
+fn watch(path: &str, args: &[&[&str]], events: u32, tx: mpsc::Sender<bool>) {
     if !Path::new(path).exists() {
         log_e(&format!("目录{}不存在,结束线程", path));
         //发送状态
@@ -107,7 +102,7 @@ fn watch(path: &str, args: &[&[&str]], events: u32, tx: std::sync::mpsc::Sender<
         log_e("监听添加失败");
         //发送状态
         tx.send(false).ok();
-        unsafe { libc::close(instance); }
+        unsafe {libc::close(instance);}
         return;
     }
     log_i("线程就绪");
@@ -116,8 +111,8 @@ fn watch(path: &str, args: &[&[&str]], events: u32, tx: std::sync::mpsc::Sender<
     //创建缓冲区
     let mut buffer = [0u8; 1024];
     //日志速度限制
-    let mut last = std::time::Instant::now();
-    let speed = std::time::Duration::from_millis(1000);
+    let mut last = Instant::now();
+    let speed = Duration::from_millis(1000);
     //循环开始等待
     loop {
         //阻塞
@@ -129,33 +124,32 @@ fn watch(path: &str, args: &[&[&str]], events: u32, tx: std::sync::mpsc::Sender<
                 content.join(" ")
             ).collect();
             log_i(&format!("触发执行fseed {}", all_args.join(" | ")));
-            last = std::time::Instant::now();
+            last = Instant::now();
         }
         //执行
         for arg in args {
-            process::Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(*arg).status().ok();
+            process::Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(*arg)
+                .status().ok();
         }
     }
 }
 
 fn main() {
     //函数导入
-    init_lib();
+    load_bridge();
     //验证
-    if verify() {
-        log_i("开始启动线程");
-    } else {
-        log_e("拒绝启动:文件被篡改!");
-        unsafe {*(0xDEADBEEF as *mut u8) = 0}
-    }
+    verify();
+    log_i("开始启动线程");
     //创建通道
-    let (tx1, rx1) = std::sync::mpsc::channel();
-    let (tx2, rx2) = std::sync::mpsc::channel();
+    let (tx1, rx1) = mpsc::channel();
+    let (tx2, rx2) = mpsc::channel();
     //启动线程
     thread::spawn(move || {
         watch(
             "/data/adb/modules_update",
-            &[&["--conflictmodcheck", "-s"]],
+            &[
+                &["modcheck", "--daemon"]
+            ],
             libc::IN_CREATE | libc::IN_ISDIR,
             tx1
         );
@@ -163,8 +157,10 @@ fn main() {
     thread::spawn(move || {
         watch(
             "/data/app",
-            &[&["--conflictappcheck"],
-            &["--packagelistupdate"]],
+            &[
+                &["listupdate"],
+                &["appcheck"]
+            ],
             libc::IN_CREATE | libc::IN_DELETE,
             tx2
         );

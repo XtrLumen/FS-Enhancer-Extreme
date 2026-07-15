@@ -15,6 +15,8 @@
 
 package io.github.xtrlumen.vbmeta;
 
+import io.github.xtrlumen.vbmeta.log;
+
 import android.content.ContentValues;
 import android.content.ContentProvider;
 
@@ -65,6 +67,9 @@ public class Entry extends ContentProvider {
 
     @Override
     public Bundle call(String method, String stub, Bundle extra) {
+        log.D("用于测试log_raw:多行日志一");
+        log.D("用于测试log_raw:多行日志二");
+
         Bundle result = new Bundle();
 
         if (!"GET".equals(method)) {

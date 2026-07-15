@@ -18,4 +18,4 @@ source "./script/util_functions.sh"
 
 print_cn "- 跳转配置页面"
 print_en "- Start WebUI"
-fseed --startwebui
+fseed startwebui

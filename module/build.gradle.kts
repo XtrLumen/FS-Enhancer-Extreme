@@ -62,6 +62,7 @@ listOf(
             }
             from("$projectDir/src") {
                 include(
+                    "module.base",
                     "module.prop"
                 )
                 expand(
@@ -74,6 +75,7 @@ listOf(
             from("$projectDir/src") {
                 exclude(
                     ".DS_Store",
+                    "module.base",
                     "module.prop"
                 )
             }
@@ -85,13 +87,12 @@ listOf(
             }
             from(
                 rootProject.files(
-                    "README4en-US.md",
-                    "README4zh-Hant.md"
+                    "README4en-US.md"
                 )
             )
         into("bin") {
             from(project(":fseed").file("target/aarch64-linux-android/${variantLowered}"))
-            include("fseedemo")
+            include("fseed")
             from(project(":fsees").file("target/aarch64-linux-android/${variantLowered}"))
             include("fsees")
         }
@@ -133,12 +134,12 @@ listOf(
                 fun mistylakeSign() {
                     val set = LinkedHashSet<File>().apply {
                         listOf(
-                            "bin/cmd",
                             "bin/fseed",
                             "bin/fsees",
                             "lib/libutils.so",
                             "script/state.sh",
                             "script/util_functions.sh",
+                            "module.base",
                             "post-fs-data.sh",
                             "provider.apk",
                             "service.sh",
@@ -239,6 +240,15 @@ listOf(
         dependsOn(pushTask)
 
         commandLine("adb", "shell", "su", "-c", "ksud module install /data/local/tmp/${zipFileName}")
+    }
+
+    tasks.register<Exec>("APatch${variantCapped}") {
+        group = "module"
+        description = "Installs module via APatch."
+
+        dependsOn(pushTask)
+
+        commandLine("adb", "shell", "su", "-c", "apd module install /data/local/tmp/${zipFileName}")
     }
 }
 

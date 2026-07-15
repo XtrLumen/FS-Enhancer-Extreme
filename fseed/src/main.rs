@@ -10,51 +10,35 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * If not, see <https://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2025-2026 XtrLumen
+ * Copyright (C) 2026 XtrLumen
  */
 
-use std::sync::OnceLock;
-use libloading::Library;
+#![feature(iter_intersperse)]
 
-struct Functions {
-    verify: unsafe fn() -> bool
-}
+mod envcollect;
+mod define;
+mod bridge;
+mod cli;
+mod conflict;
+mod ctl;
+mod description;
+mod packagelist;
+mod passprop;
+mod passvbhash;
+mod securitypatch;
+mod util_functions;
+mod webui;
 
-static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
+use crate::{
+    bridge::{
+        init_bridge,
+        verify
+    },
+    cli::entry
+};
 
-fn init_lib() {
-    let lib_instance = match unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")} {
-        Ok(success) => success,
-        Err(_) => {
-            panic!("加载libutils.so失败");
-        }
-    };
-    let verify_functions_load = |function_name: &str| -> unsafe fn() -> bool {
-        match unsafe {lib_instance.get::<unsafe fn() -> bool>(function_name.as_bytes())} {
-            Ok(pointer) => *pointer,
-            Err(_) => {
-                panic!("加载失败:libutils.so不存在验证函数");
-            }
-        }
-    };
-    let functions = Functions {
-        verify: verify_functions_load("verify_bridge")
-    };
-    FUNCTIONS.set(functions).ok();
-    std::mem::forget(lib_instance);
-}
-
-fn verify() -> bool {
-    unsafe {(FUNCTIONS.get().unwrap().verify)()}
-}
-
-fn main() {
-    //函数导入
-    init_lib();
-    //验证
-    if !verify() {
-        eprintln!("拒绝执行:文件被篡改!");
-        unsafe {*(0xDEADBEEF as *mut u8) = 0}
-    }
-    println!("Pass!");
+fn main() -> anyhow::Result<()> {
+    init_bridge();
+    verify();
+    entry()
 }
