@@ -16,6 +16,7 @@
 use libloading::Library;
 
 use std::{
+    fs,
     mem,
     thread,
     process,
@@ -80,10 +81,13 @@ fn log_e(msg: &str) {
 
 fn watch(path: &str, args: &[&[&str]], events: u32, tx: mpsc::Sender<bool>) {
     if !Path::new(path).exists() {
-        log_e(&format!("目录{}不存在,结束线程", path));
-        //发送状态
-        tx.send(false).ok();
-        return;
+        log_w(&format!("目录{}不存在,尝试创建", path));
+        if let Err(error) = fs::create_dir_all(path) {
+            log_e(&format!("目录{}创建失败: {},结束线程", path, error));
+            //发送状态
+            tx.send(false).ok();
+            return;
+        }
     }
     //创建实例
     let instance = unsafe {libc::inotify_init()};
