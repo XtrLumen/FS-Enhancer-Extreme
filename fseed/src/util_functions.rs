@@ -218,7 +218,7 @@ pub fn pm_path(arg: &str, crash: bool) -> anyhow::Result<bool> {
 
 pub fn read_to_string(path: &Path) -> anyhow::Result<String> {
     fs::read_to_string(path).map_err(|error|{
-        log_e(&format!("读取失败: {}", error));
+        log_e(&format!("{}读取失败: {}", path.display(), error));
         error.into()
     })
 }
@@ -237,12 +237,12 @@ pub fn read_identity_string(env_file: &str) -> String {
         )
     ).unwrap_or_default()
 }
-pub fn read_version_integer(env_file: &str) -> u16 {
+pub fn read_version_integer(env_file: &str) -> u32 {
     read_to_string(Path::new(env_file)).ok().and_then(|content|
         content.lines().nth(2).map(|line|
-            line.trim().parse::<u16>().unwrap_or(32767)
+            line.trim().parse::<u32>().unwrap_or(u32::MAX)
         )
-    ).unwrap_or(65535)
+    ).unwrap_or(u32::MAX / 2)
 }
 
 pub fn override_description(path: &str, description: &str) {
