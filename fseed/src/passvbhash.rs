@@ -15,9 +15,10 @@
 
 use crate::{
     define::{
-        MAIN_MODULE_IDENTITY,
         FSEEMODDIR,
-        FSEECONFIG
+        FSEECONFIG,
+        MAIN_MODULE_ENV_FILE,
+        MAIN_MODULE_IDENTITY
     },
     bridge::{
         log_i,
@@ -166,7 +167,7 @@ pub fn entry() -> anyhow::Result<()> {
         }
     };
 
-    if *MAIN_MODULE_IDENTITY == "TrickyStore" && read_version_integer("main_module") >= 245 {
+    if *MAIN_MODULE_IDENTITY == "TrickyStore" && read_version_integer(MAIN_MODULE_ENV_FILE) >= 245 {
         let persist_hash_file = Path::new(&persist_hash_full_path);
         if persist_hash_file.exists() {
             if let Ok(success) = read_to_string(persist_hash_file) {
