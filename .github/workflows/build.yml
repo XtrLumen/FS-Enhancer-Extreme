@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -30,9 +30,19 @@ jobs:
         with:
           toolchain: nightly-2026-01-01
           target: aarch64-linux-android
+          cache: true
+
+      - name: Cache cargo-tool
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: macos-latest-cargo-bin-v1
 
       - name: Install cargo-ndk
-        run: cargo install cargo-ndk
+        run: |
+          command -v cargo-ndk || {
+            cargo install cargo-ndk
+          }
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -51,4 +61,3 @@ jobs:
           path: |
             module/build/outputs/release/*.zip
             module/build/outputs/debug/*.zip
-          retention-days: 30

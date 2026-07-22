@@ -31,6 +31,9 @@
 - 在模块描述显示详细仪表盘
 - 根据系统语言分别显示zh-Hans或en-US: 用户可见部分
 
+### WebUI
+- DEV VERSION STUB
+
 ### 命令行工具
 - 调用
   - 于终端以Root身份执行`/data/adb/modules/fs_enhancer_extreme/bin/fseed`
@@ -56,16 +59,13 @@
     - Detect and cache all necessity runtime environments
       - `envcollect`
     - Refresh module decription line from envcollect cache
-      - `descrefresh/-f|--force`
+      - `descrefresh/-d|--debug`
     - Refresh Forge Store target.txt from user config
       - `listrefresh`
 
-- 配置
+### 配置
   - 配置目录路径: `/data/adb/fs_enhancer_extreme/config`
-  - 日志文件路径: `/data/adb/fs_enhancer_extreme/log|log.old`，若遇到问题，请创建 issue 并附上日志。
-
-### WebUI
-- 下个开发版本完善
+  - 日志目录路径: `/data/adb/fs_enhancer_extreme/log|log.old`，如遇到问题，请创建 issue 并附上日志。
 
 > [!NOTE]
 > ### WebUI支持
@@ -76,9 +76,9 @@
 
 ## 致谢
 - [bmax121/APatch](https://github.com/bmax121/APatch) fseed 命令行解析部分 参考来源
-- [JingMatrix/NeoZygisk](https://github.com/JingMatrix/NeoZygisk) fseed root实现分析 执行部分 来源
+- [JingMatrix/NeoZygisk](https://github.com/JingMatrix/NeoZygisk) fseed-root实现分析 执行部分 参考来源
 - [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation) vbmeta提供服务 执行部分 来源
-- [Google-Inc/Android-Open-Source-Project](https://cs.android.com/android/platform/superproject/) fseed pidof函数 参考来源
+- [Google-Inc/Android-Open-Source-Project](https://cs.android.com/android/platform/superproject/) fseed-pidof 参考来源
 
 ## 本项目地址(用于非Github下载的用户从本自述文件溯源)
 - https://github.com/XtrLumen/FS-Enhancer-Extreme

@@ -31,6 +31,9 @@ Enhance ForgeStore experience, while providing extreme hiding of detection point
 - Display detailed dashboard in module description
 - Display zh-Hans or en-US based on the system language: User-visible part
 
+### WebUI
+- DEV VERSION STUB
+
 ### CLI
 - Invoke
   - Execute in the terminal as root`/data/adb/modules/fs_enhancer_extreme/bin/fseed`
@@ -56,16 +59,13 @@ Enhance ForgeStore experience, while providing extreme hiding of detection point
     - Detect and cache all necessity runtime environments
       - `envcollect`
     - Refresh module decription line from envcollect cache
-      - `descrefresh/-f|--force`
+      - `descrefresh/-d|--debug`
     - Refresh Forge Store target.txt from user config
       - `listrefresh`
 
-- Configuration
+### Configuration
   - Config directory path: `/data/adb/fs_enhancer_extreme/config`
-  - Log file path: `/data/adb/fs_enhancer_extreme/log|log.old`. If you encounter problems, please create an issue and attach the logs.
-
-### WebUI
-- DEV VERSION STUB
+  - Log directory path: `/data/adb/fs_enhancer_extreme/log|log.old`. If encounter problems, please create an issue and attach the logs.
 
 > [!NOTE]
 > ### WebUI supports
