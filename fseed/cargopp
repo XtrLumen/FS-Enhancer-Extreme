@@ -1,85 +1,68 @@
 #!/bin/zsh
 
-[ $# -eq 0 ] && echo "no args" && exit 2
+alias fn='function'
+
+[ ${#} -eq 0 ] && echo "no args" && exit 2
 
 name="fseed"
 targetDir="/data/local/tmp"
 
-buildRelease() {
-  echo "cargo ndk --target aarch64-linux-android build --release"
-  cargo ndk --target aarch64-linux-android build --release
-}
-buildDebug() {
-  echo "cargo ndk --target aarch64-linux-android build"
-  cargo ndk --target aarch64-linux-android build
-}
-pushRelease() {
-  buildRelease && {
-    binDir="./target/aarch64-linux-android/release/$name"
-    echo "adb push $binDir $targetDir"
-    adb push "$binDir" "$targetDir"
-  }
-}
-pushDebug() {
-  buildDebug && {
-    binDir="./target/aarch64-linux-android/debug/$name"
-    echo "adb push $binDir $targetDir"
-    adb push "$binDir" "$targetDir"
-  }
-}
-exe() {
-  echo "adb shell su -c $targetDir/$name $@"
-  adb shell su -c "$targetDir/$name" "$@"
-}
-testRelease() {
-  pushRelease && {
-    exe "$@"
-  }
-}
-testDebug() {
-  pushDebug && {
-    exe "$@"
-  }
-}
-clean() {
-  echo "cargo clean"
-  cargo clean
+fn exe() {
+  adb shell su -c "${targetDir}/${name}" "${@}"
 }
 
-case "$1:$2" in
-  "build:--release")
-    buildRelease
-    exit
-    ;;
-  "push:--release")
-    pushRelease
-    exit
-    ;;
-  "test:--release")
-    shift 2
-    testRelease "$@"
-    exit
-    ;;
-esac
-case "$1" in
-  build)
-    buildDebug
-    ;;
-  push)
-    pushDebug
-    ;;
-  clean)
-    clean
-    ;;
-  test)
-    shift
-    testDebug "$@"
-    ;;
-  exe)
-    shift
-    exe "$@"
-    ;;
-  *)
-    echo "invalid args"
-    exit 1
-esac
+fn build() {
+  [ "${1}" = "release" ] && local variant="--release"
+
+  local git_version
+  git_version="$(git describe --tags --always 2>/dev/null)" || {
+      git_version="0.0.0"
+      echo "Failed to get git version, using ${git_version}"
+  }
+  VERSION_NAME=${git_version} \
+  cargo ndk --target aarch64-linux-android build ${variant}
+}
+
+fn push() {
+  adb push "./target/aarch64-linux-android/${1}/${name}" "${targetDir}"
+}
+
+fn main() {
+  case "${1}" in
+    exe)
+      shift
+      exe "${@}"
+      ;;
+    buildRelease)
+      build release
+      ;;
+    buildDebug)
+      build debug
+      ;;
+    buildAll)
+      build release
+      build debug
+      ;;
+    pushRelease)
+      build release && push release
+      ;;
+    pushDebug)
+      build debug && push debug
+      ;;
+    testRelease)
+      shift
+      build release && push release && exe "${@}"
+      ;;
+    testDebug)
+      shift
+      build debug && push debug && exe "${@}"
+      ;;
+    clean)
+      cargo clean
+      ;;
+    *)
+      echo "invalid args" && exit 1
+  esac
+}
+
+main "${@}"

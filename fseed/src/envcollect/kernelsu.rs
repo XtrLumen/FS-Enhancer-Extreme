@@ -12,19 +12,16 @@
 //! All subsequent calls are then dispatched to the correct implementation instantly,
 //! avoiding any repeated detection overhead.
 
-use std::ffi::c_char;
-use std::fs;
-use std::os::fd::RawFd;
-use std::path::Path;
-use std::sync::OnceLock;
+use std::{
+    fs,
+    path::Path,
+    ffi::c_char,
+    os::fd::RawFd,
+    sync::OnceLock
+};
 
-// --- KernelSU Communication Method Enum & Cached State ---
-
-/// Represents the complete, immutable result of the one-time detection process.
-/// Caching this entire struct ensures all necessary information is available atomically.
 #[derive(Clone, Copy)]
 struct DetectionResult {
-    /// The determined version status of KernelSU.
     version: u32,
 }
 
@@ -95,65 +92,6 @@ enum KernelSuVariant {
 static LEGACY_VARIANT: OnceLock<KernelSuVariant> = OnceLock::new();
 /// Lazily initialized capability flag for the legacy prctl method. Only used if fallback occurs.
 static LEGACY_SUPPORTS_MANAGER_UID: OnceLock<bool> = OnceLock::new();
-
-// --- Core Detection and Dispatch Logic ---
-
-/// Detects if KernelSU is active and its version, determining the correct communication method.
-/// This function implements the "ioctl-first, prctl-fallback" strategy and caches the result.
-pub fn detect() -> Option<u32> {
-    // `get_or_init` ensures the complex detection logic within the closure runs exactly once.
-    // The closure's return value of type `Option<DetectionResult>` is then cached in `KSU_RESULT`.
-    let result = KSU_RESULT.get_or_init(|| {
-        // --- Stage 1: Attempt to use the modern ioctl interface ---
-        // This is the preferred method for modern KernelSU versions.
-        if let Some(fd) = init_driver_fd() {
-            let mut cmd = KsuGetInfoCmd {
-                version: 0,
-                flags: 0,
-                features: 0,
-            };
-            if ksuctl_ioctl(fd, KSU_IOCTL_GET_INFO, &mut cmd).is_ok() {
-                let version_code = cmd.version;
-                if version_code > 0 {
-                    if Path::new("/data/adb/ksud").exists() {
-                        // Version is supported and ksud exists. Cache the result and finish.
-                        return Some(DetectionResult {
-                            version: version_code
-                        });
-                    }
-                }
-            }
-        }
-
-        // --- Stage 2: Fallback to the legacy prctl interface ---
-        // This block only executes if the ioctl method fails to yield a valid result.
-        let mut version_code = 0;
-        unsafe {
-            // Safety: This is an FFI call. We provide a valid pointer to a stack variable.
-            libc::prctl(
-                KERNEL_SU_OPTION,
-                CMD_GET_VERSION,
-                &mut version_code as *mut i32,
-                0,
-                0,
-            );
-        }
-
-        if version_code > 0 {
-            // Success with prctl. We must now probe for legacy capabilities.
-            init_legacy_variant_probe();
-            return Some(DetectionResult {
-                version: version_code as u32,
-            });
-        }
-
-        // --- Stage 3: Failure ---
-        // If both the ioctl and prctl methods fail, KernelSU is not detected.
-        None
-    });
-
-    result.as_ref().map(|r| r.version)
-}
 
 // --- `ioctl` Implementation Details ---
 
@@ -247,4 +185,63 @@ fn init_legacy_variant_probe() {
         // The prctl interface confirms support by writing back the magic number.
         result_ok as u32 == KERNEL_SU_OPTION as u32
     });
+}
+
+// --- Core Detection and Dispatch Logic ---
+
+/// Detects if KernelSU is active and its version, determining the correct communication method.
+/// This function implements the "ioctl-first, prctl-fallback" strategy and caches the result.
+pub fn detect() -> Option<u32> {
+    // `get_or_init` ensures the complex detection logic within the closure runs exactly once.
+    // The closure's return value of type `Option<DetectionResult>` is then cached in `KSU_RESULT`.
+    let result = KSU_RESULT.get_or_init(|| {
+        // --- Stage 1: Attempt to use the modern ioctl interface ---
+        // This is the preferred method for modern KernelSU versions.
+        if let Some(fd) = init_driver_fd() {
+            let mut cmd = KsuGetInfoCmd {
+                version: 0,
+                flags: 0,
+                features: 0,
+            };
+            if ksuctl_ioctl(fd, KSU_IOCTL_GET_INFO, &mut cmd).is_ok() {
+                let version_code = cmd.version;
+                if version_code > 0 {
+                    if Path::new("/data/adb/ksud").exists() {
+                        // Version is supported and ksud exists. Cache the result and finish.
+                        return Some(DetectionResult {
+                            version: version_code
+                        });
+                    }
+                }
+            }
+        }
+
+        // --- Stage 2: Fallback to the legacy prctl interface ---
+        // This block only executes if the ioctl method fails to yield a valid result.
+        let mut version_code = 0;
+        unsafe {
+            // Safety: This is an FFI call. We provide a valid pointer to a stack variable.
+            libc::prctl(
+                KERNEL_SU_OPTION,
+                CMD_GET_VERSION,
+                &mut version_code as *mut i32,
+                0,
+                0,
+            );
+        }
+
+        if version_code > 0 {
+            // Success with prctl. We must now probe for legacy capabilities.
+            init_legacy_variant_probe();
+            return Some(DetectionResult {
+                version: version_code as u32,
+            });
+        }
+
+        // --- Stage 3: Failure ---
+        // If both the ioctl and prctl methods fail, KernelSU is not detected.
+        None
+    });
+
+    result.as_ref().map(|r| r.version)
 }

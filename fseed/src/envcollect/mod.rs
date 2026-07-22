@@ -49,14 +49,14 @@ static MAIN_MODULE_ENVIRONMENT: OnceLock<Environment> = OnceLock::new();
 
 fn root_collect() {
     let mut collect_result: Vec<(&str, u32)> = Vec::new();
-    if let Some(version_code) = apatch::detect() {
+    if let Some(version_code) = apatch::invoke() {
         collect_result.push(("APatch", version_code));
     }
     if let Some(version_code) = kernelsu::detect() {
         collect_result.push(("KernelSU", version_code));
     }
-    if let Some(version_code) = magisk::detect() {
-        collect_result.push(("Magisk", version_code));
+    if let Some((variant, version_code)) = magisk::detect() {
+        collect_result.push((variant, version_code));
     }
 
     let environment = match collect_result.len() {

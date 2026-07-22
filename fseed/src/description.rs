@@ -49,11 +49,11 @@ use clap::Args;
 pub struct Mode {
     /// Force recollect environment
     #[arg(short, long)]
-    force: bool
+    debug: bool
 }
 
 pub fn refresh(mode: Mode) -> anyhow::Result<()> {
-    if mode.force {
+    if mode.debug {
         internal_entry()
     }
 

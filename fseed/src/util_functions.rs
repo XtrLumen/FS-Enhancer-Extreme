@@ -226,7 +226,7 @@ pub fn read_to_string(path: &Path) -> anyhow::Result<String> {
 pub fn read_multiple_bool(env_file: &str) -> bool {
     read_to_string(Path::new(env_file)).ok().is_some_and(|content|
         content.lines().nth(0).is_some_and(|line|
-            line.trim().parse::<bool>().unwrap_or(false)
+            line.trim().parse().unwrap_or(false)
         )
     )
 }
@@ -240,7 +240,7 @@ pub fn read_identity_string(env_file: &str) -> String {
 pub fn read_version_integer(env_file: &str) -> u32 {
     read_to_string(Path::new(env_file)).ok().and_then(|content|
         content.lines().nth(2).map(|line|
-            line.trim().parse::<u32>().unwrap_or(u32::MAX)
+            line.trim().parse().unwrap_or(u32::MAX)
         )
     ).unwrap_or(u32::MAX / 2)
 }
