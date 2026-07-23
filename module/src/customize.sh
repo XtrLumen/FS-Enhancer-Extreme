@@ -184,39 +184,15 @@ if [ ! -f "${FSEECONFIG}/usr.txt" ] || [ ! -f "${FSEECONFIG}/sys.txt" ]; then
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
   [ -f "${FSEECONFIG}/sys.txt" ] || {
-    touch "${FSEECONFIG}/sys.txt"
-    echo "${SYS}" | awk '
-      NF {
-        lines[++n] = $0
-      }
-      END {
-        for (i = 1; i <= n; i++) {
-          printf "%s", lines[i]
-            if (i < n)
-              printf "\n"
-        }
-      }
-    ' > "${FSEECONFIG}/sys.txt"
+    echo "$SYS" | grep -v '^$' > "${FSEECONFIG}/sys.txt"
   }
   [ -f "${FSEECONFIG}/usr.txt" ] || {
-    touch "${FSEECONFIG}/usr.txt"
-    echo "${USR}" | awk '
-      NF {
-        lines[++n] = $0
-      }
-      END {
-        for (i = 1; i <= n; i++) {
-          printf "%s", lines[i]
-            if (i < n)
-              printf "\n"
-        }
-      }
-    ' > "${FSEECONFIG}/usr.txt"
+    echo "$USR" | grep -v '^$' > "${FSEECONFIG}/usr.txt"
   }
 fi
 [[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && {
-  grep -qx "com.oplus.engineermode" "${FSEECONFIG}/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "${FSEECONFIG}/sys.txt"
-  grep -qx "com.coloros.sceneservice" "${FSEECONFIG}/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "${FSEECONFIG}/sys.txt"
+  grep -qx "com.oplus.engineermode" "${FSEECONFIG}/sys.txt" || echo "com.oplus.engineermode" >> "${FSEECONFIG}/sys.txt"
+  grep -qx "com.coloros.sceneservice" "${FSEECONFIG}/sys.txt" || echo "com.coloros.sceneservice" >> "${FSEECONFIG}/sys.txt"
 }
 ##END##
 
