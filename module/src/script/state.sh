@@ -14,7 +14,7 @@
 #
 
 cd ${0%/*}
-[ -d "../modules/fs_enhancer_extreme" ] || rm -f "$0"
+[ -d "../modules/fs_enhancer_extreme" ] || rm -f "${0}"
 source "../modules/fs_enhancer_extreme/script/util_functions.sh"
 
 initwait

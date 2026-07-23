@@ -13,47 +13,47 @@
 # Copyright (C) 2025-2026 XtrLumen
 #
 
-TMPDIR_FOR_VERIFY="$TMPDIR/.vunzip"
-mkdir -p "$TMPDIR_FOR_VERIFY"
+TMPDIR_FOR_VERIFY="${TMPDIR}/.vunzip"
+mkdir -p "${TMPDIR_FOR_VERIFY}"
 
 extract() {
   unpack() {
-    local zip=$1
-    local file=$2
-    local dir=$3
-    local args=$4
-    unzip -o "$zip" "$file" -d "$dir" >/dev/null 2>&1
-    file_path="$dir/$file"
-    if [ -f "$file_path" ]; then
-      unzip -o "$zip" "MANIFEST/$file.sha256" -d "$TMPDIR_FOR_VERIFY" >/dev/null 2>&1
-      hash_path="$TMPDIR_FOR_VERIFY/MANIFEST/$file.sha256"
-      if [ -f "$hash_path" ]; then
-        (echo "$(cat "$hash_path")  $file_path" | sha3sum -a 256 -c -s -) || {
-          abort_cn "$file 被篡改!"
-          abort_en "Failed to verify $file"
+    local zip=${1}
+    local file=${2}
+    local dir=${3}
+    local args=${4}
+    unzip -o "${zip}" "${file}" -d "${dir}" >/dev/null 2>&1
+    file_path="${dir}/${file}"
+    if [ -f "${file_path}" ]; then
+      unzip -o "${zip}" "MANIFEST/${file}.sha256" -d "${TMPDIR_FOR_VERIFY}" >/dev/null 2>&1
+      hash_path="${TMPDIR_FOR_VERIFY}/MANIFEST/${file}.sha256"
+      if [ -f "${hash_path}" ]; then
+        (echo "$(cat "${hash_path}")  ${file_path}" | sha3sum -a 256 -c -s -) || {
+          abort_cn "${file} 被篡改!"
+          abort_en "Failed to verify ${file}"
         }
-      elif [[ ! "$args" == *"-s"* ]]; then
-        abort_cn "$file.sha256 不存在!"
-        abort_en "$file.sha256 not exists"
+      elif [[ ! "${args}" == *"-s"* ]]; then
+        abort_cn "${file}.sha256 不存在!"
+        abort_en "${file}.sha256 not exists"
       fi
     else
-      abort_cn "$file 不存在!"
-      abort_en "$file not exists"
+      abort_cn "${file} 不存在!"
+      abort_en "${file} not exists"
     fi
-    [[ "$args" == *"-q"* ]] || {
-      print_cn "- $file 未篡改"
-      print_en "- Verified $file"
+    [[ "${args}" == *"-q"* ]] || {
+      print_cn "- ${file} 未篡改"
+      print_en "- Verified ${file}"
     }
   }
-  if [[ "$2" == */\* ]]; then
-    for file in $(unzip -l "$1" "$2" 2>/dev/null | awk 'NR>3 {print $4}' | grep -v '/$' | grep -v '^$'); do
-      unpack "$1" "$file" "$3" "$4 $5"
+  if [[ "${2}" == */\* ]]; then
+    for file in $(unzip -l "${1}" "${2}" 2>/dev/null | awk 'NR>3 {print $4}' | grep -v '/$' | grep -v '^$'); do
+      unpack "${1}" "${file}" "${3}" "${4} ${5}"
     done
   else
-    unpack "$@"
+    unpack "${@}"
   fi
 }
 
-extract "$ZIPFILE" 'META-INF/com/google/android/*' "$TMPDIR_FOR_VERIFY" -q -s
-extract "$ZIPFILE" 'verify.sh' "$TMPDIR_FOR_VERIFY" -q
-extract "$ZIPFILE" 'customize.sh' "$TMPDIR_FOR_VERIFY" -q
+extract "${ZIPFILE}" 'META-INF/com/google/android/*' "${TMPDIR_FOR_VERIFY}" -q -s
+extract "${ZIPFILE}" 'verify.sh' "${TMPDIR_FOR_VERIFY}" -q
+extract "${ZIPFILE}" 'customize.sh' "${TMPDIR_FOR_VERIFY}" -q

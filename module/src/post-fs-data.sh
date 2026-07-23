@@ -15,18 +15,18 @@
 
 cd ${0%/*}
 source "./script/util_functions.sh"
-rm   -rf "$OLDLOG"
-mv    -f "$LOGDIR" "$OLDLOG"
-mkdir -p "$LOGDIR"
-touch    "$FSEELOG"
+rm   -rf "${OLDLOG}"
+mv    -f "${LOGDIR}" "${OLDLOG}"
+mkdir -p "${LOGDIR}"
+touch    "${FSEELOG}"
 logI "轮换日志结束"
 logI "重置描述文件"
-cp -f "$FSEEMODDIR/module.base" "$FSEEMODDIR/module.prop"
-[ -f "$ADB/service.d/.fsee_state.sh" ] || {
+cp -f "${FSEEMODDIR}/module.base" "${FSEEMODDIR}/module.prop"
+[ -f "${ADB}/service.d/.fsee_state.sh" ] || {
   logI "配置描述文件刷新脚本"
-  mkdir -p "$ADB/service.d"
-  cp -f "$FSEEMODDIR/script/state.sh" "$ADB/service.d/.fsee_state.sh"
-  chmod +x "$ADB/service.d/.fsee_state.sh"
+  mkdir -p "${ADB}/service.d"
+  cp -f "${FSEEMODDIR}/script/state.sh" "${ADB}/service.d/.fsee_state.sh"
+  chmod +x "${ADB}/service.d/.fsee_state.sh"
 }
 logI "收集运行环境"
 invoke envcollect

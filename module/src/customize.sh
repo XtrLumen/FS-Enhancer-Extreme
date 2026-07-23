@@ -21,17 +21,17 @@ else
   LOCALE="EN"
 fi
 operate() {
-  [ "$LOCALE" = "$1" ] && {
+  [ "${LOCALE}" = "${1}" ] && {
     shift
-    local operation="$1"
+    local operation="${1}"
     shift
-    case "$operation" in
+    case "${operation}" in
       ui_print)
-        ui_print "$@"
+        ui_print "${@}"
         ;;
       abort_verify)
         ui_print "***********************************************"
-        ui_print "! $@"
+        ui_print "! ${@}"
         print_cn "! 这个ZIP文件已损坏,请重新下载"
         print_en "! This zip may be corrupted, please try downloading again"
         abort    "***********************************************"
@@ -40,16 +40,16 @@ operate() {
   }
 }
 print_cn() {
-  operate "CN" "ui_print" "$@"
+  operate "CN" "ui_print" "${@}"
 }
 print_en() {
-  operate "EN" "ui_print" "$@"
+  operate "EN" "ui_print" "${@}"
 }
 abort_cn() {
-  operate "CN" "abort_verify" "$@"
+  operate "CN" "abort_verify" "${@}"
 }
 abort_en() {
-  operate "EN" "abort_verify" "$@"
+  operate "EN" "abort_verify" "${@}"
 }
 ##END##
 
@@ -59,21 +59,21 @@ SKIPUNZIP=1
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
-MODULESDIR="$ADB/modules"
+MODULESDIR="${ADB}/modules"
 #TWO LEVEL#
-FSEECONFIG="$ADB/fs_enhancer_extreme/config"
+FSEECONFIG="${ADB}/fs_enhancer_extreme/config"
 #CHECK ENVIRONMENT#
 MIN_RELEASE=10
 RELEASE=$(grep_get_prop ro.build.version.release)
-if [ "$KSU" ]; then
+if [ "${KSU}" ]; then
   KernelSU=true
-elif [ "$APATCH" ]; then
+elif [ "${APATCH}" ]; then
   APatch=true
-elif [ "$MAGISK_VER" ]; then
+elif [ "${MAGISK_VER}" ]; then
   Magisk=true
 fi
 #PRINT INFORMATION#
-MODULE_VER=$(grep_prop version "$TMPDIR/module.prop")
+MODULE_VER=$(grep_prop version "${TMPDIR}/module.prop")
 #EXTRACT MODULE FILES#
 FILES="
 bin/*
@@ -90,8 +90,8 @@ uninstall.sh
 "
 #POST PROCESS#
 NES="
-$MODPATH/bin/fseed
-$MODPATH/bin/fsees
+${MODPATH}/bin/fseed
+${MODPATH}/bin/fsees
 "
 SYS="
 com.android.vending
@@ -136,12 +136,12 @@ com.topmiaohan.hidebllist
 
 ##PRE PROCESS##
 #CHECK INTEGRITY#
-unzip -o "$ZIPFILE" 'verify.sh' -d "$TMPDIR" >/dev/null
-[ -f "$TMPDIR/verify.sh" ] || {
+unzip -o "${ZIPFILE}" 'verify.sh' -d "${TMPDIR}" >/dev/null
+[ -f "${TMPDIR}/verify.sh" ] || {
   abort_cn "无法提取 verify.sh!"
   abort_en "Unable to extract verify.sh"
 }
-source "$TMPDIR/verify.sh"
+source "${TMPDIR}/verify.sh"
 #CHECK ENVIRONMENT#
 [ ${BOOTMODE} ] || {
   ui_print "***********************************************"
@@ -159,8 +159,8 @@ source "$TMPDIR/verify.sh"
   print_en "! Minimal supported android version is ${MIN_RELEASE}"
   abort    "***********************************************"
 }
-[ -f "$ADB/.overlayfs_enable" ] || {
-  [ -f "$ADB/ksu/mount_system" ] && cat "$ADB/ksu/mount_system" | grep -q "OVERLAYFS"
+[ -f "${ADB}/.overlayfs_enable" ] || {
+  [ -f "${ADB}/ksu/mount_system" ] && cat "${ADB}/ksu/mount_system" | grep -q "OVERLAYFS"
 } && {
   ui_print "***********************************************"
   print_cn "! 不受支持的挂载系统 OverlayFS"
@@ -172,56 +172,56 @@ source "$TMPDIR/verify.sh"
   abort    "***********************************************"
 }
 #PRINT INFORMATION#
-if [ "$KernelSU" ]; then
-  print_cn "- KernelSU版本号: $KSU_KERNEL_VER_CODE(kernel) $KSU_VER_CODE(ksud)"
-  print_cn "- KernelSU版本: $KSU_VER"
-  print_en "- KernelSU version code: $KSU_KERNEL_VER_CODE(kernel) $KSU_VER_CODE(ksud)"
-  print_en "- KernelSU version: $KSU_VER"
-elif [ "$APatch" ]; then
-  print_cn "- APatch版本号: $APATCH_VER_CODE"
-  print_cn "- APatch版本: $APATCH_VER"
-  print_en "- APatch version code: $APATCH_VER_CODE"
-  print_en "- APatch version: $APATCH_VER"
-elif [ "$Magisk" ]; then
-  print_cn "- Magisk版本号: $MAGISK_VER_CODE"
-  print_cn "- Magisk版本: $MAGISK_VER"
-  print_en "- Magisk version code: $MAGISK_VER_CODE"
-  print_en "- Magisk version: $MAGISK_VER"
+if [ "${KernelSU}" ]; then
+  print_cn "- KernelSU版本号: ${KSU_KERNEL_VER_CODE}(kernel) ${KSU_VER_CODE}(ksud)"
+  print_cn "- KernelSU版本: ${KSU_VER}"
+  print_en "- KernelSU version code: ${KSU_KERNEL_VER_CODE}(kernel) ${KSU_VER_CODE}(ksud)"
+  print_en "- KernelSU version: ${KSU_VER}"
+elif [ "${APatch}" ]; then
+  print_cn "- APatch版本号: ${APATCH_VER_CODE}"
+  print_cn "- APatch版本: ${APATCH_VER}"
+  print_en "- APatch version code: ${APATCH_VER_CODE}"
+  print_en "- APatch version: ${APATCH_VER}"
+elif [ "${Magisk}" ]; then
+  print_cn "- Magisk版本号: ${MAGISK_VER_CODE}"
+  print_cn "- Magisk版本: ${MAGISK_VER}"
+  print_en "- Magisk version code: ${MAGISK_VER_CODE}"
+  print_en "- Magisk version: ${MAGISK_VER}"
 fi
-print_cn "- 正在安装模块: FS-Enhancer-Extreme $MODULE_VER"
-print_en "- Install module FS-Enhancer-Extreme $MODULE_VER"
+print_cn "- 正在安装模块: FS-Enhancer-Extreme ${MODULE_VER}"
+print_en "- Install module FS-Enhancer-Extreme ${MODULE_VER}"
 sleep 1s
 #DELETE OLD FILES#
 print_cn "- 删除旧版文件"
 print_en "- Delete older version files"
-rm -f "$ADB/service.d/.fsee_state.sh"
+rm -f "${ADB}/service.d/.fsee_state.sh"
 ##END##
 
 ##EXTRACT MODULE FILES##
 print_cn "- 提取模块文件"
 print_en "- Extracting module files"
-for FILE in $FILES; do
-  extract "$ZIPFILE" "$FILE" "$MODPATH"
+for FILE in ${FILES}; do
+  extract "${ZIPFILE}" "${FILE}" "${MODPATH}"
 done
 ##END##
 
 ##POST PROCESS##
 print_cn "- 赋予必要权限"
 print_en "- Setting permission"
-chcon u:object_r:shell_data_file:s0 "$MODPATH/provider.apk"
-for NE in $NES; do
-  chmod +x "$NE"
+chcon u:object_r:shell_data_file:s0 "${MODPATH}/provider.apk"
+for NE in ${NES}; do
+  chmod +x "${NE}"
 done
-mkdir -p "$FSEECONFIG"
+mkdir -p "${FSEECONFIG}"
 print_cn "- 提取密钥文件"
 print_en "- Extract keybox file"
-extract "$ZIPFILE" 'keybox.xml' "$FSEECONFIG"
-if [ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ]; then
+extract "${ZIPFILE}" 'keybox.xml' "${FSEECONFIG}"
+if [ ! -f "${FSEECONFIG}/usr.txt" ] || [ ! -f "${FSEECONFIG}/sys.txt" ]; then
   print_cn "- 创建排除列表"
   print_en "- Extract default exclusion list"
-  [ -f "$FSEECONFIG/sys.txt" ] || {
-    touch "$FSEECONFIG/sys.txt"
-    echo "$SYS" | awk '
+  [ -f "${FSEECONFIG}/sys.txt" ] || {
+    touch "${FSEECONFIG}/sys.txt"
+    echo "${SYS}" | awk '
       NF {
         lines[++n] = $0
       }
@@ -232,11 +232,11 @@ if [ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ]; then
               printf "\n"
         }
       }
-    ' > "$FSEECONFIG/sys.txt"
+    ' > "${FSEECONFIG}/sys.txt"
   }
-  [ -f "$FSEECONFIG/usr.txt" ] || {
-    touch "$FSEECONFIG/usr.txt"
-    echo "$USR" | awk '
+  [ -f "${FSEECONFIG}/usr.txt" ] || {
+    touch "${FSEECONFIG}/usr.txt"
+    echo "${USR}" | awk '
       NF {
         lines[++n] = $0
       }
@@ -247,12 +247,12 @@ if [ ! -f "$FSEECONFIG/usr.txt" ] || [ ! -f "$FSEECONFIG/sys.txt" ]; then
               printf "\n"
         }
       }
-    ' > "$FSEECONFIG/usr.txt"
+    ' > "${FSEECONFIG}/usr.txt"
   }
 fi
 [[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && {
-  grep -qx "com.oplus.engineermode" "$FSEECONFIG/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "$FSEECONFIG/sys.txt"
-  grep -qx "com.coloros.sceneservice" "$FSEECONFIG/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "$FSEECONFIG/sys.txt"
+  grep -qx "com.oplus.engineermode" "${FSEECONFIG}/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "${FSEECONFIG}/sys.txt"
+  grep -qx "com.coloros.sceneservice" "${FSEECONFIG}/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "${FSEECONFIG}/sys.txt"
 }
 ##END##
 
@@ -260,33 +260,33 @@ fi
 #MODULES#
 print_cn "- 检查冲突模块"
 print_en "- Checking conflicts module"
-for MODULE in $CONFLICT; do
-  [ -d "$MODULESDIR/$MODULE" ] && {
-    (cd "$MODULESDIR/$MODULE" && ./uninstall.sh)
-    rm -rf "$MODULESDIR/$MODULE"
+for MODULE in ${CONFLICT}; do
+  [ -d "${MODULESDIR}/${MODULE}" ] && {
+    (cd "${MODULESDIR}/${MODULE}" && ./uninstall.sh)
+    rm -rf "${MODULESDIR}/${MODULE}"
     DETECTED=$((DETECTED + 1))
   }
 done
-if [ $DETECTED -gt 0 ]; then
-  print_cn "- 发现$DETECTED个冲突模块,已强制移除"
-  print_en "- Detected $DETECTED conflicting modules, Force remove"
-elif [ $DETECTED -eq 0 ]; then
+if [ ${DETECTED} -gt 0 ]; then
+  print_cn "- 发现${DETECTED}个冲突模块,已强制移除"
+  print_en "- Detected ${DETECTED} conflicting modules, Force remove"
+elif [ ${DETECTED} -eq 0 ]; then
   print_cn "- 未发现冲突模块"
   print_en "- No conflict module found"
 fi
 #APPS#
 print_cn "- 检查冲突软件"
 print_en "- Checking conflicts software"
-for PACKAGE in $APPCONFLICT; do
-  pm path $PACKAGE > /dev/null 2>&1 && {
-    pm uninstall $PACKAGE > /dev/null 2>&1
+for PACKAGE in ${APPCONFLICT}; do
+  pm path ${PACKAGE} > /dev/null 2>&1 && {
+    pm uninstall ${PACKAGE} > /dev/null 2>&1
     APPDETECTED=$((APPDETECTED + 1))
   }
 done
-if [ $APPDETECTED -gt 0 ]; then
-  print_cn "- 发现$APPDETECTED个冲突软件,已强制卸载"
-  print_en "- Detected $APPDETECTED conflicting software, Forced uninstalled"
-elif [ $APPDETECTED -eq 0 ]; then
+if [ ${APPDETECTED} -gt 0 ]; then
+  print_cn "- 发现${APPDETECTED}个冲突软件,已强制卸载"
+  print_en "- Detected ${APPDETECTED} conflicting software, Forced uninstalled"
+elif [ ${APPDETECTED} -eq 0 ]; then
   print_cn "- 未发现冲突软件"
   print_en "- No conflict software found"
 fi
