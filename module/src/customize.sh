@@ -34,7 +34,7 @@ operate() {
         ui_print "! $@"
         print_cn "! 这个ZIP文件已损坏,请重新下载"
         print_en "! This zip may be corrupted, please try downloading again"
-        abort "***********************************************"
+        abort    "***********************************************"
         ;;
     esac
   }
@@ -54,9 +54,8 @@ abort_en() {
 ##END##
 
 ##VARIABLE##
-#INSTALL PROCESS#
-SKIPUNZIP=1
 #PUBLIC#
+SKIPUNZIP=1
 #ZERO LEVEL#
 ADB="/data/adb"
 #ONE LEVEL#
@@ -144,21 +143,21 @@ unzip -o "$ZIPFILE" 'verify.sh' -d "$TMPDIR" >/dev/null
 }
 source "$TMPDIR/verify.sh"
 #CHECK ENVIRONMENT#
-[ "$BOOTMODE" ] || {
+[ ${BOOTMODE} ] || {
   ui_print "***********************************************"
   print_cn "! 不受支持的安装环境 Recovery"
   print_cn "! 请从 KernelSU, APatch 或 Magisk 应用安装"
   print_en "! Install from recovery is not supported"
   print_en "! Please install from KernelSU, APatch or Magisk app"
-  abort "***********************************************"
+  abort    "***********************************************"
 }
-[ "$RELEASE" -lt $MIN_RELEASE ] && {
+[ ${RELEASE} -lt ${MIN_RELEASE} ] && {
   ui_print "***********************************************"
-  print_cn "! 不受支持的安卓版本 $RELEASE"
-  print_cn "! 最低支持的安卓版本 $MIN_RELEASE"
-  print_en "! Unsupported android version: $RELEASE"
-  print_en "! Minimal supported android version is $MIN_RELEASE"
-  abort "***********************************************"
+  print_cn "! 不受支持的安卓版本 ${RELEASE}"
+  print_cn "! 最低支持的安卓版本 ${MIN_RELEASE}"
+  print_en "! Unsupported android version: ${RELEASE}"
+  print_en "! Minimal supported android version is ${MIN_RELEASE}"
+  abort    "***********************************************"
 }
 [ -f "$ADB/.overlayfs_enable" ] || {
   [ -f "$ADB/ksu/mount_system" ] && cat "$ADB/ksu/mount_system" | grep -q "OVERLAYFS"
@@ -170,8 +169,9 @@ source "$TMPDIR/verify.sh"
   print_en "! Unsupported mount system: OverlayFS"
   print_en "! Conflict module exclusion cannot work in this mode"
   print_en "! Please switch to Magic Mount mount system or Meta Module mount system before installing again"
-  abort "***********************************************"
+  abort    "***********************************************"
 }
+#PRINT INFORMATION#
 if [ "$KernelSU" ]; then
   print_cn "- KernelSU版本号: $KSU_KERNEL_VER_CODE(kernel) $KSU_VER_CODE(ksud)"
   print_cn "- KernelSU版本: $KSU_VER"
@@ -188,7 +188,6 @@ elif [ "$Magisk" ]; then
   print_en "- Magisk version code: $MAGISK_VER_CODE"
   print_en "- Magisk version: $MAGISK_VER"
 fi
-#PRINT INFORMATION#
 print_cn "- 正在安装模块: FS-Enhancer-Extreme $MODULE_VER"
 print_en "- Install module FS-Enhancer-Extreme $MODULE_VER"
 sleep 1s
