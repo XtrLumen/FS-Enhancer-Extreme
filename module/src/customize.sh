@@ -65,13 +65,6 @@ FSEECONFIG="${ADB}/fs_enhancer_extreme/config"
 #CHECK ENVIRONMENT#
 MIN_RELEASE=10
 RELEASE=$(grep_get_prop ro.build.version.release)
-if [ "${KSU}" ]; then
-  KernelSU=true
-elif [ "${APATCH}" ]; then
-  APatch=true
-elif [ "${MAGISK_VER}" ]; then
-  Magisk=true
-fi
 #PRINT INFORMATION#
 MODULE_VER=$(grep_prop version "${TMPDIR}/module.prop")
 #EXTRACT MODULE FILES#
@@ -102,35 +95,6 @@ USR="
 me.bmax.apatch
 com.android.patch
 me.garfieldhan.apatch.next
-"
-#CONFLICT CHECK#
-DETECTED=0
-CONFLICT="
-TA_utl
-.TA_utl
-Yurikey
-xiaocaiye
-Yamabukiko
-vbmeta-fixer
-safetynet-fix
-playintegrity
-integrity_box
-SukiSU_module
-ShamikoManager
-Reset_BootHash
-Tricky_store-bm
-Hide_Bootloader
-extreme_hide_root
-ts_enhancer_extreme
-Tricky_Store-xiaoyi
-tricky_store_assistant
-extreme_hide_bootloader
-wjw_hiderootauxiliarymod
-"
-APPDETECTED=0
-APPCONFLICT="
-com.lingqian.appbl
-com.topmiaohan.hidebllist
 "
 ##END##
 
@@ -172,17 +136,17 @@ source "${TMPDIR}/verify.sh"
   abort    "***********************************************"
 }
 #PRINT INFORMATION#
-if [ "${KernelSU}" ]; then
+if [ "${KSU}" ]; then
   print_cn "- KernelSU版本号: ${KSU_KERNEL_VER_CODE}(kernel) ${KSU_VER_CODE}(ksud)"
   print_cn "- KernelSU版本: ${KSU_VER}"
   print_en "- KernelSU version code: ${KSU_KERNEL_VER_CODE}(kernel) ${KSU_VER_CODE}(ksud)"
   print_en "- KernelSU version: ${KSU_VER}"
-elif [ "${APatch}" ]; then
+elif [ "${APATCH}" ]; then
   print_cn "- APatch版本号: ${APATCH_VER_CODE}"
   print_cn "- APatch版本: ${APATCH_VER}"
   print_en "- APatch version code: ${APATCH_VER_CODE}"
   print_en "- APatch version: ${APATCH_VER}"
-elif [ "${Magisk}" ]; then
+elif [ "${MAGISK_VER}" ]; then
   print_cn "- Magisk版本号: ${MAGISK_VER_CODE}"
   print_cn "- Magisk版本: ${MAGISK_VER}"
   print_en "- Magisk version code: ${MAGISK_VER_CODE}"
@@ -254,42 +218,6 @@ fi
   grep -qx "com.oplus.engineermode" "${FSEECONFIG}/sys.txt" || printf "\n%s" "com.oplus.engineermode" >> "${FSEECONFIG}/sys.txt"
   grep -qx "com.coloros.sceneservice" "${FSEECONFIG}/sys.txt" || printf "\n%s" "com.coloros.sceneservice" >> "${FSEECONFIG}/sys.txt"
 }
-##END##
-
-##CONFLICT CHECK##
-#MODULES#
-print_cn "- 检查冲突模块"
-print_en "- Checking conflicts module"
-for MODULE in ${CONFLICT}; do
-  [ -d "${MODULESDIR}/${MODULE}" ] && {
-    (cd "${MODULESDIR}/${MODULE}" && ./uninstall.sh)
-    rm -rf "${MODULESDIR}/${MODULE}"
-    DETECTED=$((DETECTED + 1))
-  }
-done
-if [ ${DETECTED} -gt 0 ]; then
-  print_cn "- 发现${DETECTED}个冲突模块,已强制移除"
-  print_en "- Detected ${DETECTED} conflicting modules, Force remove"
-elif [ ${DETECTED} -eq 0 ]; then
-  print_cn "- 未发现冲突模块"
-  print_en "- No conflict module found"
-fi
-#APPS#
-print_cn "- 检查冲突软件"
-print_en "- Checking conflicts software"
-for PACKAGE in ${APPCONFLICT}; do
-  pm path ${PACKAGE} > /dev/null 2>&1 && {
-    pm uninstall ${PACKAGE} > /dev/null 2>&1
-    APPDETECTED=$((APPDETECTED + 1))
-  }
-done
-if [ ${APPDETECTED} -gt 0 ]; then
-  print_cn "- 发现${APPDETECTED}个冲突软件,已强制卸载"
-  print_en "- Detected ${APPDETECTED} conflicting software, Forced uninstalled"
-elif [ ${APPDETECTED} -eq 0 ]; then
-  print_cn "- 未发现冲突软件"
-  print_en "- No conflict software found"
-fi
 ##END##
 
 print_cn "- 安装完毕"
