@@ -35,33 +35,32 @@ Enhance ForgeStore experience, while providing extreme hiding of detection point
 - DEV VERSION STUB
 
 ### CLI
-- Invoke
-  - Execute in the terminal as root`/data/adb/modules/fs_enhancer_extreme/bin/fseed`
-  - Command
-    - Operation Forge Store service
-      - `fsctl` `restart|start|stop|state`
-    - Operation FS Enhancer Extreme service
-      - `fseectl` `restart|start|stop|state`
-    - Check running environment if normal from envcollect cache
-      - `envcheck`
-    - Check and directly uninstall conflict apps
-      - `appcheck`
-    - Check and add remove tag or force delete conflict modules
-      - `modcheck/-d|--daemon`
-    - Through Bootloader unlock related prop detection
-      - `passprop`
-    - Automatically correct abnormal VerifiedBootHash prop
-      - `passvbhash`
-    - Launch standalone WebUI app to id fs_enhancer_extreme
-      - `startwebui`
-    - Sync Security Patch Level from security_patch.txt to prop
-      - `spsyncprop`
-    - Detect and cache all necessity runtime environments
-      - `envcollect`
-    - Refresh module decription line from envcollect cache
-      - `descrefresh/-d|--debug`
-    - Refresh Forge Store target.txt from user config
-      - `listrefresh`
+- Execute in the terminal as root`/data/adb/modules/fs_enhancer_extreme/bin/fseed`
+- Command List
+  - Operation Forge Store service
+    - `fsctl` `restart|start|stop|state`
+  - Operation FS Enhancer Extreme service
+    - `fseectl` `restart|start|stop|state`
+  - Check running environment if normal from envcollect cache
+    - `envcheck`
+  - Check and directly uninstall conflict apps
+    - `appcheck`
+  - Check and add remove tag or force delete conflict modules
+    - `modcheck/-d|--daemon`
+  - Through Bootloader unlock related prop detection
+    - `passprop`
+  - Automatically correct abnormal VerifiedBootHash prop
+    - `passvbhash`
+  - Launch standalone WebUI app to id fs_enhancer_extreme
+    - `startwebui`
+  - Sync Security Patch Level from security_patch.txt to prop
+    - `spsyncprop`
+  - Detect and cache all necessity runtime environments
+    - `envcollect`
+  - Refresh module decription line from envcollect cache
+    - `descrefresh/-d|--debug`
+  - Refresh Forge Store target.txt from user config
+    - `listrefresh`
 
 ### Configuration
   - Config directory path: `/data/adb/fs_enhancer_extreme/config`

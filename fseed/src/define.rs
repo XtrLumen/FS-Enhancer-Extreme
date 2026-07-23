@@ -150,9 +150,9 @@ pub static DESC_BASE: LazyLock<String> = LazyLock::new(||{
 
 pub static DESC_SERVICE_SUCCESS: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
-        "✅服务启动成功"
+        "✅服务运行中"
     } else {
-        "✅Daemon started successfully"
+        "✅Service is running"
     }
 );
 pub static DESC_SERVICE_FAILURE: LazyLock<&str> = LazyLock::new(||

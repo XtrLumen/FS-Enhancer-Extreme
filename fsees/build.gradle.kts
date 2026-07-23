@@ -17,7 +17,7 @@ listOf(
         group = "rust"
 
         executable("cargo")
-        args("ndk", "--target", "aarch64-linux-android", "build")
+        args("ndk", "build", "--target", "aarch64-linux-android")
         if (variantLowered == "release") {
             args("--release")
         }

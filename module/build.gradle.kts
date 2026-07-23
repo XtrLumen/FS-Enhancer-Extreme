@@ -108,7 +108,7 @@ listOf(
 
         dependsOn(prepareModuleFilesTask)
 
-        doLast {
+        doFirst {
             fun sha256Sum() {
                 fileTree(moduleDir) {
                     exclude("MANIFEST")

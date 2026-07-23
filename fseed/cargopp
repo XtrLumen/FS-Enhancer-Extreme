@@ -20,7 +20,7 @@ fn build() {
       echo "Failed to get git version, using ${git_version}"
   }
   VERSION_NAME=${git_version} \
-  cargo ndk --target aarch64-linux-android build ${variant}
+  cargo ndk build --target aarch64-linux-android ${variant}
 }
 
 fn push() {
