@@ -30,15 +30,15 @@ isServiceD=false
 isService=false
 LOG_TAG="<Undefined>"
 case "$(basename "${0}")" in
-  *"post-fs-data.sh"*)
+  "post-fs-data.sh")
     isPostFsData=true
     LOG_TAG="<post-fs-data>"
     ;;
-  *".fsee_state.sh"*)
+  ".fsee_state.sh")
     isServiceD=true
     LOG_TAG="<service.d>"
     ;;
-  *"service.sh"*)
+  "service.sh")
     isService=true
     LOG_TAG="<service>"
     ;;
@@ -71,7 +71,7 @@ fseed() {
 logout() {
   LEVEL=${1}
   shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  $$  $$ ${LEVEL} [FSEE]  : ${LOG_TAG} ${@}" >> "${FSEELOG}"
+  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  ${$}  ${$} ${LEVEL} [FSEE]  : ${LOG_TAG} ${@}" >> "${FSEELOG}"
 }
 logI() {
   logout "I" "${@}"

@@ -19,6 +19,7 @@ mod magisk;
 
 use crate::{
     define::{
+        UNKNOWN,
         FS_STR,
         FSMODDIR,
         TSMODDIR,
@@ -62,7 +63,7 @@ fn root_collect() {
     let environment = match collect_result.len() {
         0 => Environment {
             multiple: false,
-            identity: String::from("Unknown"),
+            identity: String::from(UNKNOWN),
             version_code: String::new()
         },
         1 => {
@@ -131,7 +132,7 @@ fn main_module_collect() {
     let environment = match collect_result.len() {
         0 => Environment {
             multiple: false,
-            identity: String::from("Unknown"),
+            identity: String::from(UNKNOWN),
             version_code: String::new()
         },
         1 => {

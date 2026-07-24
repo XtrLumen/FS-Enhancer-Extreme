@@ -224,7 +224,7 @@ listOf(
         commandLine("adb", "push", zipTask.get().archiveFile.get().asFile, "/data/local/tmp")
     }
 
-    tasks.register<Exec>("Magisk${variantCapped}") {
+    tasks.register<Exec>("magisk${variantCapped}") {
         group = "module"
         description = "Installs module via Magisk."
 
@@ -233,7 +233,7 @@ listOf(
         commandLine("adb", "shell", "su", "-c", "magisk --install-module /data/local/tmp/${zipFileName}")
     }
 
-    tasks.register<Exec>("KernelSU${variantCapped}") {
+    tasks.register<Exec>("ksud${variantCapped}") {
         group = "module"
         description = "Installs module via KernelSU."
 
@@ -242,7 +242,7 @@ listOf(
         commandLine("adb", "shell", "su", "-c", "ksud module install /data/local/tmp/${zipFileName}")
     }
 
-    tasks.register<Exec>("APatch${variantCapped}") {
+    tasks.register<Exec>("apd${variantCapped}") {
         group = "module"
         description = "Installs module via APatch."
 
