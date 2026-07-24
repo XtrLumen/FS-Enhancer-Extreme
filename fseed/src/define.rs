@@ -75,6 +75,10 @@ pub const VERSION_NAME: &str = env!("VERSION_NAME");
 
 pub const BLKSSZGET: libc::c_int = 0x1268u32 as libc::c_int;
 
+pub const OFF: &str = "OFF";
+pub const MULTIPLE: &str = "MULTIPLE";
+pub const UNKNOWN: &str = "Unknown";
+
 pub const FS_STR: &str = "ForgeStore";
 pub const FSMODDIR: &str = "/data/adb/modules/forge_store";
 pub const TSMODDIR: &str = "/data/adb/modules/tricky_store";
@@ -90,11 +94,11 @@ pub static MAIN_MODULE_IDENTITY: LazyLock<String> = LazyLock::new(||{
         internal_entry()
     }
     let main_module_identity = read_identity_string(MAIN_MODULE_ENV_FILE);
+    let fs_disable = Path::new(&format!("{}/disable", FSMODDIR)).exists();
+    let ts_disable = Path::new(&format!("{}/disable", TSMODDIR)).exists();
     if read_multiple_bool(MAIN_MODULE_ENV_FILE) {
-        let fs_disable = Path::new(&format!("{}/disable", FSMODDIR)).exists();
-        let ts_disable = Path::new(&format!("{}/disable", TSMODDIR)).exists();
         if fs_disable && ts_disable {
-            String::from("OFF")
+            String::from(OFF)
         } else if !fs_disable && ts_disable {
             String::from(FS_STR)
         } else if fs_disable && !ts_disable {
@@ -103,15 +107,19 @@ pub static MAIN_MODULE_IDENTITY: LazyLock<String> = LazyLock::new(||{
                 .split('(').next().unwrap()
                 .to_string()
         } else {
-            String::from("MULTIPLE")
+            String::from(MULTIPLE)
         }
     } else {
-        main_module_identity
+        if fs_disable || ts_disable {
+            String::from(OFF)
+        } else {
+            main_module_identity
+        }
     }
 });
 
 pub static ENV_NORMAL: LazyLock<bool> = LazyLock::new(||
-    !(read_multiple_bool(ROOT_IMPL_ENV_FILE) || matches!(MAIN_MODULE_IDENTITY.as_str(), "MULTIPLE" | "OFF"))
+    !(read_multiple_bool(ROOT_IMPL_ENV_FILE) || matches!(MAIN_MODULE_IDENTITY.as_str(), MULTIPLE | OFF))
 );
 
 pub static FINAL_NICE_NAME: LazyLock<&str> = LazyLock::new(||

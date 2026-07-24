@@ -15,6 +15,9 @@
 
 use crate::{
     define::{
+        OFF,
+        MULTIPLE,
+        UNKNOWN,
         FS_STR,
         FSEEMODDIR,
         ROOT_IMPL_ENV_FILE,
@@ -62,7 +65,7 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
         let (root_impl_prefix, root_impl_environment) = if read_multiple_bool(ROOT_IMPL_ENV_FILE) {
             (*DESC_MULTIPLE, root_impl_identity)
         } else {
-            if root_impl_identity == "Unknown" {
+            if root_impl_identity == UNKNOWN {
                 ("⚠️", root_impl_identity)
             } else {
                 ("✅", format!("{}({})", root_impl_identity, read_version_integer(ROOT_IMPL_ENV_FILE)))
@@ -71,10 +74,10 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
 
         let main_module_identity = read_identity_string(MAIN_MODULE_ENV_FILE);
         let (main_module_prefix, main_module_environment) = if read_multiple_bool(MAIN_MODULE_ENV_FILE) {
-            if *MAIN_MODULE_IDENTITY == "MULTIPLE" {
+            if *MAIN_MODULE_IDENTITY == MULTIPLE {
                 (*DESC_MULTIPLE, main_module_identity)
             } else {
-                if *MAIN_MODULE_IDENTITY == "OFF" {
+                if *MAIN_MODULE_IDENTITY == OFF {
                     ("❌", DESC_DISABLE.to_string())
                 } else {
                     if *MAIN_MODULE_IDENTITY == FS_STR {
@@ -89,10 +92,14 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
                 }
             }
         } else {
-            if *MAIN_MODULE_IDENTITY == "Unknown" {
+            if *MAIN_MODULE_IDENTITY == UNKNOWN {
                 ("❌", DESC_MAIN_MODULE_NOT_INSTALL.to_string())
             } else {
-                ("✅", format!("{}({})", main_module_identity, read_version_integer(MAIN_MODULE_ENV_FILE)))
+                if *MAIN_MODULE_IDENTITY == OFF {
+                    ("❌", DESC_DISABLE.to_string())
+                } else {
+                    ("✅", format!("{}({})", main_module_identity, read_version_integer(MAIN_MODULE_ENV_FILE)))
+                }
             }
         };
 

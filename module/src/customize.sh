@@ -154,7 +154,6 @@ elif [ "${MAGISK_VER}" ]; then
 fi
 print_cn "- 正在安装模块: FS-Enhancer-Extreme ${MODULE_VER}"
 print_en "- Install module FS-Enhancer-Extreme ${MODULE_VER}"
-sleep 1s
 #DELETE OLD FILES#
 print_cn "- 删除旧版文件"
 print_en "- Delete older version files"
@@ -190,7 +189,7 @@ if [ ! -f "${FSEECONFIG}/usr.txt" ] || [ ! -f "${FSEECONFIG}/sys.txt" ]; then
     echo "$USR" | grep -v '^$' > "${FSEECONFIG}/usr.txt"
   }
 fi
-[[ "$(grep_get_prop ro.product.brand)" == "OnePlus" ]] && {
+[ "$(grep_get_prop ro.product.brand)" = "OnePlus" ] && {
   grep -qx "com.oplus.engineermode" "${FSEECONFIG}/sys.txt" || echo "com.oplus.engineermode" >> "${FSEECONFIG}/sys.txt"
   grep -qx "com.coloros.sceneservice" "${FSEECONFIG}/sys.txt" || echo "com.coloros.sceneservice" >> "${FSEECONFIG}/sys.txt"
 }
