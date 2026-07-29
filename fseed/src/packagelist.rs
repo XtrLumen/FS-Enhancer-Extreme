@@ -15,25 +15,26 @@
 
 use crate::{
     define::{
+        ABNORMAL_ENV,
         FSEECONFIG,
         ENV_NORMAL,
         FINAL_MAIN_MODULE_CONFIG
     },
     util_functions::{
         pm_list,
-        read_to_string
+        read_to_string,
+        write
     }
 };
 
 use std::{
-    fs,
     path::Path,
     collections::HashSet
 };
 
 pub fn refresh() -> anyhow::Result<()> {
     if *ENV_NORMAL {
-        let result = pm_list("-3")?;
+        let result: String = pm_list("-3")?;
     
         let packages: HashSet<&str> = result.lines().filter_map(|line|
             line.strip_prefix("package:")
@@ -49,7 +50,7 @@ pub fn refresh() -> anyhow::Result<()> {
             HashSet::new()
         };
     
-        let mut output = String::new();
+        let mut output: String = String::new();
         for pkg in packages.iter().filter(|package|
             !usr.contains(**package)
         ) {
@@ -64,9 +65,9 @@ pub fn refresh() -> anyhow::Result<()> {
         }
     
         let target = format!("{}/target.txt", *FINAL_MAIN_MODULE_CONFIG);
-        fs::write(&target, output)?;
+        write(target, output, false)
     } else {
-        println!("Environment abnormal")
+        println!("{}", ABNORMAL_ENV)
     }
 
     Ok(())

@@ -15,6 +15,7 @@
 
 use crate::{
     define::{
+        ABNORMAL_ENV,
         FSEEMODDIR,
         MAIN_MODULE_IDENTITY,
         ENV_NORMAL,
@@ -37,7 +38,7 @@ pub fn fs_state() -> anyhow::Result<()> {
             println!("not running")
         }
     } else {
-        println!("Environment abnormal")
+        println!("{}", ABNORMAL_ENV)
     }
 
     Ok(())
@@ -56,7 +57,7 @@ pub fn fs_stop() -> anyhow::Result<()> {
             println!("Not support {}", *MAIN_MODULE_IDENTITY)
         }
     } else {
-        println!("Environment abnormal")
+        println!("{}", ABNORMAL_ENV)
     }
 
     Ok(())
@@ -80,7 +81,7 @@ pub fn fs_start() -> anyhow::Result<()> {
             println!("Not support {}", *MAIN_MODULE_IDENTITY)
         }
     } else {
-        println!("Environment abnormal")
+        println!("{}", ABNORMAL_ENV)
     }
 
     Ok(())

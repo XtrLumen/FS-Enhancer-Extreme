@@ -124,7 +124,7 @@ pub fn entry() -> anyhow::Result<()> {
         Commands::Startwebui => webui::start(),
         Commands::Spsyncprop => securitypatch::sync(),
         Commands::Envcollect => {
-            envcollect::external_entry();
+            envcollect::entry();
 
             Ok(())
         },

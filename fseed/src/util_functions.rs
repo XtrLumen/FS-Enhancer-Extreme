@@ -14,8 +14,14 @@
  */
 
 use crate::{
-    define::IS_ZHCN,
-    bridge::log_e
+    define::{
+        IS_ZHCN,
+        DESC_PREFIX
+    },
+    bridge::{
+        log_i,
+        log_e
+    }
 };
 
 use std::{
@@ -28,9 +34,14 @@ use std::{
     io::{
         Error,
         Result
+    },
+    ffi::{
+        CStr,
+        CString
     }
 };
 
+use libc::c_char;
 use anyhow::{
     anyhow,
     ensure
@@ -94,9 +105,9 @@ pub fn kill(pid: i32) -> anyhow::Result<()> {
     }
 }
 
-fn result_process(result: &process::Output, is_err: bool) -> (i32, String){
-    let code = result.status.code().unwrap_or(-1);
-    let source = if is_err {
+fn result_process(result: &process::Output, is_stderr: bool) -> (i32, String) {
+    let code = result.status.code().unwrap();
+    let source = if is_stderr {
         &result.stderr
     } else {
         &result.stdout 
@@ -105,24 +116,24 @@ fn result_process(result: &process::Output, is_err: bool) -> (i32, String){
     (code, output)
 }
 
-fn intercept_log_err(result: &process::Output, is_err: bool) {
-    let (code, output) = result_process(result, is_err);
+fn intercept_log_err(result: &process::Output, is_stderr: bool) {
+    let (code, output) = result_process(result, is_stderr);
     log_e(&format!("{}|{}", code, output));
 }
 
-fn pass_through_err(result: &process::Output, is_err: bool) -> anyhow::Error {
-    let (code, output) = result_process(result, is_err);
+fn pass_through_err(result: &process::Output, is_stderr: bool) -> anyhow::Error {
+    let (code, output) = result_process(result, is_stderr);
     anyhow!("{}|{}", code, output)
 }
 
-fn intercept_log_and_pass_through_err(result: Result<process::Output>, command: &str, is_err: bool) -> anyhow::Result<process::Output> {
+fn intercept_log_and_pass_through_err(result: Result<process::Output>, command: &str, is_stderr: bool) -> anyhow::Result<process::Output> {
     match result {
         Ok(success) => {
             if success.status.success() {
                 Ok(success)
             } else {
-                intercept_log_err(&success, is_err);
-                Err(pass_through_err(&success, is_err))
+                intercept_log_err(&success, is_stderr);
+                Err(pass_through_err(&success, is_stderr))
             }
         }
         Err(error) => {
@@ -132,18 +143,27 @@ fn intercept_log_and_pass_through_err(result: Result<process::Output>, command: 
     }
 }
 
+unsafe extern "C" {
+    fn __system_property_get(__name: *const c_char, __value: *mut c_char) -> u32;
+}
+
+pub fn getprop(prop: &str) -> String {
+    let cstring_name = CString::new(prop).unwrap();
+    let mut buffer = [0u8; 96];
+
+    unsafe {
+        __system_property_get(cstring_name.as_ptr(), buffer.as_mut_ptr())
+    };
+
+    CStr::from_bytes_until_nul(&buffer).unwrap().to_string_lossy().into()
+}
+
 pub fn resetprop(args: &[&str]) -> anyhow::Result<()> {
     let result = process::Command::new("resetprop").args(args)
         .output();
     intercept_log_and_pass_through_err(result, "resetprop", true)?;
 
     Ok(())
-}
-
-pub fn getprop(prop: &str) -> anyhow::Result<String> {
-    let result = process::Command::new("getprop").arg(prop)
-        .output();
-    Ok(String::from_utf8(intercept_log_and_pass_through_err(result, "getprop", false)?.stdout).unwrap().trim().to_string())
 }
 
 pub fn am_start(args: &[&str]) -> anyhow::Result<()> {
@@ -192,7 +212,11 @@ pub fn pm_uninstall(arg: &str) {
 
 pub fn pm_list(arg: &str) -> anyhow::Result<String> {
     let result = pm(&["list", "package", arg]);
-    Ok(String::from_utf8(intercept_log_and_pass_through_err(result, "pm list", false)?.stdout).unwrap().trim().to_string())
+    Ok(
+        String::from_utf8(
+            intercept_log_and_pass_through_err(result, "pm list", false)?.stdout
+        ).unwrap().trim().to_string()
+    )
 }
 
 pub fn pm_path(arg: &str, crash: bool) -> anyhow::Result<bool> {
@@ -223,6 +247,16 @@ pub fn read_to_string(path: &Path) -> anyhow::Result<String> {
     })
 }
 
+pub fn write(path: impl AsRef<Path>, data: impl AsRef<[u8]>, log: bool) {
+    if let Err(error) = fs::write(&path, data) {
+        log_e(&format!("{}写入失败: {}", path.as_ref().display(), error));
+    } else {
+        if log {
+            log_i("写入成功")
+        }
+    }
+}
+
 pub fn read_multiple_bool(env_file: &str) -> bool {
     read_to_string(Path::new(env_file)).ok().is_some_and(|content|
         content.lines().nth(0).is_some_and(|line|
@@ -249,17 +283,16 @@ pub fn override_description(path: &str, description: &str) {
     let full_path = format!("{}/module.prop", path);
     let file = Path::new(&full_path);
     if let Ok(content) = read_to_string(file) {
-        if content.contains("description=") {
-            let data: String = content.lines().map(|line| {
-                if line.starts_with("description=") {
-                    description
+        if content.contains(DESC_PREFIX) {
+            let final_desc: String = format!("{}{}", DESC_PREFIX, description);
+            let data: String = content.lines().map(|line|
+                if line.starts_with(DESC_PREFIX) {
+                    &final_desc
                 } else {
                     line
                 }
-            }).intersperse("\n").collect();
-            if let Err(e) = fs::write(&full_path, data) {
-                log_e(&format!("写入失败: {}", e))
-            }
+            ).intersperse("\n").collect();
+            write(file, data, false)
         } else {
             log_e("文件损坏")
         }

@@ -31,41 +31,33 @@ use crate::{
         getprop,
         pm_install,
         pm_uninstall,
+        write,
         read_to_string,
         read_version_integer
     }
 };
 
 use std::{
-    fs,
     process,
     path::Path
 };
 
-fn get_vbhash() -> Option<String> {
-    if let Ok(success) = getprop("ro.boot.vbmeta.digest") {
-        Some(success)
-    } else {
-        None
-    }
+fn get_vbhash() -> String {
+    getprop("ro.boot.vbmeta.digest")
+}
+
+fn set_vbhash(value: &str) -> anyhow::Result<()> {
+    resetprop(&["-n", "ro.boot.vbmeta.digest", value])
 }
 
 pub fn entry() -> anyhow::Result<()> {
     let persist_hash_full_path = format!("{}/verifiedboothash", FSEECONFIG);
 
-    let set_vbhash = |value: &str| -> anyhow::Result<()> {
-        resetprop(&["-n", "ro.boot.vbmeta.digest", value])
+    let write_persist_hash = |data: String| {
+        write(&persist_hash_full_path, data, true)
     };
 
-    let write_persist_hash = |data: &str| {
-        if let Err(error) = fs::write(&persist_hash_full_path, &data) {
-            log_e(&format!("写入失败: {}", error))
-        } else {
-            log_i("写入成功")
-        }
-    };
-
-    let now_vbhash: Option<String> = get_vbhash();
+    let now_vbhash: String = get_vbhash();
 
     let contentapp = |cache: bool| -> bool {
         log_i("安装服务");
@@ -91,14 +83,14 @@ pub fn entry() -> anyhow::Result<()> {
                     None
                 }
             };
-            let is_success: bool = if let Some(success) = new_vbhash {
+            let is_success: bool = if let Some(result) = new_vbhash {
                 log_i("解析成功");
-                let is_success: bool = if Some(&success) == now_vbhash.as_ref() {
+                let is_success: bool = if result == now_vbhash {
                     log_i("无需修正");
                     true
                 } else {
-                    if let Some(success) = now_vbhash.as_ref() {
-                        if set_vbhash(&success).is_ok() {
+                    if result == now_vbhash {
+                        if set_vbhash(&result).is_ok() {
                             log_i("修正完毕");
                             true
                         } else {
@@ -111,7 +103,7 @@ pub fn entry() -> anyhow::Result<()> {
                 };
                 if cache {
                     log_i("缓存数据");
-                    write_persist_hash(&success);
+                    write_persist_hash(result);
                 }
 
                 is_success
@@ -157,12 +149,12 @@ pub fn entry() -> anyhow::Result<()> {
                 ).collect::<String>();
 
                 if set_vbhash(&hash).is_ok() {
-                    log_i(&format!("重置完毕,当前VerifiedBootHash: {:?}", get_vbhash()))
+                    log_i(&format!("重置完毕,当前VerifiedBootHash: {}", get_vbhash()))
                 } else {
                     log_e("重置失败")
                 }
 
-                write_persist_hash(&hash);
+                write_persist_hash(hash);
             }
         }
     };
@@ -171,11 +163,11 @@ pub fn entry() -> anyhow::Result<()> {
         let persist_hash_file = Path::new(&persist_hash_full_path);
         if persist_hash_file.exists() {
             if let Ok(success) = read_to_string(persist_hash_file) {
-                if now_vbhash.as_ref() == Some(&success) {
+                if now_vbhash == success {
                     log_i("无需修正");
                 } else {
                     if set_vbhash(&success).is_ok() {
-                        log_i(&format!("修正完毕,当前VerifiedBootHash: {:?}", get_vbhash()))
+                        log_i(&format!("修正完毕,当前VerifiedBootHash: {}", get_vbhash()))
                     } else {
                         log_e("修正失败")
                     }

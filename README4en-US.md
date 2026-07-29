@@ -1,5 +1,5 @@
 # Forge Store Enhancer Extreme
-Enhance ForgeStore experience, while providing extreme hiding of detection points introduced by bootloader unlocking.
+Enhance ForgeStore experience, Extreme hiding of detection points from unlocking bootloader.
 
 > [!TIP]
 > 「[简体中文](README.md)」
@@ -18,8 +18,9 @@ Enhance ForgeStore experience, while providing extreme hiding of detection point
 
 ## Feature
 ### Main
-- Add a remove tag / Force delete to conflict module; Directly uninstall the conflict app when detected; `libc::inotify_add_watch` real-time monitoring
-- Take over the ForgeStore module target.txt, with priority over any similar modules; `libc::inotify_add_watch` real-time monitoring
+- `libc::inotify*` real-time monitoring
+  - Add a remove tag / Force delete to conflict module; Directly uninstall the conflict app when detected
+  - Take over the ForgeStore module target.txt, with priority over any similar modules
 - Provides Google Hardware Attestation Root Certificate signing keybox
 - At device startup
   - Automatically correct abnormal VerifiedBootHash prop
@@ -30,6 +31,7 @@ Enhance ForgeStore experience, while providing extreme hiding of detection point
 - Avoid abnormal environments
 - Display detailed dashboard in module description
 - Display zh-Hans or en-US based on the system language: User-visible part
+  - Force en-US: Create`/data/adb/fs_enhancer_extreme/config/english`empty file
 
 ### WebUI
 - DEV VERSION STUB

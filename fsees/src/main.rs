@@ -43,8 +43,7 @@ static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
 
 pub fn load_bridge() {
     let lib_instance = unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")
-        .expect("libutils.so加载失败")
-    };
+        .expect("libutils.so加载失败")};
     let expect_msg: &str = "libutils.so符号缺失";
     let void_void_load = |function_name: &str| -> unsafe fn() {unsafe{
         *lib_instance.get::<unsafe fn()>(function_name.as_bytes())
@@ -64,20 +63,20 @@ pub fn load_bridge() {
     mem::forget(lib_instance);
 }
 
-fn verify() {
-    unsafe {(FUNCTIONS.get().unwrap().verify)()}
-}
+pub fn verify() {unsafe{
+    (FUNCTIONS.get().unwrap().verify)()
+}}
 
-const TAG: &str = "daemon";
-fn log_i(msg: &str) {
-    unsafe {(FUNCTIONS.get().unwrap().log_i)(TAG, msg)}
-}
-fn log_w(msg: &str) {
-    unsafe {(FUNCTIONS.get().unwrap().log_w)(TAG, msg)}
-}
-fn log_e(msg: &str) {
-    unsafe {(FUNCTIONS.get().unwrap().log_e)(TAG, msg)}
-}
+const LOG_TAG: &str = "daemon";
+pub fn log_i(msg: &str) {unsafe{
+    (FUNCTIONS.get().unwrap().log_i)(LOG_TAG, msg)
+}}
+pub fn log_w(msg: &str) {unsafe{
+    (FUNCTIONS.get().unwrap().log_w)(LOG_TAG, msg)
+}}
+pub fn log_e(msg: &str) {unsafe{
+    (FUNCTIONS.get().unwrap().log_e)(LOG_TAG, msg)
+}}
 
 fn watch(path: &str, args: &[&[&str]], events: u32, tx: mpsc::Sender<bool>) {
     if !Path::new(path).exists() {

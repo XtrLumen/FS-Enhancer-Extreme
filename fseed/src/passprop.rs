@@ -23,41 +23,43 @@ use crate::{
 
 use std::ffi::CString;
 
+use libc::c_int;
+
+fn check_missing_match_prop(prop: &[&str]) -> anyhow::Result<()> {
+    let value: String = getprop(prop[0]);
+    if value.is_empty() || value != prop[1] {
+        resetprop(prop)?;
+    }
+
+    Ok(())
+}
+
+fn contains_reset_prop(prop: &[&str]) -> anyhow::Result<()> {
+    if getprop(prop[0]).contains(prop[1]) {
+        resetprop(&[prop[0], prop[2]])?;
+    }
+
+    Ok(())
+}
+
+fn check_missing_prop(prop: &[&str]) -> anyhow::Result<()> {
+    if getprop(prop[0]).is_empty() {
+        resetprop(prop)?;
+    }
+
+    Ok(())
+}
+
+fn check_reset_prop(prop: &[&str]) -> anyhow::Result<()> {
+    let value: String = getprop(prop[0]);
+    if !value.is_empty() && value != prop[1] {
+        resetprop(prop)?;
+    }
+
+    Ok(())
+}
+
 pub fn entry() -> anyhow::Result<()> {
-    let check_missing_match_prop = |prop: &[&str]| -> anyhow::Result<()> {
-        let value: String = getprop(prop[0])?;
-        if value.is_empty() || value != prop[1] {
-            resetprop(prop)?;
-        }
-
-        Ok(())
-    };
-
-    let contains_reset_prop = |prop: &[&str]| -> anyhow::Result<()> {
-        if getprop(prop[0])?.contains(prop[1]) {
-            resetprop(&[prop[0], prop[2]])?;
-        }
-
-        Ok(())
-    };
-
-    let check_missing_prop = |prop: &[&str]| -> anyhow::Result<()> {
-        if getprop(prop[0])?.is_empty() {
-            resetprop(prop)?;
-        }
-
-        Ok(())
-    };
-
-    let check_reset_prop = |prop: &[&str]| -> anyhow::Result<()> {
-        let value: String = getprop(prop[0])?;
-        if !value.is_empty() && value != prop[1] {
-            resetprop(prop)?;
-        }
-
-        Ok(())
-    };
-
     // check_missing_match_prop
     for arg in [
         ["ro.boot.vbmeta.device_state", "locked"],
@@ -81,26 +83,30 @@ pub fn entry() -> anyhow::Result<()> {
     // check_missing_prop
     let vbmeta_size = {
         let default = String::from("4096");
-        let slot = getprop("ro.boot.slot_suffix")?;
+        let slot = getprop("ro.boot.slot_suffix");
         let path = CString::new(format!("/dev/block/by-name/vbmeta{}", slot)).unwrap();
         unsafe {
-            let file_descriptor: libc::c_int = libc::open(path.as_ptr(), libc::O_RDONLY);
+            let file_descriptor: c_int = libc::open(path.as_ptr(), libc::O_RDONLY);
             if file_descriptor >= 0 {
-                let mut size: libc::c_int = 0;
-                let return_type: libc::c_int = libc::ioctl(file_descriptor, BLKSSZGET, &mut size);
+                let mut size: c_int = 0;
+                let return_type: c_int = libc::ioctl(file_descriptor, BLKSSZGET, &mut size);
                 libc::close(file_descriptor);
                 if return_type == 0 {
                     size.to_string()
                 } else {
+                    #[cfg(debug_assertions)]
+                    crate::bridge::log_d(&format!("return_type: {}", return_type));
+
                     default
                 }
             } else {
+                #[cfg(debug_assertions)]
+                crate::bridge::log_d(&format!("file_descriptor: {}", file_descriptor));
+
                 default
             }
         }
     };
-    #[cfg(debug_assertions)]
-    crate::bridge::log_d(&format!("vbmeta_size: {}", vbmeta_size));
 
     for arg in [
         ["ro.boot.vbmeta.size", &vbmeta_size],

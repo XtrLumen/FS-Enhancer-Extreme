@@ -26,15 +26,14 @@ use crate::{
         ROOT_IMPL_ENV_FILE,
         MAIN_MODULE_ENV_FILE
     },
-    bridge::log_e,
     util_functions::{
         read_to_string,
-        delete_file
+        delete_file,
+        write
     }
 };
 
 use std::{
-    fs,
     path::Path,
     sync::OnceLock,
 };
@@ -53,7 +52,7 @@ fn root_collect() {
     if let Some(version_code) = apatch::invoke() {
         collect_result.push(("APatch", version_code));
     }
-    if let Some(version_code) = kernelsu::detect() {
+    if let Some(version_code) = kernelsu::invoke() {
         collect_result.push(("KernelSU", version_code));
     }
     if let Some((variant, version_code)) = magisk::detect() {
@@ -158,7 +157,7 @@ fn main_module_collect() {
     MAIN_MODULE_ENVIRONMENT.set(environment).ok();
 }
 
-pub fn internal_entry() {
+pub fn entry() {
     root_collect();
     main_module_collect();
     let (root_env, main_module_env) = (ROOT_INPL_ENVIRONMENT.get().unwrap(), MAIN_MODULE_ENVIRONMENT.get().unwrap());
@@ -173,13 +172,7 @@ pub fn internal_entry() {
         if Path::new(path).exists() {
             delete_file(path)
         }
-        let data = format!("{}\n{}\n{}", env.multiple, env.identity, env.version_code);
-        if let Err(error) = fs::write(path, data) {
-            log_e(&format!("写入失败: {}", error));
-        }
+        let data: String = format!("{}\n{}\n{}", env.multiple, env.identity, env.version_code);
+        write(path, data, false)
     }
-}
-
-pub fn external_entry() {
-    internal_entry()
 }

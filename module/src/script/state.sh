@@ -14,9 +14,10 @@
 #
 
 cd ${0%/*}
-[ -d "../modules/fs_enhancer_extreme" ] || rm -f "${0}"
 source "../modules/fs_enhancer_extreme/script/util_functions.sh"
 
 initwait
+logI "重置描述文件"
+cp -f "${FSEEMODDIR}/module.base" "${FSEEMODDIR}/module.prop"
 logI "刷新运行状态"
 invoke descrefresh

@@ -73,7 +73,7 @@ fn delete_path(path: &str) {
 
 fn del_conflict_mod_process() {
     for del_conflict_mod in DEL_CONFLICT_MOD {
-        let conflict_mod_full_path = format!("{}/{}", MODULESDIR, del_conflict_mod);
+        let conflict_mod_full_path: String = format!("{}/{}", MODULESDIR, del_conflict_mod);
         if Path::new(&conflict_mod_full_path).exists() {
             log_i(&format!("移除: {}", del_conflict_mod));
             drop(process::Command::new("sh").current_dir(&conflict_mod_full_path).arg("./uninstall.sh")
@@ -88,7 +88,7 @@ fn del_conflict_mod_process() {
 
 fn tag_conflict_mod_process(is_daemon: bool) {
     for tag_conflict_mod in TAG_CONFLICT_MOD {
-        let conflict_mod_full_path = format!("{}/{}", MODULESDIR, tag_conflict_mod);
+        let conflict_mod_full_path: String = format!("{}/{}", MODULESDIR, tag_conflict_mod);
         if Path::new(&conflict_mod_full_path).exists() {
             log_i(&format!("处理: {}", tag_conflict_mod));
             override_description(&conflict_mod_full_path, *CONFLICT_DESC_LINE);

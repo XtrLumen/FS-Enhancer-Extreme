@@ -19,25 +19,13 @@ use crate::{
         read_multiple_bool,
         read_identity_string
     },
-    envcollect::internal_entry
+    envcollect::entry
 };
 
 use std::{
     path::Path,
     sync::LazyLock
 };
-
-pub static IS_ZHCN: LazyLock<bool> = LazyLock::new(||
-    getprop("persist.sys.locale").unwrap().contains("zh") || getprop("ro.product.locale").unwrap().contains("zh")
-);
-
-pub static CONFLICT_DESC_LINE: LazyLock<&str> = LazyLock::new(||
-    if *IS_ZHCN {
-        "description=此模块与FS-Enhancer-Extreme证实冲突,已被添加移除标签,将在设备下一次启动时被移除."
-    } else {
-        "description=This module has been confirmed to conflict with the FS-Enhancer-Extreme. Has been tagged for remove, Will be removed upon the devide next boot."
-    }
-);
 
 pub const CONFLICT_APP: &[&str] = &[
     "com.lingqian.appbl",
@@ -79,6 +67,9 @@ pub const OFF: &str = "OFF";
 pub const MULTIPLE: &str = "MULTIPLE";
 pub const UNKNOWN: &str = "Unknown";
 
+pub const DESC_PREFIX: &str = "description=";
+pub const ABNORMAL_ENV: &str = "Abnormal Environment";
+
 pub const FS_STR: &str = "ForgeStore";
 pub const FSMODDIR: &str = "/data/adb/modules/forge_store";
 pub const TSMODDIR: &str = "/data/adb/modules/tricky_store";
@@ -88,10 +79,23 @@ pub const MODULESDIR: &str = "/data/adb/modules";
 pub const MODULESUPDATEDIR: &str = "/data/adb/modules_update";
 pub const ROOT_IMPL_ENV_FILE: &str = "/data/adb/fs_enhancer_extreme/root_impl";
 pub const MAIN_MODULE_ENV_FILE: &str = "/data/adb/fs_enhancer_extreme/main_module";
+pub const FORCE_ENGLISH_FILE: &str = "/data/adb/fs_enhancer_extreme/config/english";
+
+pub static IS_ZHCN: LazyLock<bool> = LazyLock::new(||
+    !Path::new(FORCE_ENGLISH_FILE).exists() && (getprop("persist.sys.locale").contains("zh") || getprop("ro.product.locale").contains("zh"))
+);
+
+pub static CONFLICT_DESC_LINE: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "此模块与FS-Enhancer-Extreme证实冲突,已被添加移除标签,将在设备下一次启动时被移除."
+    } else {
+        "This module has been confirmed to conflict with the FS-Enhancer-Extreme. Has been tagged for remove, Will be removed upon the devide next boot."
+    }
+);
 
 pub static MAIN_MODULE_IDENTITY: LazyLock<String> = LazyLock::new(||{
     if !Path::new(MAIN_MODULE_ENV_FILE).exists() {
-        internal_entry()
+        entry()
     }
     let main_module_identity = read_identity_string(MAIN_MODULE_ENV_FILE);
     let fs_disable = Path::new(&format!("{}/disable", FSMODDIR)).exists();
@@ -150,33 +154,12 @@ pub static DESC_BASE: LazyLock<String> = LazyLock::new(||{
         FS_STR
     };
     if *IS_ZHCN {
-        format!("提升{}体验,同时极致隐藏由解锁引导加载程序产生的相关检测点.", final_identity)
+        format!("提升{}体验,极致隐藏由解锁引导加载程序产生的检测点.", final_identity)
     } else {
-        format!("Enhance {} experience, while providing extreme hiding of detection points introduced by bootloader unlocking.", final_identity)
+        format!("Enhance {} experience, Extreme hiding of detection points from unlocking bootloader.", final_identity)
     }
 });
 
-pub static DESC_SERVICE_SUCCESS: LazyLock<&str> = LazyLock::new(||
-    if *IS_ZHCN {
-        "✅服务运行中"
-    } else {
-        "✅Service is running"
-    }
-);
-pub static DESC_SERVICE_FAILURE: LazyLock<&str> = LazyLock::new(||
-    if *IS_ZHCN {
-        "❌服务无法启动"
-    } else {
-        "❌Daemon cannot start"
-    }
-);
-pub static DESC_SERVICE_NOT_START: LazyLock<&str> = LazyLock::new(||
-    if *IS_ZHCN {
-        "❌所有服务将不会启动!"
-    } else {
-        "❌All service will not start!"
-    }
-);
 pub static DESC_MULTIPLE: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "❌多重共存-"
@@ -184,6 +167,7 @@ pub static DESC_MULTIPLE: LazyLock<&str> = LazyLock::new(||
         "❌Multiple-"
     }
 );
+
 pub static DESC_MAIN_MODULE_NOT_INSTALL: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "未安装!"
@@ -198,6 +182,7 @@ pub static DESC_DISABLE: LazyLock<&str> = LazyLock::new(||
         "Disabled"
     }
 );
+
 pub static DESC_ROOT_IMPL: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "根实现: "
@@ -210,5 +195,34 @@ pub static DESC_MAIN_MODULE: LazyLock<&str> = LazyLock::new(||
         "主模块: "
     } else {
         "MainModule: "
+    }
+);
+pub static DESC_DAEMON: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "服务: "
+    } else {
+        "Daemon: "
+    }
+);
+
+pub static DESC_SERVICE_SUCCESS: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "运行中"
+    } else {
+        "Running"
+    }
+);
+pub static DESC_SERVICE_FAILURE: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "无法启动"
+    } else {
+        "Cannot start"
+    }
+);
+pub static DESC_SERVICE_NOT_START: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "所有服务将不会启动!"
+    } else {
+        "All service will not start!"
     }
 );

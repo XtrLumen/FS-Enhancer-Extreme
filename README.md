@@ -18,18 +18,20 @@
 
 ## 功能
 ### 主要
-- 对冲突模块添加移除标签/强制删除；检测到冲突软件时直接卸载；`libc::inotify_add_watch`实时监控
-- 接管ForgeStore模块target.txt，优先级高于任何类似模块；`libc::inotify_add_watch`实时监控
-- 提供谷歌硬件认证根证书签名的keybox
+- `libc::inotify*`实时监控
+  - 对冲突模块添加移除标签/强制删除；检测到冲突软件时直接卸载
+  - 接管 ForgeStore 模块 target.txt ，优先级高于任何类似模块
+- 提供谷歌硬件认证根证书签名的 keybox
 - 设备启动时
-  - 全自动修正异常VerifiedBootHash属性
+  - 全自动修正异常 VerifiedBootHash 属性
   - 将安全补丁级别同步到属性
   - 将引导程序属性设置为锁定
 
 ### 其他
 - 规避异常环境
 - 在模块描述显示详细仪表盘
-- 根据系统语言分别显示zh-Hans或en-US: 用户可见部分
+- 根据系统语言分别显示 zh-Hans 或 en-US : 用户可见部分
+  - 强制 en-US : 创建`/data/adb/fs_enhancer_extreme/config/english`空文件
 
 ### WebUI
 - DEV VERSION STUB

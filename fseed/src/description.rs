@@ -32,7 +32,8 @@ use crate::{
         DESC_MAIN_MODULE_NOT_INSTALL,
         DESC_DISABLE,
         DESC_ROOT_IMPL,
-        DESC_MAIN_MODULE
+        DESC_MAIN_MODULE,
+        DESC_DAEMON
     },
     util_functions::{
         pidof,
@@ -41,7 +42,7 @@ use crate::{
         read_version_integer,
         override_description
     },
-    envcollect::internal_entry
+    envcollect::entry
 };
 
 use std::path::Path;
@@ -57,7 +58,7 @@ pub struct Mode {
 
 pub fn refresh(mode: Mode) -> anyhow::Result<()> {
     if mode.debug {
-        internal_entry()
+        entry()
     }
 
     let full_environment: String = if !Path::new(&format!("{}/disable", FSEEMODDIR)).exists() {
@@ -103,22 +104,22 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
             }
         };
 
-        let service_state = if *ENV_NORMAL {
+        let (daemon_prefix, daemon_state) = if *ENV_NORMAL {
             if let Some(_) = pidof("fsees")? {
-                *DESC_SERVICE_SUCCESS
+                ("✅", *DESC_SERVICE_SUCCESS)
             } else {
-                *DESC_SERVICE_FAILURE
+                ("❌", *DESC_SERVICE_FAILURE)
             }
         } else {
-            *DESC_SERVICE_NOT_START
+            ("❌", *DESC_SERVICE_NOT_START)
         };
 
-        format!("{}{}{}, {}{}{}, {}", *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment, *DESC_MAIN_MODULE, main_module_prefix, main_module_environment, service_state)
+        format!("{}{}{}, {}{}{}, {}{}{}", *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment, *DESC_MAIN_MODULE, main_module_prefix, main_module_environment, *DESC_DAEMON, daemon_prefix, daemon_state)
     } else {
         format!("❌{}", DESC_DISABLE.to_string())
     };
 
-    let final_description = format!("description=[{}]\\n{}", full_environment, *DESC_BASE);
+    let final_description: String = format!("[{}]\\n{}", full_environment, *DESC_BASE);
     override_description(FSEEMODDIR, &final_description);
     println!("{}", final_description);
 

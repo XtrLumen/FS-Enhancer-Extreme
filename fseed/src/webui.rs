@@ -23,6 +23,9 @@ use crate::util_functions::{
 };
 
 pub fn start() -> anyhow::Result<()> {
+    println_cn("- 跳转配置页面");
+    println_en("- Start WebUI");
+
     let launch = |app: &str, arg: &[&str]| -> anyhow::Result<()> {
         print_cn(&format!("- {}已安装,启动...", app));
         print_en(&format!("- {} installed, Launch...", app));

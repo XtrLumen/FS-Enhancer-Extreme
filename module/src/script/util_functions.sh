@@ -46,25 +46,6 @@ esac
 ##END##
 
 ##FUNCTIONS##
-#MULTILINGUAL#
-if [[ "$(getprop persist.sys.locale)" == *"zh"* || "$(getprop ro.product.locale)" == *"zh"* ]]; then
-  LOCALE="CN"
-else
-  LOCALE="EN"
-fi
-println() {
-  [ "${LOCALE}" = "${1}" ] && {
-    shift
-    echo "${@}"
-  }
-}
-print_cn() {
-  println "CN" "${@}"
-}
-print_en() {
-  println "EN" "${@}"
-}
-#OTHER#
 fseed() {
   ${FSEEMODDIR}/bin/fseed "${@}"
 }
@@ -83,32 +64,38 @@ logE() {
   logout "E" "${@}"
 }
 initwait() {
-  until [ "$(getprop sys.boot_completed)" -eq 1 ]; do
+  until [ "$(getprop sys.boot_completed)" -eq 1 ]
+  do
     sleep 1s
   done
 }
 envcheck() {
-  if fseed envcheck; then
-    if ${isPostFsData}; then
+  if fseed envcheck
+  then
+    if ${isPostFsData}
+    then
       logI "环境正常,继续执行"
       mv -f "${FSEEMODDIR}/.webroot" "${FSEEMODDIR}/webroot"
-      if [[ ! "${APATCH}" && ! "${KSU}" ]]; then
-        mv -f "${FSEEMODDIR}/.action.sh" "${FSEEMODDIR}/action.sh"
+      if [[ ! "${APATCH}" && ! "${KSU}" ]]
+      then
+        mv -f "${FSEEMODDIR}/.action.sh" "${FSEEMODDIR}/action.sh" >/dev/null 2>&1
       else
-        mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh"
+        mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh" >/dev/null 2>&1
       fi
     fi
   else
-    if ${isPostFsData}; then
+    if ${isPostFsData}
+    then
       logE "环境异常,拦截执行"
-      mv -f "${FSEEMODDIR}/webroot" "${FSEEMODDIR}/.webroot"
-      mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh"
+      mv -f "${FSEEMODDIR}/webroot" "${FSEEMODDIR}/.webroot" >/dev/null 2>&1
+      mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh" >/dev/null 2>&1
     fi
     exit
   fi
 }
 invoke() {
-  if fseed "${@}"; then
+  if fseed "${@}"
+  then
     logI "完毕"
   else
     logW "失败"

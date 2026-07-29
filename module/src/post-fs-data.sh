@@ -20,8 +20,6 @@ mv    -f "${LOGDIR}" "${OLDLOG}"
 mkdir -p "${LOGDIR}"
 touch    "${FSEELOG}"
 logI "轮换日志结束"
-logI "重置描述文件"
-cp -f "${FSEEMODDIR}/module.base" "${FSEEMODDIR}/module.prop"
 [ -f "${ADB}/service.d/.fsee_state.sh" ] || {
   logI "配置描述文件刷新脚本"
   mkdir -p "${ADB}/service.d"
@@ -29,7 +27,7 @@ cp -f "${FSEEMODDIR}/module.base" "${FSEEMODDIR}/module.prop"
   chmod +x "${ADB}/service.d/.fsee_state.sh"
 }
 logI "收集运行环境"
-invoke envcollect
+invoke envcollect >> "${FSEELOG}"
 envcheck
 
 logI "处理冲突模块"

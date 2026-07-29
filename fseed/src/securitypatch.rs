@@ -15,6 +15,7 @@
 
 use crate::{
     define::{
+        ABNORMAL_ENV,
         ENV_NORMAL,
         FINAL_MAIN_MODULE_CONFIG
     },
@@ -83,7 +84,7 @@ pub fn sync() -> anyhow::Result<()> {
             process::exit(1)
         }
     } else {
-        println!("Environment abnormal")
+        println!("{}", ABNORMAL_ENV)
     }
 
     Ok(())
