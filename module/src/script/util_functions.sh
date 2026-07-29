@@ -30,75 +30,75 @@ isServiceD=false
 isService=false
 LOG_TAG="<Undefined>"
 case "$(basename "${0}")" in
-  "post-fs-data.sh")
-    isPostFsData=true
-    LOG_TAG="<post-fs-data>"
-    ;;
-  ".fsee_state.sh")
-    isServiceD=true
-    LOG_TAG="<service.d>"
-    ;;
-  "service.sh")
-    isService=true
-    LOG_TAG="<service>"
-    ;;
+    "post-fs-data.sh")
+        isPostFsData=true
+        LOG_TAG="<post-fs-data>"
+        ;;
+    ".fsee_state.sh")
+        isServiceD=true
+        LOG_TAG="<service.d>"
+        ;;
+    "service.sh")
+        isService=true
+        LOG_TAG="<service>"
+        ;;
 esac
 ##END##
 
 ##FUNCTIONS##
 fseed() {
-  ${FSEEMODDIR}/bin/fseed "${@}"
+    ${FSEEMODDIR}/bin/fseed "${@}"
 }
 logout() {
-  LEVEL=${1}
-  shift
-  echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  ${$}  ${$} ${LEVEL} [FSEE]  : ${LOG_TAG} ${@}" >> "${FSEELOG}"
+    LEVEL=${1}
+    shift
+    echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  ${$}  ${$} ${LEVEL} [FSEE]  : ${LOG_TAG} ${@}" >> "${FSEELOG}"
 }
 logI() {
-  logout "I" "${@}"
+    logout "I" "${@}"
 }
 logW() {
-  logout "W" "${@}"
+    logout "W" "${@}"
 }
 logE() {
-  logout "E" "${@}"
+    logout "E" "${@}"
 }
 initwait() {
-  until [ "$(getprop sys.boot_completed)" -eq 1 ]
-  do
-    sleep 1s
-  done
+    until [ "$(getprop sys.boot_completed)" -eq 1 ]
+    do
+        sleep 1s
+    done
 }
 envcheck() {
-  if fseed envcheck
-  then
-    if ${isPostFsData}
+    if fseed envcheck
     then
-      logI "环境正常,继续执行"
-      mv -f "${FSEEMODDIR}/.webroot" "${FSEEMODDIR}/webroot"
-      if [[ ! "${APATCH}" && ! "${KSU}" ]]
-      then
-        mv -f "${FSEEMODDIR}/.action.sh" "${FSEEMODDIR}/action.sh" >/dev/null 2>&1
-      else
-        mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh" >/dev/null 2>&1
-      fi
+        if ${isPostFsData}
+        then
+            logI "环境正常,继续执行"
+            mv -f "${FSEEMODDIR}/.webroot" "${FSEEMODDIR}/webroot"
+            if [[ ! "${APATCH}" && ! "${KSU}" ]]
+            then
+                mv -f "${FSEEMODDIR}/.action.sh" "${FSEEMODDIR}/action.sh" >/dev/null 2>&1
+            else
+                mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh" >/dev/null 2>&1
+            fi
+        fi
+    else
+        if ${isPostFsData}
+        then
+            logE "环境异常,拦截执行"
+            mv -f "${FSEEMODDIR}/webroot" "${FSEEMODDIR}/.webroot" >/dev/null 2>&1
+            mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh" >/dev/null 2>&1
+        fi
+        exit
     fi
-  else
-    if ${isPostFsData}
-    then
-      logE "环境异常,拦截执行"
-      mv -f "${FSEEMODDIR}/webroot" "${FSEEMODDIR}/.webroot" >/dev/null 2>&1
-      mv -f "${FSEEMODDIR}/action.sh" "${FSEEMODDIR}/.action.sh" >/dev/null 2>&1
-    fi
-    exit
-  fi
 }
 invoke() {
-  if fseed "${@}"
-  then
-    logI "完毕"
-  else
-    logW "失败"
-  fi
+    if fseed "${@}"
+    then
+        logI "完毕"
+    else
+        logW "失败"
+    fi
 }
 ##END##
