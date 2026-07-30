@@ -1,5 +1,5 @@
 # Forge Store Enhancer Extreme
-提升ForgeStore体验，同时极致隐藏由解锁引导加载程序产生的相关检测点。
+提升ForgeStore体验,极致隐藏由解锁引导加载程序产生的检测点.
 
 > [!TIP]
 > 「[English](README4en-US.md)」

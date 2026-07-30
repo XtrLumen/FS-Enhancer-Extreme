@@ -1,68 +1,59 @@
 #!/bin/zsh
 
-alias fn='function'
-
 [ ${#} -eq 0 ] && echo "no args" && exit 2
 
-name="fseed"
-targetDir="/data/local/tmp"
-
-fn exe() {
-  adb shell su -c "${targetDir}/${name}" "${@}"
+exe() {
+    adb shell su -c "/data/local/tmp/fseed" "${@}"
 }
 
-fn build() {
-  [ "${1}" = "release" ] && local variant="--release"
+build() {
+    [ "${1}" = "release" ] && local variant="--release"
 
-  local git_version
-  git_version="$(git describe --tags --always 2>/dev/null)" || {
-      git_version="0.0.0"
-      echo "Failed to get git version, using ${git_version}"
-  }
-  VERSION_NAME=${git_version} \
-  cargo ndk build --target aarch64-linux-android ${variant}
+    local git_version
+    git_version="$(git describe --tags --always 2>/dev/null)" || {
+        git_version="0.0.0"
+        echo "Failed to get git version, using ${git_version}"
+    }
+    VERSION_NAME=${git_version} \
+    cargo ndk build --target aarch64-linux-android ${variant}
 }
 
-fn push() {
-  adb push "./target/aarch64-linux-android/${1}/${name}" "${targetDir}"
+push() {
+    adb push "./target/aarch64-linux-android/${1}/fseed" "/data/local/tmp"
 }
 
-fn main() {
-  case "${1}" in
+case "${1}" in
     exe)
-      shift
-      exe "${@}"
-      ;;
+        shift
+        exe "${@}"
+        ;;
     buildRelease)
-      build release
-      ;;
+        build release
+        ;;
     buildDebug)
-      build debug
-      ;;
+        build debug
+        ;;
     buildAll)
-      build release
-      build debug
-      ;;
+        build release
+        build debug
+        ;;
     pushRelease)
-      build release && push release
-      ;;
+        build release && push release
+        ;;
     pushDebug)
-      build debug && push debug
-      ;;
+        build debug && push debug
+        ;;
     testRelease)
-      shift
-      build release && push release && exe "${@}"
-      ;;
+        shift
+        build release && push release && exe "${@}"
+        ;;
     testDebug)
-      shift
-      build debug && push debug && exe "${@}"
-      ;;
+        shift
+        build debug && push debug && exe "${@}"
+        ;;
     clean)
-      cargo clean
-      ;;
+        cargo clean
+        ;;
     *)
-      echo "invalid args" && exit 1
-  esac
-}
-
-main "${@}"
+        echo "invalid args" && exit 1
+esac
