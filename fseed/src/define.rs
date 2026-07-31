@@ -65,6 +65,7 @@ pub const DEL_CONFLICT_MOD: &[&str] = &[
 
 pub const LOG_TAG: &str = "cli";
 pub const VERSION_NAME: &str = env!("VERSION_NAME");
+pub const BUILTIN_KEYBOX: &[u8] = include_bytes!("../assets/keybox.xml");
 
 pub const BLKSSZGET: libc::c_int = 0x1268u32 as libc::c_int;
 

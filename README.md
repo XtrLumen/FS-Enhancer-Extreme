@@ -63,6 +63,8 @@
     - `descrefresh/-d|--debug`
   - Refresh Forge Store target.txt from user config
     - `listrefresh`
+  - Keybox Manager
+    - `keybox` `builtin|import<<<path`
 
 ### 配置
   - 配置目录路径: `/data/adb/fs_enhancer_extreme/config`

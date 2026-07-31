@@ -47,10 +47,14 @@ use crate::{
         read_version_integer,
         override_description
     },
+    bridge::log_e,
     envcollect::entry
 };
 
-use std::path::Path;
+use std::{
+    fs,
+    path::Path
+};
 
 use clap::Args;
 
@@ -62,6 +66,19 @@ pub struct Mode {
 }
 
 pub fn refresh(mode: Mode) -> anyhow::Result<()> {
+    let base_path = Path::new(FSEEMODDIR);
+    if let Err(error) = try {
+        let data = fs::read(base_path.join("module.prop"))?;
+        if data.iter().all(|&bytes|
+            bytes == 0
+        ) {
+            fs::copy(base_path.join("module.base"), base_path.join("module.prop"))?;
+        }
+    } {
+        log_e(&format!("失败: {}", error));
+        panic!("失败: {}", error)
+    }
+
     if mode.debug {
         entry()
     }
@@ -131,8 +148,13 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
             ("❌", *DESC_DAEMON_NOT_START)
         };
 
-
-        format!("{}{}{}, {}{}{}, {}{}{}, {}{}{}", *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment, *DESC_MAIN_MODULE, main_module_prefix, main_module_environment, *DESC_INTEGRITY, integrity_prefix, integrity_state, *DESC_DAEMON, daemon_prefix, daemon_state)
+        format!(
+            "{}{}{}, {}{}{}, {}{}{}, {}{}{}",
+            *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment,
+            *DESC_MAIN_MODULE, main_module_prefix, main_module_environment,
+            *DESC_INTEGRITY, integrity_prefix, integrity_state,
+            *DESC_DAEMON, daemon_prefix, daemon_state
+        )
     } else {
         format!("❌{}", DESC_DISABLE.to_string())
     };

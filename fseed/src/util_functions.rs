@@ -63,9 +63,9 @@ pub fn switch_mnt_namespace() -> anyhow::Result<()> {
 pub fn pidof(name: &str) -> Option<i32> {
     let proc = match fs::read_dir("/proc") {
         Ok(dir) => dir.flatten(),
-        Err(err) => {
-            log_e(&format!("/proc读取失败: {}", err));
-            panic!("/proc读取失败: {}", err);
+        Err(error) => {
+            log_e(&format!("/proc读取失败: {}", error));
+            panic!("/proc读取失败: {}", error);
         }
     };
     for process in proc {

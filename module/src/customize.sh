@@ -45,6 +45,7 @@ uninstall.sh
 NES="
 ${MODPATH}/bin/fseed
 ${MODPATH}/bin/fsees
+${ADB}/service.d/.fsee_state.sh
 "
 SYS="
 com.android.vending
@@ -59,6 +60,12 @@ me.garfieldhan.apatch.next
 ##END##
 
 ##FUNCTIONS##
+separator_print() {
+    ui_print "***********************************************"
+}
+separator_abort() {
+    abort "***********************************************"
+}
 if [ ! -f "${FSEECONFIG}/english" ] && [[ "$(getprop persist.sys.locale)" == *"zh"* || "$(getprop ro.product.locale)" == *"zh"* ]]
 then
     LOCALE="CN"
@@ -75,11 +82,11 @@ operate() {
                 ui_print "${@}"
                 ;;
             abort_verify)
-                ui_print "***********************************************"
+                separator_print
                 ui_print "! ${@}"
                 print_cn "! 这个ZIP文件已损坏,请重新下载"
                 print_en "! This zip may be corrupted, please try downloading again"
-                abort    "***********************************************"
+                separator_abort
                 ;;
         esac
     }
@@ -108,31 +115,31 @@ unzip -o "${ZIPFILE}" 'verify.sh' -d "${TMPDIR}" >/dev/null
 source "${TMPDIR}/verify.sh"
 #CHECK ENVIRONMENT#
 [ ${BOOTMODE} ] || {
-    ui_print "***********************************************"
+    separator_print
     print_cn "! 不受支持的安装环境 Recovery"
     print_cn "! 请从 KernelSU, APatch 或 Magisk 应用安装"
     print_en "! Install from recovery is not supported"
     print_en "! Please install from KernelSU, APatch or Magisk app"
-    abort    "***********************************************"
+    separator_abort
 }
 [ ${RELEASE} -lt ${MIN_RELEASE} ] && {
-    ui_print "***********************************************"
+    separator_print
     print_cn "! 不受支持的安卓版本 ${RELEASE}"
     print_cn "! 最低支持的安卓版本 ${MIN_RELEASE}"
     print_en "! Unsupported android version: ${RELEASE}"
     print_en "! Minimal supported android version is ${MIN_RELEASE}"
-    abort    "***********************************************"
+    separator_abort
 }
 if [ ${KSU} ] && [ -f "${ADB}/ksu/mount_system" ] && cat "${ADB}/ksu/mount_system" | grep -q "OVERLAYFS" || [ ${APATCH} ] && [ -f "${ADB}/.overlayfs_enable" ]
 then
-    ui_print "***********************************************"
+    separator_print
     print_cn "! 不受支持的挂载系统 OverlayFS"
     print_cn "! 由于冲突模块排除功能在此模式无法正常工作"
     print_cn "! 请切换到 Magic Mount 挂载系统或元模块挂载系统后再次安装"
     print_en "! Unsupported mount system: OverlayFS"
     print_en "! Conflict module exclusion cannot work in this mode"
     print_en "! Please switch to Magic Mount mount system or Meta Module mount system before installing again"
-    abort    "***********************************************"
+    separator_abort
 fi
 #PRINT INFORMATION#
 if [ ${KSU} ]
@@ -156,10 +163,6 @@ then
 fi
 print_cn "- 安装模块 FS-Enhancer-Extreme ${MODULE_VER}"
 print_en "- Install module FS-Enhancer-Extreme ${MODULE_VER}"
-#DELETE OLD FILES#
-print_cn "- 处理残留"
-print_en "- Processing residual"
-rm -f "${ADB}/service.d/.fsee_state.sh"
 ##END##
 
 ##EXTRACT MODULE FILES##
@@ -169,6 +172,8 @@ for FILE in ${FILES}
 do
     extract "${ZIPFILE}" "${FILE}" "${MODPATH}"
 done
+mkdir -p "${ADB}/service.d"
+cp -f "${MODPATH}/script/state.sh" "${ADB}/service.d/.fsee_state.sh"
 ##END##
 
 ##POST PROCESS##
@@ -179,12 +184,9 @@ for NE in ${NES}
 do
     chmod +x "${NE}"
 done
-mkdir -p "${FSEECONFIG}"
-print_cn "- 提取密钥"
-print_en "- Extracting keybox"
-extract "${ZIPFILE}" 'keybox.xml' "${FSEECONFIG}"
 if [ ! -f "${FSEECONFIG}/usr.txt" ] || [ ! -f "${FSEECONFIG}/sys.txt" ]
 then
+    mkdir -p "${FSEECONFIG}"
     print_cn "- 创建排除列表"
     print_en "- Create default exclusion list"
     [ -f "${FSEECONFIG}/sys.txt" ] || echo "$SYS" | grep -v '^$' > "${FSEECONFIG}/sys.txt"

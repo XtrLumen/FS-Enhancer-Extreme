@@ -63,6 +63,8 @@ Enhance ForgeStore experience, Extreme hiding of detection points from unlocking
     - `descrefresh/-d|--debug`
   - Refresh Forge Store target.txt from user config
     - `listrefresh`
+  - Keybox Manager
+    - `keybox` `builtin|import<<<path`
 
 ### Configuration
   - Config directory path: `/data/adb/fs_enhancer_extreme/config`

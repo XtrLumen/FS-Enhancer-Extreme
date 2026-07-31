@@ -60,23 +60,30 @@ listOf(
                     "provider.apk"
                 )
             }
-            from("$projectDir/src") {
+            from("${projectDir}/src") {
                 include(
-                    "module.base",
-                    "module.prop"
+                    "module.base"
                 )
                 expand(
-                    "moduleId" to "$moduleId",
-                    "moduleName" to "$moduleName",
-                    "versionName" to "$verName$verType ($verCode-$verHash-${variantLowered})",
-                    "versionCode" to "$verCode"
+                    "moduleId" to "${moduleId}",
+                    "moduleName" to "${moduleName}",
+                    "versionName" to "${verName}${verType} (${verCode}-${verHash}-${variantLowered})",
+                    "versionCode" to "${verCode}"
                 )
             }
-            from("$projectDir/src") {
-                exclude(
-                    ".DS_Store",
+            from(moduleDir) {
+                include(
+                    "module.base"
+                )
+                rename(
                     "module.base",
                     "module.prop"
+                )
+            }
+            from("${projectDir}/src") {
+                exclude(
+                    ".DS_Store",
+                    "module.base"
                 )
             }
             from(rootProject.file("README.md")) {

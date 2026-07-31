@@ -14,6 +14,7 @@
  */
 
 #![feature(iter_intersperse)]
+#![feature(try_blocks)]
 
 mod envcollect;
 mod define;
@@ -22,6 +23,7 @@ mod cli;
 mod conflict;
 mod ctl;
 mod description;
+mod keybox;
 mod packagelist;
 mod passprop;
 mod passvbhash;

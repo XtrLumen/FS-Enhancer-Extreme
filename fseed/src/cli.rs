@@ -24,6 +24,7 @@ use crate::{
     conflict,
     ctl,
     description,
+    keybox,
     packagelist,
     passprop,
     passvbhash,
@@ -45,12 +46,12 @@ enum Commands {
     /// Operation Forge Store service
     Fsctl {
         #[command(subcommand)]
-        command: Ctl,
+        command: Ctl
     },
     /// Operation FS Enhancer Extreme service
     Fseectl {
         #[command(subcommand)]
-        command: Ctl,
+        command: Ctl
     },
     /// Check running environment if normal from envcollect cache
     Envcheck,
@@ -71,7 +72,12 @@ enum Commands {
     /// Refresh module decription line from envcollect cache
     Descrefresh(description::Mode),
     /// Refresh Forge Store target.txt from user config
-    Listrefresh
+    Listrefresh,
+    /// Keybox Manager
+    Keybox {
+        #[command(subcommand)]
+        command: Manager
+    }
 }
 
 #[derive(Subcommand)]
@@ -84,6 +90,17 @@ enum Ctl {
     Stop,
     /// Get     service running status
     State,
+}
+
+#[derive(Subcommand)]
+enum Manager {
+    /// Use built-in keybox
+    Builtin,
+    /// Use external keybox
+    Import {
+        /// Path to external keybox file
+        path: String
+    }
 }
 
 pub fn entry() -> anyhow::Result<()> {
@@ -139,6 +156,12 @@ pub fn entry() -> anyhow::Result<()> {
             Ok(())
         },
         Commands::Descrefresh(conflict_args) => description::refresh(conflict_args),
-        Commands::Listrefresh => packagelist::refresh()
+        Commands::Listrefresh => packagelist::refresh(),
+        Commands::Keybox {command} => {
+            match command {
+                Manager::Builtin => keybox::extract(),
+                Manager::Import {path} => keybox::transfer(path),
+            }
+        }
     }
 }
