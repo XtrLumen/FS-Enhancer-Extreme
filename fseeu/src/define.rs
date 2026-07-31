@@ -13,39 +13,5 @@
  * Copyright (C) 2026 XtrLumen
  */
 
-mod verify;
-mod define;
-mod log;
-
-use crate::{
-    log::{
-        log,
-        log_raw
-    },
-    verify::entry
-};
-
-#[unsafe(no_mangle)]
-pub fn verify_bridge() -> Option<bool> {
-    entry()
-}
-#[unsafe(no_mangle)]
-pub fn log_i_bridge(tag: &str, msg: &str) {
-    log('I', tag, msg)
-}
-#[unsafe(no_mangle)]
-pub fn log_w_bridge(tag: &str, msg: &str) {
-    log('W', tag, msg)
-}
-#[unsafe(no_mangle)]
-pub fn log_e_bridge(tag: &str, msg: &str) {
-    log('E', tag, msg)
-}
-#[unsafe(no_mangle)]
-pub fn log_d_bridge(tag: &str, msg: &str) {
-    log('D', tag, msg)
-}
-#[unsafe(no_mangle)]
-pub fn log_raw_bridge(msg: &str) {
-    log_raw(msg);
-}
+pub const FSEELOG: &str = "/data/adb/fs_enhancer_extreme/log/log.log";
+pub const FSEEMODDIR: &str = "/data/adb/modules/fs_enhancer_extreme";

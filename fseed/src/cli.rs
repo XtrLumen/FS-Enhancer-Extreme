@@ -19,9 +19,7 @@ use crate::{
         VERSION_NAME,
         ENV_NORMAL
     },
-    util_functions::{
-        switch_mnt_namespace
-    },
+    util_functions::switch_mnt_namespace,
     envcollect,
     conflict,
     ctl,
