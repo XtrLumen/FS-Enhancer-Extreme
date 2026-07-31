@@ -13,28 +13,4 @@
  * Copyright (C) 2026 XtrLumen
  */
 
-#![feature(iter_intersperse)]
-
-mod envcollect;
-mod define;
-mod bridge;
-mod cli;
-mod conflict;
-mod ctl;
-mod description;
-mod packagelist;
-mod passprop;
-mod passvbhash;
-mod securitypatch;
-mod util_functions;
-mod webui;
-
-use crate::{
-    bridge::init_bridge,
-    cli::entry
-};
-
-fn main() -> anyhow::Result<()> {
-    init_bridge();
-    entry()
-}
+pub const LOG_TAG: &str = "daemon";

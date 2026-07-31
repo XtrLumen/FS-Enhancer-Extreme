@@ -162,9 +162,6 @@ pub fn entry() {
     main_module_collect();
     let (root_env, main_module_env) = (ROOT_INPL_ENVIRONMENT.get().unwrap(), MAIN_MODULE_ENVIRONMENT.get().unwrap());
 
-    println!("root_impl:\n{}\n{}\n{}", root_env.multiple, root_env.identity, root_env.version_code);
-    println!("main_module:\n{}\n{}\n{}", main_module_env.multiple, main_module_env.identity, main_module_env.version_code);
-
     for (path, env) in [
         (ROOT_IMPL_ENV_FILE, root_env),
         (MAIN_MODULE_ENV_FILE, main_module_env),
@@ -173,6 +170,7 @@ pub fn entry() {
             delete_file(path)
         }
         let data: String = format!("{}\n{}\n{}", env.multiple, env.identity, env.version_code);
+        println!("{}", data);
         write(path, data, false)
     }
 }

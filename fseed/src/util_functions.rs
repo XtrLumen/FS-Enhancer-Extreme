@@ -60,8 +60,15 @@ pub fn switch_mnt_namespace() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn pidof(name: &str) -> anyhow::Result<Option<i32>> {
-    for process in fs::read_dir("/proc")?.flatten() {
+pub fn pidof(name: &str) -> Option<i32> {
+    let proc = match fs::read_dir("/proc") {
+        Ok(dir) => dir.flatten(),
+        Err(err) => {
+            log_e(&format!("/proc读取失败: {}", err));
+            panic!("/proc读取失败: {}", err);
+        }
+    };
+    for process in proc {
         let temp_file_name = process.file_name();
         let file_name = temp_file_name.to_str().unwrap();
 
@@ -88,11 +95,11 @@ pub fn pidof(name: &str) -> anyhow::Result<Option<i32>> {
         let basename = arg_one.rsplit('/').next().unwrap();
 
         if basename == name {
-            return Ok(Some(pid));
+            return Some(pid);
         }
     }
 
-    Ok(None)
+    None
 }
 
 pub fn kill(pid: i32) -> anyhow::Result<()> {

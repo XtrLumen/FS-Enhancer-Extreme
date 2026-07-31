@@ -26,9 +26,7 @@ struct Functions {
     verify: unsafe fn() -> Option<bool>,
     log_i: unsafe fn(&str, &str),
     log_w: unsafe fn(&str, &str),
-    log_e: unsafe fn(&str, &str),
-    log_d: unsafe fn(&str, &str),
-    log_raw: unsafe fn(&str)
+    log_e: unsafe fn(&str, &str)
 }
 
 static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
@@ -45,17 +43,11 @@ pub fn init_bridge() {
         *lib_instance.get::<unsafe fn(&str, &str)>(function_name.as_bytes())
             .expect(expect_msg)
     }};
-    let str_void_load = |function_name: &str| -> unsafe fn(&str) {unsafe{
-        *lib_instance.get::<unsafe fn(&str)>(function_name.as_bytes())
-            .expect(expect_msg)
-    }};
     let functions = Functions {
         verify: void_option_bool_load("verify_bridge"),
         log_i: str_str_void_load("log_i_bridge"),
         log_w: str_str_void_load("log_w_bridge"),
-        log_e: str_str_void_load("log_e_bridge"),
-        log_d: str_str_void_load("log_d_bridge"),
-        log_raw: str_void_load("log_raw_bridge")
+        log_e: str_str_void_load("log_e_bridge")
     };
     FUNCTIONS.set(functions).ok();
     mem::forget(lib_instance);
@@ -73,12 +65,4 @@ pub fn log_w(msg: &str) {unsafe{
 }}
 pub fn log_e(msg: &str) {unsafe{
     (FUNCTIONS.get().unwrap().log_e)(LOG_TAG, msg)
-}}
-#[allow(unused)]
-#[inline(always)]
-pub fn log_d(msg: &str) {unsafe{
-    (FUNCTIONS.get().unwrap().log_d)(LOG_TAG, msg)
-}}
-pub fn log_raw(msg: &str) {unsafe{
-    (FUNCTIONS.get().unwrap().log_raw)(msg)
 }}

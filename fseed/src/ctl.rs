@@ -32,7 +32,7 @@ use std::process;
 
 pub fn fs_state() -> anyhow::Result<()> {
     if *ENV_NORMAL {
-        if let Some(pid) = pidof(*FINAL_NICE_NAME)? {
+        if let Some(pid) = pidof(*FINAL_NICE_NAME) {
             println!("running|{}", pid)
         } else {
             println!("not running")
@@ -47,7 +47,7 @@ pub fn fs_state() -> anyhow::Result<()> {
 pub fn fs_stop() -> anyhow::Result<()> {
     if *ENV_NORMAL {
         if *MAIN_MODULE_IDENTITY != "TEESimulatorRS" {
-            if let Some(pid) = pidof(*FINAL_NICE_NAME)? {
+            if let Some(pid) = pidof(*FINAL_NICE_NAME) {
                 kill(pid)?;
                 println!("{}|stopped", pid)
             } else {
@@ -71,7 +71,7 @@ pub fn fs_start() -> anyhow::Result<()> {
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
                 .spawn()?;
-            if let Some(pid) = pidof(*FINAL_NICE_NAME)? {
+            if let Some(pid) = pidof(*FINAL_NICE_NAME) {
                 println!("success|{}", pid)
             } else {
                 println!("failure");
@@ -88,7 +88,7 @@ pub fn fs_start() -> anyhow::Result<()> {
 }
 
 pub fn fs_restart() -> anyhow::Result<()> {
-    if let Some(pid) = pidof(*FINAL_NICE_NAME)? {
+    if let Some(pid) = pidof(*FINAL_NICE_NAME) {
         kill(pid)?;
         fs_start()?
     } else {
@@ -99,7 +99,7 @@ pub fn fs_restart() -> anyhow::Result<()> {
 }
 
 pub fn fsee_state() -> anyhow::Result<()> {
-    if let Some(pid) = pidof("fsees")? {
+    if let Some(pid) = pidof("fsees") {
         println!("running|{}", pid)
     } else {
         println!("not running")
@@ -109,7 +109,7 @@ pub fn fsee_state() -> anyhow::Result<()> {
 }
 
 pub fn fsee_stop() -> anyhow::Result<()> {
-    if let Some(pid) = pidof("fsees")? {
+    if let Some(pid) = pidof("fsees") {
         kill(pid)?;
         println!("{}|stopped", pid)
     } else {
@@ -125,7 +125,7 @@ pub fn fsee_start() -> anyhow::Result<()> {
         .stdout(process::Stdio::null())
         .stderr(process::Stdio::null())
         .spawn()?;
-    if let Some(pid) = pidof("fsees")? {
+    if let Some(pid) = pidof("fsees") {
         println!("success|{}", pid)
     } else {
         println!("failure");
@@ -136,7 +136,7 @@ pub fn fsee_start() -> anyhow::Result<()> {
 }
 
 pub fn fsee_restart() -> anyhow::Result<()> {
-    if let Some(pid) = pidof("fsees")? {
+    if let Some(pid) = pidof("fsees") {
         kill(pid)?;
         fsee_start()?
     } else {

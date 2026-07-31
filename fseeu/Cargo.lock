@@ -93,8 +93,7 @@ version = "0.0.0"
 dependencies = [
  "blake3",
  "ed25519-compact",
- "hex",
- "libc 1.0.0-alpha.3",
+ "libc 1.0.0-alpha.4",
 ]
 
 [[package]]
@@ -109,12 +108,6 @@ dependencies = [
  "r-efi",
  "wasm-bindgen",
 ]
-
-[[package]]
-name = "hex"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "js-sys"
@@ -134,9 +127,9 @@ checksum = "459427e2af2b9c839b132acb702a1c654d95e10f8c326bfc2ad11310e458b1c5"
 
 [[package]]
 name = "libc"
-version = "1.0.0-alpha.3"
+version = "1.0.0-alpha.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e136bfa874086c78f34d6eba98c423fefe464ce57f38164d16893ba8ed358e70"
+checksum = "9d0f24f33af482526a4e3f9b47f0abb2c6377a1713c8aa4a8106994689a4cfa5"
 
 [[package]]
 name = "once_cell"

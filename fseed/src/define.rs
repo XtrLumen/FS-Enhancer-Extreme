@@ -14,13 +14,18 @@
  */
 
 use crate::{
+    bridge::verify,
+    envcollect::entry,
     util_functions::{
         getprop,
         read_multiple_bool,
         read_identity_string
-    },
-    envcollect::entry
+    }
 };
+
+pub static VERIFY: LazyLock<Option<bool>> = LazyLock::new(||
+    verify()
+);
 
 use std::{
     path::Path,
@@ -85,14 +90,6 @@ pub static IS_ZHCN: LazyLock<bool> = LazyLock::new(||
     !Path::new(FORCE_ENGLISH_FILE).exists() && (getprop("persist.sys.locale").contains("zh") || getprop("ro.product.locale").contains("zh"))
 );
 
-pub static CONFLICT_DESC_LINE: LazyLock<&str> = LazyLock::new(||
-    if *IS_ZHCN {
-        "此模块与FS-Enhancer-Extreme证实冲突,已被添加移除标签,将在设备下一次启动时被移除."
-    } else {
-        "This module has been confirmed to conflict with the FS-Enhancer-Extreme. Has been tagged for remove, Will be removed upon the devide next boot."
-    }
-);
-
 pub static MAIN_MODULE_IDENTITY: LazyLock<String> = LazyLock::new(||{
     if !Path::new(MAIN_MODULE_ENV_FILE).exists() {
         entry()
@@ -123,7 +120,7 @@ pub static MAIN_MODULE_IDENTITY: LazyLock<String> = LazyLock::new(||{
 });
 
 pub static ENV_NORMAL: LazyLock<bool> = LazyLock::new(||
-    !(read_multiple_bool(ROOT_IMPL_ENV_FILE) || matches!(MAIN_MODULE_IDENTITY.as_str(), MULTIPLE | OFF))
+    !(*VERIFY == Some(false) || read_multiple_bool(ROOT_IMPL_ENV_FILE) || matches!(MAIN_MODULE_IDENTITY.as_str(), MULTIPLE | OFF))
 );
 
 pub static FINAL_NICE_NAME: LazyLock<&str> = LazyLock::new(||
@@ -144,6 +141,14 @@ pub static FINAL_MAIN_MODULE_CONFIG: LazyLock<&str> = LazyLock::new(||
         "/data/adb/tricky_store"
     } else {
         "/data/adb/forge_store"
+    }
+);
+
+pub static CONFLICT_DESC_LINE: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "此模块与FS-Enhancer-Extreme证实冲突,已被添加移除标签,将在设备下一次启动时被移除."
+    } else {
+        "This module has been confirmed to conflict with the FS-Enhancer-Extreme. Has been tagged for remove, Will be removed upon the devide next boot."
     }
 );
 
@@ -170,9 +175,9 @@ pub static DESC_MULTIPLE: LazyLock<&str> = LazyLock::new(||
 
 pub static DESC_MAIN_MODULE_NOT_INSTALL: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
-        "未安装!"
+        "未安装"
     } else {
-        "Not installed!"
+        "Not installed"
     }
 );
 pub static DESC_DISABLE: LazyLock<&str> = LazyLock::new(||
@@ -197,6 +202,13 @@ pub static DESC_MAIN_MODULE: LazyLock<&str> = LazyLock::new(||
         "MainModule: "
     }
 );
+pub static DESC_INTEGRITY: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "完整性: "
+    } else {
+        "Integrity: "
+    }
+);
 pub static DESC_DAEMON: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "服务: "
@@ -205,24 +217,45 @@ pub static DESC_DAEMON: LazyLock<&str> = LazyLock::new(||
     }
 );
 
-pub static DESC_SERVICE_SUCCESS: LazyLock<&str> = LazyLock::new(||
+pub static DESC_INTEGRITY_SUCCESS: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "通过验证"
+    } else {
+        "Verified"
+    }
+);
+pub static DESC_INTEGRITY_WARNING: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "本次构建未签名"
+    } else {
+        "This build is unsigned"
+    }
+);
+pub static DESC_INTEGRITY_ERROR: LazyLock<&str> = LazyLock::new(||
+    if *IS_ZHCN {
+        "遭到篡改"
+    } else {
+        "Tampered with"
+    }
+);
+pub static DESC_DAEMON_SUCCESS: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "运行中"
     } else {
         "Running"
     }
 );
-pub static DESC_SERVICE_FAILURE: LazyLock<&str> = LazyLock::new(||
+pub static DESC_DAEMON_FAILURE: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "无法启动"
     } else {
         "Cannot start"
     }
 );
-pub static DESC_SERVICE_NOT_START: LazyLock<&str> = LazyLock::new(||
+pub static DESC_DAEMON_NOT_START: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
-        "所有服务将不会启动!"
+        "所有服务将不会启动"
     } else {
-        "All service will not start!"
+        "All service will not start"
     }
 );

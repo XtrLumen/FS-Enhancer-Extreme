@@ -15,6 +15,7 @@
 
 use crate::{
     define::{
+        VERIFY,
         VERSION_NAME,
         ENV_NORMAL
     },
@@ -88,8 +89,19 @@ enum Ctl {
 }
 
 pub fn entry() -> anyhow::Result<()> {
+    let args = Commands::parse();
+
+    match args {
+        Commands::Envcheck => (),
+        Commands::Envcollect => (),
+        Commands::Descrefresh(_) => (),
+        _ => if let Some(false) = *VERIFY {
+            unsafe{ *(0xDEADBEEF as *mut u8) = u8::MIN }
+        }
+    }
+
     switch_mnt_namespace()?;
-    match Commands::parse() {
+    match args {
         Commands::Fsctl {command} => {
             match command {
                 Ctl::Restart => ctl::fs_restart(),

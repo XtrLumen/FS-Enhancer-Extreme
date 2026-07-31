@@ -115,78 +115,73 @@ listOf(
                 }.visit {
                     if (isDirectory) return@visit
 
-                    val messageDigest = MessageDigest.getInstance("SHA3-256")
+                    val mdInstance = MessageDigest.getInstance("SHA3-256")
                     file.forEachBlock(4096) { bytes, size ->
-                        messageDigest.update(bytes, 0, size)
+                        mdInstance.update(bytes, 0, size)
                     }
 
                     val sha256File = File(moduleDirAsFile, "MANIFEST/${file.relativeTo(moduleDirAsFile)}.sha256")
                     sha256File.parentFile.mkdirs()
-                    sha256File.writeText(messageDigest.digest().joinToString("") { "%02x".format(it) })
+
+                    sha256File.writeText(
+                        mdInstance.digest().joinToString("") {
+                            "%02x".format(it)
+                        }
+                    )
                 }
             }
-            val privateKeyFile = project.file("private_key")
+
             val mistyFile = File(moduleDirAsFile, "mistylake")
+            val privateKeyFile = project.file("private_key")
             if (privateKeyFile.exists()) {
-                val publicKey = project.file("public_key").readBytes()
-                val sigType = Signature.getInstance("ed25519")
-                val privateKey = privateKeyFile.readBytes()
                 fun mistylakeSign() {
-                    val set = LinkedHashSet<File>().apply {
-                        listOf(
-                            "bin/fseed",
-                            "bin/fsees",
-                            "lib/libutils.so",
-                            "script/state.sh",
-                            "script/util_functions.sh",
-                            "module.base",
-                            "post-fs-data.sh",
-                            "provider.apk",
-                            "service.sh",
-                            "uninstall.sh",
-                            "action.sh"
-                        ).forEach { fileName ->
-                            add(File(moduleDirAsFile, fileName))
-                        }
-                    }
-
-                    set.forEach {
-                        println(it.absolutePath.replace("${moduleDirAsFile.absolutePath}/", ""))
-                    }
-
                     val BLAKE3Builder = StringBuilder()
 
-                    set.forEach { file ->
-                        val hasher = Blake3.newInstance()
-                        val buffer = ByteArray(4096)
-                        file.inputStream().use { input ->
-                            var bytesRead: Int
-                            while (input.read(buffer).also { bytesRead = it } != -1) {
-                                if (bytesRead == buffer.size) {
-                                    hasher.update(buffer)
-                                } else {
-                                    hasher.update(buffer.copyOf(bytesRead))
-                                }
-                            }
-                        }
-                        val fileHash = hasher.digest()
-                        BLAKE3Builder.append(fileHash.joinToString("") { "%02x".format(it) })
+                    listOf(
+                        "bin/fseed",
+                        "bin/fsees",
+                        "lib/libutils.so",
+                        "script/state.sh",
+                        "script/util_functions.sh",
+                        "action.sh",
+                        "module.base",
+                        "post-fs-data.sh",
+                        "provider.apk",
+                        "service.sh",
+                        "uninstall.sh"
+                    ).forEach {
+                        println(it)
+
+                        val mdInstance = Blake3.newInstance()
+                        mdInstance.update(File(moduleDirAsFile, it))
+
+                        BLAKE3Builder.append(
+                            mdInstance.hexdigest()
+                        )
                     }
 
                     val BLAKE3Hash = BLAKE3Builder.toString()
 
                     println(BLAKE3Hash)
 
-                    sigType.initSign(KeyFactory.getInstance("ed25519").generatePrivate(EdECPrivateKeySpec(NamedParameterSpec("ed25519"), privateKey)))
-                    sigType.update(BLAKE3Hash.toByteArray())
+                    val privateKeyBytes = privateKeyFile.readBytes()
+                    val publicKeyBytes = project.file("public_key").readBytes()
 
-                    val signature = sigType.sign()
+                    val signInstance = Signature.getInstance("ed25519")
+                    signInstance.initSign(
+                        KeyFactory.getInstance("ed25519").generatePrivate(EdECPrivateKeySpec(NamedParameterSpec("ed25519"), privateKeyBytes))
+                    )
+                    signInstance.update(
+                        BLAKE3Hash.toByteArray()
+                    )
 
-                    mistyFile.writeBytes(signature.copyOfRange(0, 16))
-                    mistyFile.appendBytes(publicKey.copyOfRange(0, 16))
-                    mistyFile.appendBytes(signature.copyOfRange(16, 48))
-                    mistyFile.appendBytes(publicKey.copyOfRange(16, 32))
-                    mistyFile.appendBytes(signature.copyOfRange(48, 64))
+                    val finalSignBytes = signInstance.sign()
+
+                    mistyFile.writeBytes(finalSignBytes.copyOfRange(0, 16))
+                    mistyFile.appendBytes(publicKeyBytes.copyOfRange(0, 16))
+                    mistyFile.appendBytes(finalSignBytes.copyOfRange(16, 48))
+                    mistyFile.appendBytes(publicKeyBytes.copyOfRange(16, 32))
+                    mistyFile.appendBytes(finalSignBytes.copyOfRange(48, 64))
                 }
 
                 mistylakeSign()

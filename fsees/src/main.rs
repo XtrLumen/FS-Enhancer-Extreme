@@ -13,70 +13,30 @@
  * Copyright (C) 2026 XtrLumen
  */
 
-use libloading::Library;
+mod bridge;
+mod define;
+
+use crate::bridge::{
+    init_bridge,
+    verify,
+    log_i,
+    log_w,
+    log_e
+};
 
 use std::{
     fs,
-    mem,
     thread,
     process,
+    sync::mpsc,
     path::Path,
     ffi::CString,
-    sync::{
-        mpsc,
-        OnceLock
-    },
+    process::Command,
     time::{
         Instant,
         Duration
     }
 };
-
-struct Functions {
-    verify: unsafe fn(),
-    log_i: unsafe fn(&str, &str),
-    log_w: unsafe fn(&str, &str),
-    log_e: unsafe fn(&str, &str)
-}
-
-static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
-
-pub fn load_bridge() {
-    let lib_instance = unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")
-        .expect("libutils.so加载失败")};
-    let expect_msg: &str = "libutils.so符号缺失";
-    let void_void_load = |function_name: &str| -> unsafe fn() {unsafe{
-        *lib_instance.get::<unsafe fn()>(function_name.as_bytes())
-            .expect(expect_msg)
-    }};
-    let str_str_void_load = |function_name: &str| -> unsafe fn(&str, &str) {unsafe{
-        *lib_instance.get::<unsafe fn(&str, &str)>(function_name.as_bytes())
-            .expect(expect_msg)
-    }};
-    let functions = Functions {
-        verify: void_void_load("verify_bridge"),
-        log_i: str_str_void_load("log_i_bridge"),
-        log_w: str_str_void_load("log_w_bridge"),
-        log_e: str_str_void_load("log_e_bridge")
-    };
-    FUNCTIONS.set(functions).ok();
-    mem::forget(lib_instance);
-}
-
-pub fn verify() {unsafe{
-    (FUNCTIONS.get().unwrap().verify)()
-}}
-
-const LOG_TAG: &str = "daemon";
-pub fn log_i(msg: &str) {unsafe{
-    (FUNCTIONS.get().unwrap().log_i)(LOG_TAG, msg)
-}}
-pub fn log_w(msg: &str) {unsafe{
-    (FUNCTIONS.get().unwrap().log_w)(LOG_TAG, msg)
-}}
-pub fn log_e(msg: &str) {unsafe{
-    (FUNCTIONS.get().unwrap().log_e)(LOG_TAG, msg)
-}}
 
 fn watch(path: &str, args: &[&[&str]], events: u32, tx: mpsc::Sender<bool>) {
     if !Path::new(path).exists() {
@@ -131,17 +91,18 @@ fn watch(path: &str, args: &[&[&str]], events: u32, tx: mpsc::Sender<bool>) {
         }
         //执行
         for arg in args {
-            process::Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(*arg)
+            Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(*arg)
                 .status().ok();
         }
     }
 }
 
 fn main() {
-    //函数导入
-    load_bridge();
+    init_bridge();
     //验证
-    verify();
+    if let Some(false) = verify() {
+        unsafe{ *(0xDEADBEEF as *mut u8) = u8::MIN }
+    }
     log_i("开始启动线程");
     //创建通道
     let (tx1, rx1) = mpsc::channel();

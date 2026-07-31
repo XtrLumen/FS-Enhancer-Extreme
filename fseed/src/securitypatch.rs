@@ -63,7 +63,7 @@ pub fn sync() -> anyhow::Result<()> {
                             resetprop(&["ro.vendor.build.security_patch", &date])?;
                             resetprop(&["ro.build.version.security_patch", &date])?;
     
-                            if let Ok(Some(pid)) = pidof("com.google.android.gms.unstable") {
+                            if let Some(pid) = pidof("com.google.android.gms.unstable") {
                                 kill(pid)?;
                             }
     

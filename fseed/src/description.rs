@@ -15,6 +15,7 @@
 
 use crate::{
     define::{
+        VERIFY,
         OFF,
         MULTIPLE,
         UNKNOWN,
@@ -25,15 +26,19 @@ use crate::{
         MAIN_MODULE_IDENTITY,
         ENV_NORMAL,
         DESC_BASE,
-        DESC_SERVICE_SUCCESS,
-        DESC_SERVICE_FAILURE,
-        DESC_SERVICE_NOT_START,
         DESC_MULTIPLE,
         DESC_MAIN_MODULE_NOT_INSTALL,
         DESC_DISABLE,
         DESC_ROOT_IMPL,
         DESC_MAIN_MODULE,
-        DESC_DAEMON
+        DESC_INTEGRITY,
+        DESC_DAEMON,
+        DESC_INTEGRITY_SUCCESS,
+        DESC_INTEGRITY_WARNING,
+        DESC_INTEGRITY_ERROR,
+        DESC_DAEMON_SUCCESS,
+        DESC_DAEMON_FAILURE,
+        DESC_DAEMON_NOT_START,
     },
     util_functions::{
         pidof,
@@ -104,17 +109,30 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
             }
         };
 
-        let (daemon_prefix, daemon_state) = if *ENV_NORMAL {
-            if let Some(_) = pidof("fsees")? {
-                ("✅", *DESC_SERVICE_SUCCESS)
-            } else {
-                ("❌", *DESC_SERVICE_FAILURE)
+        let (integrity_prefix, integrity_state) = match *VERIFY {
+            Some(true) => {
+                ("✅", *DESC_INTEGRITY_SUCCESS)
             }
-        } else {
-            ("❌", *DESC_SERVICE_NOT_START)
+            Some(false) => {
+                ("❌", *DESC_INTEGRITY_ERROR)
+            }
+            None => {
+                ("⚠️", *DESC_INTEGRITY_WARNING)
+            }
         };
 
-        format!("{}{}{}, {}{}{}, {}{}{}", *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment, *DESC_MAIN_MODULE, main_module_prefix, main_module_environment, *DESC_DAEMON, daemon_prefix, daemon_state)
+        let (daemon_prefix, daemon_state) = if *ENV_NORMAL {
+            if let None = pidof("fsees") {
+                ("❌", *DESC_DAEMON_FAILURE)
+            } else {
+                ("✅", *DESC_DAEMON_SUCCESS)
+            }
+        } else {
+            ("❌", *DESC_DAEMON_NOT_START)
+        };
+
+
+        format!("{}{}{}, {}{}{}, {}{}{}, {}{}{}", *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment, *DESC_MAIN_MODULE, main_module_prefix, main_module_environment, *DESC_INTEGRITY, integrity_prefix, integrity_state, *DESC_DAEMON, daemon_prefix, daemon_state)
     } else {
         format!("❌{}", DESC_DISABLE.to_string())
     };

@@ -10,8 +10,7 @@ name = "utils"
 crate-type = ["dylib"]
 
 [dependencies]
-hex = "0.4.3"
-libc = "1.0.0-alpha.3"
+libc = "1.0.0-alpha.4"
 blake3 = "1.8.5"
 ed25519-compact = "2.3.1"
 

@@ -17,6 +17,10 @@ use std::{
     fs,
     mem,
     path::Path,
+    fs::{
+        File,
+        OpenOptions
+    },
     io::{
         Read,
         Write
@@ -31,88 +35,90 @@ use ed25519_compact::{
 
 const FSEELOG: &str = "/data/adb/fs_enhancer_extreme/log/log.log";
 
-fn verify() -> bool {
-    let path = Path::new("/data/adb/modules/fs_enhancer_extreme");
-    
-    let action = if path.join(".action.sh").exists() {
+fn verify() -> Option<bool> {
+    let base_path = Path::new("/data/adb/modules/fs_enhancer_extreme");
+
+    let misty_bytes: Vec<u8> = if let Ok(data) = fs::read(base_path.join("mistylake")) {
+        if data.is_empty() {
+            return None
+        } else {
+            data
+        }
+    } else {
+        return Some(false)
+    };
+
+    let action: &str = if base_path.join(".action.sh").exists() {
         ".action.sh"
     } else {
         "action.sh"
     };
 
-    //计算哈希拼接
-    let mut blake3hash = String::new();
-    for file in &[
+    let files = [
         "bin/fseed",
         "bin/fsees",
         "lib/libutils.so",
         "script/state.sh",
         "script/util_functions.sh",
+        action,
         "module.base",
         "post-fs-data.sh",
         "provider.apk",
         "service.sh",
-        "uninstall.sh",
-        action
-    ] {
-        let path = path.join(file);
+        "uninstall.sh"
+    ];
+
+    let mut rebuild_checksum: String = String::with_capacity(files.len() * 64);
+
+    for file in files {
+        let mut file = if let Ok(exists_continue) = File::open(base_path.join(file)) {
+            exists_continue
+        } else {
+            return Some(false)
+        };
 
         let mut hasher = Hasher::new();
-        let mut file = match fs::File::open(&path) {
-            Ok(exist) => exist,
-            Err(_) => return false,
-        };
         let mut buffer = [0u8; 4096];
-
         loop {
             let size = match file.read(&mut buffer) {
-                Ok(s) => s,
-                Err(_) => return false,
+                Ok(0) => break,
+                Ok(success) => success,
+                _ => return Some(false)
             };
-            if size == 0 {
-                break;
-            }
             hasher.update(&buffer[..size]);
         }
 
-        blake3hash.push_str(&hex::encode(hasher.finalize().as_bytes()));
+        rebuild_checksum.push_str(
+            &hasher.finalize().to_hex().to_string()
+        )
     }
 
-    //读取集合文件
-    let ml_bytes = match fs::read(path.join("mistylake")) {
-        Ok(bytes) => bytes,
-        Err(_) => return false,
-    };
+    let mut public_key_bytes = [0u8; 32];
+    public_key_bytes[0..16].copy_from_slice(&misty_bytes[16..32]);
+    public_key_bytes[16..32].copy_from_slice(&misty_bytes[64..80]);
 
-    //拼接签名
-    let mut sg_bytes = [0u8; 64];
-    sg_bytes[0..16].copy_from_slice(&ml_bytes[0..16]);
-    sg_bytes[16..48].copy_from_slice(&ml_bytes[32..64]);
-    sg_bytes[48..64].copy_from_slice(&ml_bytes[80..96]);
+    let mut sign_bytes = [0u8; 64];
+    sign_bytes[0..16].copy_from_slice(&misty_bytes[0..16]);
+    sign_bytes[16..48].copy_from_slice(&misty_bytes[32..64]);
+    sign_bytes[48..64].copy_from_slice(&misty_bytes[80..96]);
 
-    //拼接公钥
-    let mut pb_bytes = [0u8; 32];
-    pb_bytes[0..16].copy_from_slice(&ml_bytes[16..32]);
-    pb_bytes[16..32].copy_from_slice(&ml_bytes[64..80]);
+    let confirmed_sign = Signature::new(sign_bytes);
 
-    //使用签名和公钥验证与拼接哈希是否匹配
-    PublicKey::new(pb_bytes).verify(&blake3hash, &Signature::new(sg_bytes)).is_ok()
+    Some(PublicKey::new(public_key_bytes).verify(rebuild_checksum, &confirmed_sign).is_ok())
 }
 
 fn log(level: char, tag: &str, msg: &str) {
     let (timestamp, pid, tid) = unsafe {
-        //创建时间结构
         let mut ts: libc::timespec = mem::zeroed();
-        let mut tm: libc::tm = mem::zeroed();
-        //赋值纳秒
         libc::clock_gettime(libc::CLOCK_REALTIME, &mut ts);
-        //赋值时间
+
+        let mut tm: libc::tm = mem::zeroed();
         libc::localtime_r(&ts.tv_sec, &mut tm);
-        //时间格式分割
+
         let finaltime = format!("{:02}-{:02} {:02}:{:02}:{:02}.{:03}", tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec / 1_000_000);
         (finaltime, libc::getpid(), libc::gettid())
     };
-    fs::OpenOptions::new().create(true).append(true).open(FSEELOG).and_then(|mut content|
+    OpenOptions::new().create(true).append(true).open(FSEELOG).and_then(|mut content|
         content.write_all(
             format!("{}  {}  {} {} [FSEE]  : <{}> {}\n", timestamp, pid, tid, level, tag, msg).as_bytes()
         )
@@ -120,7 +126,7 @@ fn log(level: char, tag: &str, msg: &str) {
 }
 
 fn log_raw(raw: &str) {
-    fs::OpenOptions::new().create(true).append(true).open(FSEELOG).and_then(|mut content|
+    OpenOptions::new().create(true).append(true).open(FSEELOG).and_then(|mut content|
         content.write_all(
             format!("{}\n", raw).as_bytes()
         )
@@ -128,11 +134,8 @@ fn log_raw(raw: &str) {
 }
 
 #[unsafe(no_mangle)]
-pub fn verify_bridge() {
-    if !verify() {
-        log('E', "lib", "拦截:遭到篡改!");
-        unsafe {*(0xDEADBEEF as *mut u8) = 0}
-    }
+pub fn verify_bridge() -> Option<bool> {
+    verify()
 }
 #[unsafe(no_mangle)]
 pub fn log_i_bridge(tag: &str, msg: &str) {
