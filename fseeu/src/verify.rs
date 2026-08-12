@@ -48,7 +48,7 @@ pub fn entry() -> Option<bool> {
     };
 
     let files = [
-        "bin/fseed",
+        "bin/fseec",
         "bin/fsees",
         "lib/libutils.so",
         "script/state.sh",

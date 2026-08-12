@@ -30,6 +30,7 @@ use std::{
     env,
     process,
     path::Path,
+    fmt::Display,
     os::fd::AsRawFd,
     io::{
         Error,
@@ -306,27 +307,27 @@ pub fn override_description(path: &str, description: &str) {
     }
 }
 
-pub fn delete_file(path: &str) {
+pub fn delete_file(path: impl AsRef<Path>) {
     fs::remove_file(path).ok();
 }
 
-pub fn print_cn(msg: &str) {
+pub fn print_cn(msg: impl Display) {
     if *IS_ZHCN {
         print!("{}", msg);
     }
 }
-pub fn print_en(msg: &str) {
+pub fn print_en(msg: impl Display) {
     if !*IS_ZHCN {
         print!("{}", msg);
     }
 }
-pub fn println_cn(msg: &str) {
+pub fn println_cn(msg: impl Display) {
     if *IS_ZHCN {
-        println!("{}", msg);
+        println!("- {}", msg);
     }
 }
-pub fn println_en(msg: &str) {
+pub fn println_en(msg: impl Display) {
     if !*IS_ZHCN {
-        println!("{}", msg);
+        println!("- {}", msg);
     }
 }

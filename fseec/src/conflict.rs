@@ -61,13 +61,13 @@ pub fn app_process() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn create_file(path: &str) {
+fn create_file(path: impl AsRef<Path>) {
     if let Err(error) = fs::File::create(path) {
         log_e(&format!("创建失败: {}", error))
     }
 }
 
-fn delete_path(path: &str) {
+fn delete_path(path: impl AsRef<Path>) {
     fs::remove_dir_all(path).ok();
 }
 
@@ -81,7 +81,7 @@ fn del_conflict_mod_process() {
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
                 .status());
-            delete_path(&conflict_mod_full_path);
+            delete_path(conflict_mod_full_path);
         }
     }
 }
@@ -92,14 +92,14 @@ fn tag_conflict_mod_process(is_daemon: bool) {
         if Path::new(&conflict_mod_full_path).exists() {
             log_i(&format!("处理: {}", tag_conflict_mod));
             override_description(&conflict_mod_full_path, *CONFLICT_DESC_LINE);
-            create_file(&format!("{}/disable", conflict_mod_full_path));
-            create_file(&format!("{}/remove", conflict_mod_full_path));
+            create_file(format!("{}/disable", conflict_mod_full_path));
+            create_file(format!("{}/remove", conflict_mod_full_path));
             if is_daemon {
-                delete_path(&format!("{}/{}", MODULESUPDATEDIR, tag_conflict_mod));
+                delete_path(format!("{}/{}", MODULESUPDATEDIR, tag_conflict_mod));
             } else {
-                create_file(&format!("{}/update", conflict_mod_full_path));
-                delete_file(&format!("{}/uninstall.sh", conflict_mod_full_path));
-                delete_file(&format!("{}/{}/uninstall.sh", MODULESUPDATEDIR, tag_conflict_mod));
+                create_file(format!("{}/update", conflict_mod_full_path));
+                delete_file(format!("{}/uninstall.sh", conflict_mod_full_path));
+                delete_file(format!("{}/{}/uninstall.sh", MODULESUPDATEDIR, tag_conflict_mod));
             }
         }
     }

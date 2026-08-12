@@ -35,7 +35,7 @@ use crate::{
 
 use std::{
     path::Path,
-    sync::OnceLock,
+    sync::OnceLock
 };
 
 struct Environment {

@@ -13,14 +13,30 @@
  * Copyright (C) 2026 XtrLumen
  */
 
-use std::process;
+#![feature(iter_intersperse)]
+#![feature(try_blocks)]
 
-pub fn invoke() -> Option<u32> {
-    process::Command::new("ksud").arg("debug").arg("version")
-        .output().ok()
-        .and_then(|output|
-            String::from_utf8(output.stdout).ok()
-        ).and_then(|version_str|
-            version_str.split_whitespace().nth(2)?.parse().ok()
-        )
+mod envcollect;
+mod define;
+mod bridge;
+mod cli;
+mod conflict;
+mod ctl;
+mod description;
+mod keybox;
+mod packagelist;
+mod passprop;
+mod passvbhash;
+mod securitypatch;
+mod util_functions;
+mod webui;
+
+use {
+    bridge::init_bridge,
+    cli::entry
+};
+
+fn main() -> anyhow::Result<()> {
+    init_bridge();
+    entry()
 }

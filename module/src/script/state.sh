@@ -18,4 +18,4 @@ source "../modules/fs_enhancer_extreme/script/util_functions.sh"
 
 initwait
 logI "刷新模块描述"
-invoke descrefresh
+invoke descrefresh >> "${FSEELOG}"

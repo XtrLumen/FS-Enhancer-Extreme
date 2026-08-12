@@ -4,4 +4,3 @@ target
 .gradle
 .kotlin
 .DS_Store
-/local.properties

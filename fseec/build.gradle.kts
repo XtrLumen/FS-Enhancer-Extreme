@@ -2,7 +2,7 @@ tasks.register<Exec>("clean") {
     group = "rust"
 
     workingDir(projectDir)
-    executable("./cargopp")
+    executable("cargo")
     args("clean")
 }
 
@@ -16,20 +16,19 @@ listOf(
     tasks.register<Exec>("bind$variantCapped") {
         group = "rust"
 
-        executable("./cargopp")
+        executable("cargo")
+        args("ndk", "build", "--target", "aarch64-linux-android")
         if (variantLowered == "release") {
-            args("buildRelease")
-        } else {
-            args("buildDebug")
+            args("--release")
         }
     }
 }
 
-tasks.register("bind") {
+tasks.register("libu") {
     group = "rust"
 
     dependsOn(
-        "bindDebug",
-        "bindRelease"
+        "libuDebug",
+        "libuRelease"
     )
 }

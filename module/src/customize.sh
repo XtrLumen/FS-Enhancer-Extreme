@@ -32,6 +32,7 @@ FILES="
 bin/*
 lib/*
 script/*
+webroot/*
 action.sh
 mistylake
 module.base
@@ -43,7 +44,7 @@ uninstall.sh
 "
 #POST PROCESS#
 NES="
-${MODPATH}/bin/fseed
+${MODPATH}/bin/fseec
 ${MODPATH}/bin/fsees
 ${ADB}/service.d/.fsee_state.sh
 "

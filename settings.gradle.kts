@@ -19,8 +19,9 @@ dependencyResolutionManagement {
 rootProject.name = "FS-Enhancer-Extreme"
 include(
     ":app",
-    ":fseed",
+    ":fseec",
     ":fsees",
     ":fseeu",
+    ":fseew",
     ":module"
 )

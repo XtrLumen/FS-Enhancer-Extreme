@@ -1,7 +1,7 @@
 # Forge Store Enhancer Extreme
-提升ForgeStore体验,极致隐藏由解锁引导加载程序产生的检测点.
+ForgeStore增强器,极致隐藏由解锁引导加载程序产生的检测点.
 
-> [!TIP]
+> [!TIP]  
 > 「[English](README4en-US.md)」
 
 > [!IMPORTANT]  
@@ -29,15 +29,17 @@
 
 ### 其他
 - 规避异常环境
-- 在模块描述显示详细仪表盘
+- 在模块描述显示详细仪表盘，例如:  
+`[根实现: ✅APatch(11224), 主模块: ✅TrickyStoreOSS(155), 完整性: ✅通过验证, 服务: ✅运行中]`  
+`[根实现: ❌多重共存-APatch(11224)|KernelSU(32525), 主模块: ❌多重共存-ForgeStore(143)|TrickyStore(248), 完整性: ⚠️本次构建未签名, 服务: ❌所有服务将不会启动]`
 - 根据系统语言分别显示 zh-Hans 或 en-US : 用户可见部分
-  - 强制 en-US : 创建`/data/adb/fs_enhancer_extreme/config/english`空文件
+  - 强制 en-US : 创建 `/data/adb/fs_enhancer_extreme/config/english` 空文件
 
 ### WebUI
 - DEV VERSION STUB
 
 ### 命令行工具
-- 于终端以Root身份执行`/data/adb/modules/fs_enhancer_extreme/bin/fseed`
+- 于终端以Root身份执行 `/data/adb/modules/fs_enhancer_extreme/bin/fseec`
 - 命令列表
   - Operation Forge Store service
     - `fsctl` `restart|start|stop|state`
@@ -77,11 +79,22 @@
 >   - **Magisk**
 >     - 提供跳转到 [WebUI X Portable](https://github.com/MMRLApp/WebUI-X-Portable) 或 [KSUWebUIStandalone](https://github.com/5ec1cff/KsuWebUIStandalone) 的 Action 按钮
 
+## 构建
+### 环境
+- JDK 21
+- Android SDK
+- Android NDK 29.0.14206865
+- Rust Nightly 2026-01-01
+- cargo-ndk
+
+### 打包
+于终端执行 `./gradlew zip`
+
 ## 致谢
-- [bmax121/APatch](https://github.com/bmax121/APatch) fseed 命令行解析部分 参考来源
-- [JingMatrix/NeoZygisk](https://github.com/JingMatrix/NeoZygisk) fseed-root实现分析 执行部分 参考来源
+- [bmax121/APatch](https://github.com/bmax121/APatch) fseec 命令行解析部分 参考来源
+- [JingMatrix/NeoZygisk](https://github.com/JingMatrix/NeoZygisk) fseec-root实现分析 执行部分 参考来源
 - [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation) vbmeta提供服务 执行部分 来源
-- [Google-Inc/Android-Open-Source-Project](https://cs.android.com/android/platform/superproject/) fseed-pidof 参考来源
+- [Google-Inc/Android-Open-Source-Project](https://cs.android.com/android/platform/superproject/) fseec-pidof 参考来源
 
 ## 本项目地址(用于非Github下载的用户从本自述文件溯源)
 - https://github.com/XtrLumen/FS-Enhancer-Extreme

@@ -46,8 +46,8 @@ esac
 ##END##
 
 ##FUNCTIONS##
-fseed() {
-    ${FSEEMODDIR}/bin/fseed "${@}"
+fseec() {
+    ${FSEEMODDIR}/bin/fseec "${@}"
 }
 logout() {
     LEVEL=${1}
@@ -70,7 +70,7 @@ initwait() {
     done
 }
 envcheck() {
-    if fseed envcheck
+    if fseec envcheck
     then
         if ${isPostFsData}
         then
@@ -94,7 +94,7 @@ envcheck() {
     fi
 }
 invoke() {
-    if fseed "${@}"
+    if fseec "${@}"
     then
         logI "完毕"
     else

@@ -33,7 +33,8 @@ use crate::{
         pm_uninstall,
         write,
         read_to_string,
-        read_version_integer
+        read_version_integer,
+        delete_file
     }
 };
 
@@ -51,7 +52,7 @@ fn set_vbhash(value: &str) -> anyhow::Result<()> {
 }
 
 pub fn entry() -> anyhow::Result<()> {
-    let persist_hash_full_path = format!("{}/verifiedboothash", FSEECONFIG);
+    let persist_hash_full_path: String = format!("{}/verifiedboothash", FSEECONFIG);
 
     let write_persist_hash = |data: String| {
         write(&persist_hash_full_path, data, true)
@@ -181,6 +182,7 @@ pub fn entry() -> anyhow::Result<()> {
             err_apply_random_vbhash();
         }
     } else {
+        delete_file(&persist_hash_full_path);
         contentapp(false);
     }
 

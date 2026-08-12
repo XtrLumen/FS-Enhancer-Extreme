@@ -39,7 +39,7 @@ listOf(
 
         dependsOn(
             ":app:assemble${variantCapped}",
-            ":fseed:bind${variantCapped}",
+            ":fseec:bind${variantCapped}",
             ":fsees:bins${variantCapped}",
             ":fseeu:libu${variantCapped}"
         )
@@ -86,26 +86,31 @@ listOf(
                     "module.base"
                 )
             }
-            from(rootProject.file("README.md")) {
+            from(rootProject.rootDir) {
+                include(
+                    "README.md",
+                    "README4en-US.md"
+                )
                 rename(
                     "README.md",
                     "README4zh-Hans.md"
                 )
             }
-            from(
-                rootProject.files(
-                    "README4en-US.md"
-                )
-            )
         into("bin") {
-            from(project(":fseed").file("target/aarch64-linux-android/${variantLowered}"))
-            include("fseed")
-            from(project(":fsees").file("target/aarch64-linux-android/${variantLowered}"))
-            include("fsees")
+            from(project(":fseec").file("target/aarch64-linux-android/${variantLowered}")) {
+                include("fseec")
+            }
+            from(project(":fsees").file("target/aarch64-linux-android/${variantLowered}")) {
+                include("fsees")
+            }
         }
         into("lib") {
-            from(project(":fseeu").file("target/aarch64-linux-android/${variantLowered}"))
-            include("libutils.so")
+            from(project(":fseeu").file("target/aarch64-linux-android/${variantLowered}")) {
+                include("libutils.so")
+            }
+        }
+        into("webroot") {
+            from(project(":fseew").file("src"))
         }
     }
 
@@ -145,7 +150,7 @@ listOf(
                     val BLAKE3Builder = StringBuilder()
 
                     listOf(
-                        "bin/fseed",
+                        "bin/fseec",
                         "bin/fsees",
                         "lib/libutils.so",
                         "script/state.sh",

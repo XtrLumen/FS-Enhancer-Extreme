@@ -32,13 +32,13 @@ use crate::{
         DESC_ROOT_IMPL,
         DESC_MAIN_MODULE,
         DESC_INTEGRITY,
-        DESC_DAEMON,
+        DESC_SERVICE,
         DESC_INTEGRITY_SUCCESS,
         DESC_INTEGRITY_WARNING,
         DESC_INTEGRITY_ERROR,
-        DESC_DAEMON_SUCCESS,
-        DESC_DAEMON_FAILURE,
-        DESC_DAEMON_NOT_START,
+        DESC_SERVICE_SUCCESS,
+        DESC_SERVICE_FAILURE,
+        DESC_SERVICE_NOT_START,
     },
     util_functions::{
         pidof,
@@ -140,12 +140,12 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
 
         let (daemon_prefix, daemon_state) = if *ENV_NORMAL {
             if let None = pidof("fsees") {
-                ("❌", *DESC_DAEMON_FAILURE)
+                ("❌", *DESC_SERVICE_FAILURE)
             } else {
-                ("✅", *DESC_DAEMON_SUCCESS)
+                ("✅", *DESC_SERVICE_SUCCESS)
             }
         } else {
-            ("❌", *DESC_DAEMON_NOT_START)
+            ("❌", *DESC_SERVICE_NOT_START)
         };
 
         format!(
@@ -153,15 +153,15 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
             *DESC_ROOT_IMPL, root_impl_prefix, root_impl_environment,
             *DESC_MAIN_MODULE, main_module_prefix, main_module_environment,
             *DESC_INTEGRITY, integrity_prefix, integrity_state,
-            *DESC_DAEMON, daemon_prefix, daemon_state
+            *DESC_SERVICE, daemon_prefix, daemon_state
         )
     } else {
         format!("❌{}", DESC_DISABLE.to_string())
     };
 
-    let final_description: String = format!("[{}]\\n{}", full_environment, *DESC_BASE);
+    let final_description: String = format!("[{}] {}", full_environment, *DESC_BASE);
     override_description(FSEEMODDIR, &final_description);
-    println!("{}", final_description);
+    println!("[{}]", full_environment);
 
     Ok(())
 }

@@ -18,7 +18,7 @@ source "./script/util_functions.sh"
 envcheck
 
 logI "启动后台服务"
-fseed fseectl start || logE "服务启动失败"
+fseec fseectl start || logE "服务启动失败"
 
 initwait
 logI "刷新目标列表"

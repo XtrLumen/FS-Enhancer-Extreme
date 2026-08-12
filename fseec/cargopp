@@ -1,39 +1,28 @@
 #!/bin/zsh
 
-[ ${#} -eq 0 ] && echo "no args" && exit 2
-
-exe() {
-    adb shell su -c "/data/local/tmp/fseed" "${@}"
-}
+[ ${#} -eq 0 ] && echo "No arguments" && exit 2
 
 build() {
     [ "${1}" = "release" ] && local variant="--release"
-
-    local git_version
-    git_version="$(git describe --tags --always 2>/dev/null)" || {
-        git_version="0.0.0"
-        echo "Failed to get git version, using ${git_version}"
-    }
-    VERSION_NAME=${git_version} \
     cargo ndk build --target aarch64-linux-android ${variant}
 }
 
 push() {
-    adb push "./target/aarch64-linux-android/${1}/fseed" "/data/local/tmp"
+    adb push "./target/aarch64-linux-android/${1}/fseec" "/data/local/tmp"
+}
+
+exe() {
+    adb shell su -c "/data/local/tmp/fseec" "${@}"
 }
 
 case "${1}" in
-    exe)
-        shift
-        exe "${@}"
-        ;;
     buildRelease)
         build release
         ;;
     buildDebug)
         build debug
         ;;
-    buildAll)
+    build)
         build release
         build debug
         ;;
@@ -51,9 +40,13 @@ case "${1}" in
         shift
         build debug && push debug && exe "${@}"
         ;;
+    exe)
+        shift
+        exe "${@}"
+        ;;
     clean)
         cargo clean
         ;;
     *)
-        echo "invalid args" && exit 1
+        echo "Invalid arguments" && exit 1
 esac

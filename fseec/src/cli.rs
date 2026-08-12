@@ -106,14 +106,9 @@ enum Manager {
 pub fn entry() -> anyhow::Result<()> {
     let args = Commands::parse();
 
-    match args {
-        Commands::Envcheck => (),
-        Commands::Envcollect => (),
-        Commands::Descrefresh(_) => (),
-        _ => if let Some(false) = *VERIFY {
-            unsafe{ *(0xDEADBEEF as *mut u8) = u8::MIN }
-        }
-    }
+    if !matches!(args, Commands::Envcheck | Commands::Envcollect | Commands::Descrefresh(..)) && *VERIFY == Some(false) {unsafe{
+        *(0xDEADBEEF as *mut u8) = u8::MIN
+    }}
 
     switch_mnt_namespace()?;
     match args {
@@ -160,7 +155,7 @@ pub fn entry() -> anyhow::Result<()> {
         Commands::Keybox {command} => {
             match command {
                 Manager::Builtin => keybox::extract(),
-                Manager::Import {path} => keybox::transfer(path),
+                Manager::Import {path} => keybox::transfer(path)
             }
         }
     }

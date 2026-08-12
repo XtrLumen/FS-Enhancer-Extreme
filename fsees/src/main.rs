@@ -86,12 +86,12 @@ fn watch(path: &str, args: &[&[&str]], events: u32, tx: mpsc::Sender<bool>) {
             let all_args: Vec<String> = args.iter().map(|content|
                 content.join(" ")
             ).collect();
-            log_i(&format!("触发执行fseed {}", all_args.join(" | ")));
+            log_i(&format!("触发执行 fseec {}", all_args.join(" | ")));
             last = Instant::now();
         }
         //执行
         for arg in args {
-            Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseed").args(*arg)
+            Command::new("/data/adb/modules/fs_enhancer_extreme/bin/fseec").args(*arg)
                 .status().ok();
         }
     }

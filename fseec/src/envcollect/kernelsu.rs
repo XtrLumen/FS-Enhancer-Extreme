@@ -13,30 +13,18 @@
  * Copyright (C) 2026 XtrLumen
  */
 
-#![feature(iter_intersperse)]
-#![feature(try_blocks)]
+use crate::define::KSUD;
 
-mod envcollect;
-mod define;
-mod bridge;
-mod cli;
-mod conflict;
-mod ctl;
-mod description;
-mod keybox;
-mod packagelist;
-mod passprop;
-mod passvbhash;
-mod securitypatch;
-mod util_functions;
-mod webui;
+use std::process;
 
-use crate::{
-    bridge::init_bridge,
-    cli::entry
-};
-
-fn main() -> anyhow::Result<()> {
-    init_bridge();
-    entry()
+pub fn invoke() -> Option<u32> {
+    process::Command::new(KSUD).args(["debug", "version"])
+        .output().ok()
+        .and_then(|output|
+            String::from_utf8(output.stdout).ok()
+        ).and_then(|version_str|
+            version_str.split_whitespace().nth(2)?.parse().ok()
+        ).filter(|&version|
+            version > 0
+        )
 }

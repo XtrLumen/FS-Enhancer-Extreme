@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+[ ${#} -eq 0 ] && echo "No arguments" && exit 2
+
+case "${1}" in
+    push)
+        WEBROOT=/data/adb/modules/fs_enhancer_extreme/webroot
+        TMP=/data/local/tmp/src
+        adb shell su -c rm -rf ${TMP} ${WEBROOT}
+        adb push ./src ${TMP}
+        adb shell su -c mv -f ${TMP} ${WEBROOT}
+        ;;
+    *)
+        echo "Invalid arguments" && exit 1
+esac

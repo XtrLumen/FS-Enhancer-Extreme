@@ -23,14 +23,14 @@ use crate::{
     }
 };
 
-pub static VERIFY: LazyLock<Option<bool>> = LazyLock::new(||
-    verify()
-);
-
 use std::{
     path::Path,
     sync::LazyLock
 };
+
+pub static VERIFY: LazyLock<Option<bool>> = LazyLock::new(||
+    verify()
+);
 
 pub const CONFLICT_APP: &[&str] = &[
     "com.lingqian.appbl",
@@ -76,6 +76,7 @@ pub const UNKNOWN: &str = "Unknown";
 pub const DESC_PREFIX: &str = "description=";
 pub const ABNORMAL_ENV: &str = "Abnormal Environment";
 
+pub const KSUD: &str = "/data/adb/ksu/bin/ksud";
 pub const FS_STR: &str = "ForgeStore";
 pub const FSMODDIR: &str = "/data/adb/modules/forge_store";
 pub const TSMODDIR: &str = "/data/adb/modules/tricky_store";
@@ -160,9 +161,9 @@ pub static DESC_BASE: LazyLock<String> = LazyLock::new(||{
         FS_STR
     };
     if *IS_ZHCN {
-        format!("提升{}体验,极致隐藏由解锁引导加载程序产生的检测点.", final_identity)
+        format!("{}增强器,极致隐藏由解锁引导加载程序产生的检测点.", final_identity)
     } else {
-        format!("Enhance {} experience, Extreme hiding of detection points from unlocking bootloader.", final_identity)
+        format!("Enhancer of {}, Extreme hiding of detection points from unlocking bootloader.", final_identity)
     }
 });
 
@@ -210,11 +211,11 @@ pub static DESC_INTEGRITY: LazyLock<&str> = LazyLock::new(||
         "Integrity: "
     }
 );
-pub static DESC_DAEMON: LazyLock<&str> = LazyLock::new(||
+pub static DESC_SERVICE: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "服务: "
     } else {
-        "Daemon: "
+        "Service: "
     }
 );
 
@@ -239,21 +240,21 @@ pub static DESC_INTEGRITY_ERROR: LazyLock<&str> = LazyLock::new(||
         "Tampered with"
     }
 );
-pub static DESC_DAEMON_SUCCESS: LazyLock<&str> = LazyLock::new(||
+pub static DESC_SERVICE_SUCCESS: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "运行中"
     } else {
         "Running"
     }
 );
-pub static DESC_DAEMON_FAILURE: LazyLock<&str> = LazyLock::new(||
+pub static DESC_SERVICE_FAILURE: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "无法启动"
     } else {
         "Cannot start"
     }
 );
-pub static DESC_DAEMON_NOT_START: LazyLock<&str> = LazyLock::new(||
+pub static DESC_SERVICE_NOT_START: LazyLock<&str> = LazyLock::new(||
     if *IS_ZHCN {
         "所有服务将不会启动"
     } else {
