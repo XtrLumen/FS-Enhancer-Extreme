@@ -1,7 +1,5 @@
 #!/bin/zsh
 
-set -e
-
 [ ${#} -eq 0 ] && echo "No arguments" && exit 2
 
 cd "${0%/*}"
@@ -68,19 +66,19 @@ web_build() {
 FSEEMODDIR=/data/adb/modules/fs_enhancer_extreme
 
 web_push() {
-    web_build ${1} && \
     local tmp=/data/local/tmp/src
-    root rm -rf ${tmp} ${FSEEMODDIR}/webroot
-    push ./dist ${tmp}
+    web_build ${1} && \
+    root rm -rf ${tmp} ${FSEEMODDIR}/webroot && \
+    push "./dist" ${tmp} && \
     root mv -f ${tmp} ${FSEEMODDIR}/webroot
 }
 
 web_test() {
-    web_push ${1} && \
     local pkgs=(
         "com.dergoogler.mmrl.wx" 
         "io.github.a13e300.ksuwebui"
     )
+    web_push ${1} && \
     for pkg in "${pkgs[@]}"
     do
         user am force-stop ${pkg}
@@ -134,7 +132,7 @@ case ${1} in
         ;;
     web)
         shift
-        cd ./fseew
+        cd "./fseew"
         case ${1} in
             buildRelease)
                 web_build true

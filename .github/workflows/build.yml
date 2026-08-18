@@ -9,21 +9,31 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: ./fseew/package-lock.json
+
+      - name: Install node_modules
+        run: cd fseew && npm ci
+
+      - name: Setup JDK
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: 21
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v4
 
       - name: Setup Android NDK
-        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;29.0.14206865"
+        run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install "ndk;29.0.14206865"
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -33,19 +43,16 @@ jobs:
           cache: true
 
       - name: Cache cargo-tool
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cargo/bin
           key: macos-latest-cargo-bin-v1
 
       - name: Install cargo-ndk
-        run: |
-          command -v cargo-ndk || {
-            cargo install cargo-ndk
-          }
+        run: command -v cargo-ndk || cargo install cargo-ndk
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
           build-scan-publish: true
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
@@ -54,10 +61,24 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew zip
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Get artifact name
+        id: artifacts
+        run: |
+          RELEASE_ZIP="$(ls module/build/outputs/release/*.zip)"
+          DEBUG_ZIP="$(ls module/build/outputs/debug/*.zip)"
+          echo "release_name=$(basename "${RELEASE_ZIP}" .zip)" >> "${GITHUB_OUTPUT}"
+          echo "release_path=${RELEASE_ZIP}" >> "${GITHUB_OUTPUT}"
+          echo "debug_name=$(basename "${DEBUG_ZIP}" .zip)" >> "${GITHUB_OUTPUT}"
+          echo "debug_path=${DEBUG_ZIP}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v7
         with:
-          name: FS-Enhancer-Extreme
-          path: |
-            module/build/outputs/release/*.zip
-            module/build/outputs/debug/*.zip
+          name: ${{steps.artifacts.outputs.release_name}}
+          path: ${{steps.artifacts.outputs.release_path}}
+
+      - name: Upload debug artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{steps.artifacts.outputs.debug_name}}
+          path: ${{steps.artifacts.outputs.debug_path}}
