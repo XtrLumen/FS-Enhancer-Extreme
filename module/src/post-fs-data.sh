@@ -13,13 +13,13 @@
 # Copyright (C) 2025-2026 XtrLumen
 #
 
-cd ${0%/*}
+cd "${0%/*}"
 source "./script/util_functions.sh"
 rm -rf "${OLDLOG}"
 mv -f "${LOGDIR}" "${OLDLOG}"
 mkdir -p "${LOGDIR}"
 touch "${FSEELOG}"
-logI "轮换日志结束"
+logI "完成日志轮换"
 
 [ -x "${ADB}/service.d/.fsee_state.sh" ] || {
     logI "配置描述文件刷新脚本"
@@ -29,7 +29,7 @@ logI "轮换日志结束"
 }
 
 logI "收集运行环境"
-invoke envcollect >> "${FSEELOG}"
+invoke envcollect
 envcheck
 
 logI "处理冲突模块"

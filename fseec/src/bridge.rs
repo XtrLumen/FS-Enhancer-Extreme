@@ -35,19 +35,19 @@ static FUNCTIONS: OnceLock<Functions> = OnceLock::new();
 
 pub fn init_bridge() {
     let lib_instance = unsafe {Library::new("/data/adb/modules/fs_enhancer_extreme/lib/libutils.so")
-        .expect("libutils.so加载失败")};
-    let expect_msg: &str = "libutils.so符号缺失";
+        .expect("加载失败")};
+    let missing: &str = "符号缺失";
     let void_option_bool_load = |function_name: &str| -> unsafe fn() -> Option<bool> {unsafe{
         *lib_instance.get::<unsafe fn() -> Option<bool>>(function_name.as_bytes())
-            .expect(expect_msg)
+            .expect(missing)
     }};
     let str_str_void_load = |function_name: &str| -> unsafe fn(&str, &str) {unsafe{
         *lib_instance.get::<unsafe fn(&str, &str)>(function_name.as_bytes())
-            .expect(expect_msg)
+            .expect(missing)
     }};
     let str_void_load = |function_name: &str| -> unsafe fn(&str) {unsafe{
         *lib_instance.get::<unsafe fn(&str)>(function_name.as_bytes())
-            .expect(expect_msg)
+            .expect(missing)
     }};
     let functions = Functions {
         verify: void_option_bool_load("verify_bridge"),

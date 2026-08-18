@@ -38,6 +38,7 @@ use std::{
     sync::OnceLock
 };
 
+#[derive(Debug)]
 struct Environment {
     multiple: bool,
     identity: String,
@@ -169,8 +170,7 @@ pub fn entry() {
         if Path::new(path).exists() {
             delete_file(path)
         }
-        let data: String = format!("{}\n{}\n{}", env.multiple, env.identity, env.version_code);
-        println!("{}", data);
-        write(path, data, false)
+        write(path, format!("{}\n{}\n{}", env.multiple, env.identity, env.version_code), false)
     }
+    println!("{:?}\n{:?}", root_env, main_module_env);
 }

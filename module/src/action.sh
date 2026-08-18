@@ -13,7 +13,7 @@
 # Copyright (C) 2025-2026 XtrLumen
 #
 
-cd ${0%/*}
+cd "${0%/*}"
 source "./script/util_functions.sh"
 
 fseec startwebui

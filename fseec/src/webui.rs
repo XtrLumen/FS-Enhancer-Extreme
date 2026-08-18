@@ -23,8 +23,8 @@ use crate::util_functions::{
 };
 
 pub fn start() -> anyhow::Result<()> {
-    println_cn("跳转配置页面");
-    println_en("Start WebUI");
+    println_cn("- 跳转配置页面");
+    println_en("- Start WebUI");
 
     let launch = |app: &str, arg: &[&str]| -> anyhow::Result<()> {
         print_cn(format!("{}已安装,启动...", app));
@@ -41,8 +41,8 @@ pub fn start() -> anyhow::Result<()> {
     } else if pm_path("io.github.a13e300.ksuwebui", true)? {
         launch("WebUI", &["io.github.a13e300.ksuwebui/.WebUIActivity", "-e", "id", "fs_enhancer_extreme"])?;
     } else {
-        println_cn("WebUI未安装,启动失败");
-        println_en("WebUI not installed, Start failed");
+        println_cn("- WebUI未安装,启动失败");
+        println_en("- WebUI not installed, Start failed");
     }
 
     Ok(())

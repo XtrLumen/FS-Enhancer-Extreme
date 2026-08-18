@@ -73,7 +73,7 @@ Enhancer of ForgeStore, Extreme hiding of detection points from unlocking bootlo
   - Log directory path: `/data/adb/fs_enhancer_extreme/log|log.old`. If encounter problems, please create an issue and attach the logs.
 
 > [!NOTE]
-> ### WebUI supports
+> ### WebUI Launch
 >   - **KernelSU or APatch**
 >     - Native support
 >   - **Magisk** 
@@ -82,19 +82,25 @@ Enhancer of ForgeStore, Extreme hiding of detection points from unlocking bootlo
 ## Build
 ### Environment
 - JDK 21
+- Node.js 24
 - Android SDK
 - Android NDK 29.0.14206865
 - Rust Nightly 2026-01-01
 - cargo-ndk
 
 ### Packaging
-Execute in the terminal `./gradlew zip`
+- Execute in the terminal `./gradlew zip`
 
 ## Acknowledgement
-- [bmax121/APatch](https://github.com/bmax121/APatch)
-- [JingMatrix/NeoZygisk](https://github.com/JingMatrix/NeoZygisk)
-- [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation)
-- [Google-Inc/Android-Open-Source-Project](https://cs.android.com/android/platform/superproject/)
+- [fluentui](https://github.com/microsoft/fluentui)
+- [APatch](https://github.com/bmax121/APatch)
+  - fseec `cli.rs` References
+- [NeoZygisk](https://github.com/JingMatrix/NeoZygisk)
+  - fseec `magisk.rs` References
+- [KeyAttestation](https://github.com/vvb2060/KeyAttestation)
+  - VBMetaProvider `attestation/*` Direct Source
+- [Android-Open-Source-Project](https://cs.android.com/android/platform/superproject)
+  - fseec `fn pidof` References
 
 ## Project address (for users downloading from sources other than GitHub to trace back from this README)
 - https://github.com/XtrLumen/FS-Enhancer-Extreme

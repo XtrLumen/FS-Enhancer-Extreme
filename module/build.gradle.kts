@@ -38,10 +38,11 @@ listOf(
         description = "Prepares module files for ${variantName}."
 
         dependsOn(
-            ":app:assemble${variantCapped}",
-            ":fseec:bind${variantCapped}",
-            ":fsees:bins${variantCapped}",
-            ":fseeu:libu${variantCapped}"
+            ":fseea:assemble${variantCapped}",
+            ":fseec:build${variantCapped}",
+            ":fseed:build${variantCapped}",
+            ":fseeu:build${variantCapped}",
+            ":fseew:build"
         )
 
         doFirst {
@@ -51,12 +52,12 @@ listOf(
         }
 
         into(moduleDir)
-            from(project(":app").layout.buildDirectory.file("outputs/apk/${variantLowered}")) {
+            from(project(":fseea").layout.buildDirectory.file("outputs/apk/${variantLowered}")) {
                 include(
-                    "app-${variantLowered}.apk"
+                    "fseea-${variantLowered}.apk"
                 )
                 rename(
-                    "app-${variantLowered}.apk",
+                    "fseea-${variantLowered}.apk",
                     "provider.apk"
                 )
             }
@@ -100,8 +101,8 @@ listOf(
             from(project(":fseec").file("target/aarch64-linux-android/${variantLowered}")) {
                 include("fseec")
             }
-            from(project(":fsees").file("target/aarch64-linux-android/${variantLowered}")) {
-                include("fsees")
+            from(project(":fseed").file("target/aarch64-linux-android/${variantLowered}")) {
+                include("fseed")
             }
         }
         into("lib") {
@@ -110,7 +111,11 @@ listOf(
             }
         }
         into("webroot") {
-            from(project(":fseew").file("src"))
+            from(project(":fseew").file("dist")) {
+                exclude(
+                    ".DS_Store"
+                )
+            }
         }
     }
 
@@ -151,7 +156,7 @@ listOf(
 
                     listOf(
                         "bin/fseec",
-                        "bin/fsees",
+                        "bin/fseed",
                         "lib/libutils.so",
                         "script/state.sh",
                         "script/util_functions.sh",
@@ -224,7 +229,7 @@ listOf(
 
     val pushTask = tasks.register<Exec>("push${variantCapped}") {
         group = "module"
-        description = "Push module to device."
+        description = "Push ${variantLowered} module to device."
 
         dependsOn(zipTask)
 
@@ -233,7 +238,7 @@ listOf(
 
     tasks.register<Exec>("magisk${variantCapped}") {
         group = "module"
-        description = "Installs module via Magisk."
+        description = "Installs ${variantLowered} module via Magisk."
 
         dependsOn(pushTask)
 
@@ -242,7 +247,7 @@ listOf(
 
     tasks.register<Exec>("ksud${variantCapped}") {
         group = "module"
-        description = "Installs module via KernelSU."
+        description = "Installs ${variantLowered} module via KernelSU."
 
         dependsOn(pushTask)
 
@@ -251,7 +256,7 @@ listOf(
 
     tasks.register<Exec>("apd${variantCapped}") {
         group = "module"
-        description = "Installs module via APatch."
+        description = "Installs ${variantLowered} module via APatch."
 
         dependsOn(pushTask)
 

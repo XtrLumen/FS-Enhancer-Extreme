@@ -15,15 +15,15 @@
 
 ##VARIABLE##
 #ZERO LEVEL#
-ADB="/data/adb"
+ADB=/data/adb
 #ONE LEVEL#
-FSEEMODDIR="${ADB}/modules/fs_enhancer_extreme"
-FSEEDIR="${ADB}/fs_enhancer_extreme"
+FSEEMODDIR=${ADB}/modules/fs_enhancer_extreme
+FSEEDIR=${ADB}/fs_enhancer_extreme
 #TWO LEVEL#
-FSEECONFIG="${FSEEDIR}/config"
-OLDLOG="${FSEEDIR}/log.old"
-LOGDIR="${FSEEDIR}/log"
-FSEELOG="${LOGDIR}/log.log"
+FSEECONFIG=${FSEEDIR}/config
+OLDLOG=${FSEEDIR}/log.old
+LOGDIR=${FSEEDIR}/log
+FSEELOG=${LOGDIR}/log.log
 #OTHER#
 isPostFsData=false
 isServiceD=false
@@ -50,9 +50,9 @@ fseec() {
     ${FSEEMODDIR}/bin/fseec "${@}"
 }
 logout() {
-    LEVEL=${1}
+    LEVEL="${1}"
     shift
-    echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  ${$}  ${$} ${LEVEL} [FSEE]  : ${LOG_TAG} ${@}" >> "${FSEELOG}"
+    echo "$(date "+%m-%d %H:%M:%S.$(date +%3N)")  ${$}  ${$} ${LEVEL} [FSEE]  : ${LOG_TAG} ${*}" >> "${FSEELOG}"
 }
 logI() {
     logout "I" "${@}"
@@ -94,7 +94,7 @@ envcheck() {
     fi
 }
 invoke() {
-    if fseec "${@}"
+    if fseec "${@}" >> "${FSEELOG}" 2>&1
     then
         logI "完毕"
     else

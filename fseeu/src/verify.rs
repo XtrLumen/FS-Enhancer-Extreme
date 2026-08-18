@@ -13,7 +13,10 @@
  * Copyright (C) 2026 XtrLumen
  */
 
-use crate::define::FSEEMODDIR;
+use crate::define::{
+    SYNC_LEN,
+    FSEEMODDIR
+};
 
 use std::{
     fs,
@@ -23,6 +26,7 @@ use std::{
 };
 
 use blake3::Hasher;
+use arrayvec::ArrayString;
 use ed25519_compact::{
     PublicKey,
     Signature
@@ -47,9 +51,9 @@ pub fn entry() -> Option<bool> {
         "action.sh"
     };
 
-    let files = [
+    let files: [&str; SYNC_LEN] = [
         "bin/fseec",
-        "bin/fsees",
+        "bin/fseed",
         "lib/libutils.so",
         "script/state.sh",
         "script/util_functions.sh",
@@ -61,7 +65,7 @@ pub fn entry() -> Option<bool> {
         "uninstall.sh"
     ];
 
-    let mut rebuild_checksum: String = String::with_capacity(files.len() * 64);
+    let mut rebuild_checksum = ArrayString::<{SYNC_LEN * 64}>::new();
 
     for file in files {
         let mut file = if let Ok(exists_continue) = File::open(base_path.join(file)) {
@@ -82,13 +86,15 @@ pub fn entry() -> Option<bool> {
         }
 
         rebuild_checksum.push_str(
-            &hasher.finalize().to_hex().to_string()
+            &hasher.finalize().to_hex()
         )
     }
 
     let mut public_key_bytes = [0u8; 32];
     public_key_bytes[0..16].copy_from_slice(&misty_bytes[16..32]);
     public_key_bytes[16..32].copy_from_slice(&misty_bytes[64..80]);
+
+    let confirmed_data = rebuild_checksum.as_bytes();
 
     let mut sign_bytes = [0u8; 64];
     sign_bytes[0..16].copy_from_slice(&misty_bytes[0..16]);
@@ -97,5 +103,7 @@ pub fn entry() -> Option<bool> {
 
     let confirmed_sign = Signature::new(sign_bytes);
 
-    Some(PublicKey::new(public_key_bytes).verify(rebuild_checksum, &confirmed_sign).is_ok())
+    Some(
+        PublicKey::new(public_key_bytes).verify(confirmed_data, &confirmed_sign).is_ok()
+    )
 }

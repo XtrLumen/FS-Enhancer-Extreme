@@ -13,9 +13,9 @@
 # Copyright (C) 2025-2026 XtrLumen
 #
 
-cd ${0%/*}
+cd "${0%/*}"
 source "../modules/fs_enhancer_extreme/script/util_functions.sh"
 
 initwait
 logI "刷新模块描述"
-invoke descrefresh >> "${FSEELOG}"
+invoke descrefresh

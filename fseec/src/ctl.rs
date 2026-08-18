@@ -99,7 +99,7 @@ pub fn fs_restart() -> anyhow::Result<()> {
 }
 
 pub fn fsee_state() -> anyhow::Result<()> {
-    if let Some(pid) = pidof("fsees") {
+    if let Some(pid) = pidof("fseed") {
         println!("running|{}", pid)
     } else {
         println!("not running")
@@ -109,7 +109,7 @@ pub fn fsee_state() -> anyhow::Result<()> {
 }
 
 pub fn fsee_stop() -> anyhow::Result<()> {
-    if let Some(pid) = pidof("fsees") {
+    if let Some(pid) = pidof("fseed") {
         kill(pid)?;
         println!("{}|stopped", pid)
     } else {
@@ -120,12 +120,12 @@ pub fn fsee_stop() -> anyhow::Result<()> {
 }
 
 pub fn fsee_start() -> anyhow::Result<()> {
-    process::Command::new(format!("{}/bin/fsees", FSEEMODDIR))
+    process::Command::new(format!("{}/bin/fseed", FSEEMODDIR))
         .stdin(process::Stdio::null())
         .stdout(process::Stdio::null())
         .stderr(process::Stdio::null())
         .spawn()?;
-    if let Some(pid) = pidof("fsees") {
+    if let Some(pid) = pidof("fseed") {
         println!("success|{}", pid)
     } else {
         println!("failure");
@@ -136,7 +136,7 @@ pub fn fsee_start() -> anyhow::Result<()> {
 }
 
 pub fn fsee_restart() -> anyhow::Result<()> {
-    if let Some(pid) = pidof("fsees") {
+    if let Some(pid) = pidof("fseed") {
         kill(pid)?;
         fsee_start()?
     } else {

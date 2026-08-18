@@ -139,7 +139,7 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
         };
 
         let (daemon_prefix, daemon_state) = if *ENV_NORMAL {
-            if let None = pidof("fsees") {
+            if let None = pidof("fseed") {
                 ("❌", *DESC_SERVICE_FAILURE)
             } else {
                 ("✅", *DESC_SERVICE_SUCCESS)
@@ -159,8 +159,8 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
         format!("❌{}", DESC_DISABLE.to_string())
     };
 
-    let final_description: String = format!("[{}] {}", full_environment, *DESC_BASE);
-    override_description(FSEEMODDIR, &final_description);
+    override_description(FSEEMODDIR, format!("[{}] {}", full_environment, *DESC_BASE));
+
     println!("[{}]", full_environment);
 
     Ok(())

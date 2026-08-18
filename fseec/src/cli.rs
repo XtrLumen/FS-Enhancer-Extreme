@@ -106,9 +106,12 @@ enum Manager {
 pub fn entry() -> anyhow::Result<()> {
     let args = Commands::parse();
 
-    if !matches!(args, Commands::Envcheck | Commands::Envcollect | Commands::Descrefresh(..)) && *VERIFY == Some(false) {unsafe{
-        *(0xDEADBEEF as *mut u8) = u8::MIN
-    }}
+    if !matches!(args, Commands::Envcheck | Commands::Envcollect | Commands::Descrefresh(..)) && *VERIFY == Some(false) {
+        unsafe{
+            *(0xDEADBEEF as *mut u8) = u8::MIN;
+        }
+        process::abort()
+    }
 
     switch_mnt_namespace()?;
     match args {

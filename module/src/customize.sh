@@ -17,16 +17,16 @@
 #PUBLIC#
 SKIPUNZIP=1
 #ZERO LEVEL#
-ADB="/data/adb"
+ADB=/data/adb
 #ONE LEVEL#
-MODULESDIR="${ADB}/modules"
+MODULESDIR=${ADB}/modules
 #TWO LEVEL#
-FSEECONFIG="${ADB}/fs_enhancer_extreme/config"
+FSEECONFIG=${ADB}/fs_enhancer_extreme/config
 #CHECK ENVIRONMENT#
 MIN_RELEASE=10
 RELEASE=$(grep_get_prop ro.build.version.release)
 #PRINT INFORMATION#
-MODULE_VER=$(grep_prop version "${TMPDIR}/module.prop")
+MODULE_VER="$(grep_prop version "${TMPDIR}/module.prop")"
 #EXTRACT MODULE FILES#
 FILES="
 bin/*
@@ -45,7 +45,7 @@ uninstall.sh
 #POST PROCESS#
 NES="
 ${MODPATH}/bin/fseec
-${MODPATH}/bin/fsees
+${MODPATH}/bin/fseed
 ${ADB}/service.d/.fsee_state.sh
 "
 SYS="
@@ -108,14 +108,14 @@ abort_en() {
 
 ##PRE PROCESS##
 #CHECK INTEGRITY#
-unzip -o "${ZIPFILE}" 'verify.sh' -d "${TMPDIR}" >/dev/null
+unzip -o "${ZIPFILE}" "verify.sh" -d "${TMPDIR}" >/dev/null
 [ -f "${TMPDIR}/verify.sh" ] || {
     abort_cn "无法提取 verify.sh!"
     abort_en "Unable to extract verify.sh"
 }
 source "${TMPDIR}/verify.sh"
 #CHECK ENVIRONMENT#
-[ ${BOOTMODE} ] || {
+[ "${BOOTMODE}" ] || {
     separator_print
     print_cn "! 不受支持的安装环境 Recovery"
     print_cn "! 请从 KernelSU, APatch 或 Magisk 应用安装"
@@ -131,7 +131,7 @@ source "${TMPDIR}/verify.sh"
     print_en "! Minimal supported android version is ${MIN_RELEASE}"
     separator_abort
 }
-if [ ${KSU} ] && [ -f "${ADB}/ksu/mount_system" ] && cat "${ADB}/ksu/mount_system" | grep -q "OVERLAYFS" || [ ${APATCH} ] && [ -f "${ADB}/.overlayfs_enable" ]
+if [ "${KSU}" ] && [ -f "${ADB}/ksu/mount_system" ] && grep -q "OVERLAYFS" "${ADB}/ksu/mount_system" || [ "${APATCH}" ] && [ -f "${ADB}/.overlayfs_enable" ]
 then
     separator_print
     print_cn "! 不受支持的挂载系统 OverlayFS"
@@ -143,19 +143,19 @@ then
     separator_abort
 fi
 #PRINT INFORMATION#
-if [ ${KSU} ]
+if [ "${KSU}" ]
 then
     print_cn "- KernelSU版本号: ${KSU_KERNEL_VER_CODE}(kernel) ${KSU_VER_CODE}(ksud)"
     print_cn "- KernelSU版本: ${KSU_VER}"
     print_en "- KernelSU version code: ${KSU_KERNEL_VER_CODE}(kernel) ${KSU_VER_CODE}(ksud)"
     print_en "- KernelSU version: ${KSU_VER}"
-elif [ ${APATCH} ]
+elif [ "${APATCH}" ]
 then
     print_cn "- APatch版本号: ${APATCH_VER_CODE}"
     print_cn "- APatch版本: ${APATCH_VER}"
     print_en "- APatch version code: ${APATCH_VER_CODE}"
     print_en "- APatch version: ${APATCH_VER}"
-elif [ ${MAGISK_VER} ]
+elif [ "${MAGISK_VER}" ]
 then
     print_cn "- Magisk版本号: ${MAGISK_VER_CODE}"
     print_cn "- Magisk版本: ${MAGISK_VER}"

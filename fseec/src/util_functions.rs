@@ -188,8 +188,8 @@ fn pm(args: &[&str]) -> Result<process::Output> {
     process::Command::new("pm").args(args).output()
 }
 
-pub fn pm_install(arg: &str) -> bool {
-    match pm(&["install", arg]) {
+pub fn pm_install(arg: String) -> bool {
+    match pm(&["install", &arg]) {
         Ok(result) => {
             if result.status.success() {
                 true
@@ -287,12 +287,12 @@ pub fn read_version_integer(env_file: &str) -> u32 {
     ).unwrap_or(u32::MAX / 2)
 }
 
-pub fn override_description(path: &str, description: &str) {
+pub fn override_description(path: &str, description: impl AsRef<str>) {
     let full_path = format!("{}/module.prop", path);
     let file = Path::new(&full_path);
     if let Ok(content) = read_to_string(file) {
         if content.contains(DESC_PREFIX) {
-            let final_desc: String = format!("{}{}", DESC_PREFIX, description);
+            let final_desc: String = format!("{}{}", DESC_PREFIX, description.as_ref());
             let data: String = content.lines().map(|line|
                 if line.starts_with(DESC_PREFIX) {
                     &final_desc
@@ -313,21 +313,21 @@ pub fn delete_file(path: impl AsRef<Path>) {
 
 pub fn print_cn(msg: impl Display) {
     if *IS_ZHCN {
-        print!("{}", msg);
+        print!("- {}", msg);
     }
 }
 pub fn print_en(msg: impl Display) {
     if !*IS_ZHCN {
-        print!("{}", msg);
+        print!("- {}", msg);
     }
 }
 pub fn println_cn(msg: impl Display) {
     if *IS_ZHCN {
-        println!("- {}", msg);
+        println!("{}", msg);
     }
 }
 pub fn println_en(msg: impl Display) {
     if !*IS_ZHCN {
-        println!("- {}", msg);
+        println!("{}", msg);
     }
 }

@@ -62,7 +62,7 @@ pub fn entry() -> anyhow::Result<()> {
 
     let contentapp = |cache: bool| -> bool {
         log_i("安装服务");
-        if pm_install(&format!("{}/provider.apk", FSEEMODDIR)) {
+        if pm_install(format!("{}/provider.apk", FSEEMODDIR)) {
             log_i("安装完毕");
             log_i("尝试启动");
             let content_result = process::Command::new("content").args(&["call", "--uri", "content://VBMetaProvider", "--method", "GET", "--extra", "field:s:verifiedBootHash"])

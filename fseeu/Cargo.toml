@@ -11,8 +11,9 @@ crate-type = ["dylib"]
 
 [dependencies]
 libc = "1.0.0-alpha.4"
-blake3 = "1.8.5"
-ed25519-compact = "2.3.1"
+blake3 = "1.8.6"
+arrayvec = "0.7.8"
+ed25519-compact = "2.4.0"
 
 [profile.release]
 lto = true

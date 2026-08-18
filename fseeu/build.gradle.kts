@@ -13,7 +13,7 @@ listOf(
     val variantCapped = variantName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
     val variantLowered = variantName.lowercase()
 
-    tasks.register<Exec>("libu$variantCapped") {
+    tasks.register<Exec>("build$variantCapped") {
         group = "rust"
 
         executable("cargo")
@@ -24,11 +24,11 @@ listOf(
     }
 }
 
-tasks.register("libu") {
+tasks.register("build") {
     group = "rust"
 
     dependsOn(
-        "libuDebug",
-        "libuRelease"
+        "buildDebug",
+        "buildRelease"
     )
 }

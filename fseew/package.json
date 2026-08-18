@@ -1,0 +1,14 @@
+{
+  "name": "fseew",
+  "author": "XtrLumen",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^8.2.1"
+  },
+  "dependencies": {
+    "@fluentui/web-components": "^3.1.0"
+  }
+}

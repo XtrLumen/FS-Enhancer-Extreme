@@ -13,5 +13,7 @@
  * Copyright (C) 2026 XtrLumen
  */
 
+pub const SYNC_LEN: usize = 11;
+
 pub const FSEELOG: &str = "/data/adb/fs_enhancer_extreme/log/log.log";
 pub const FSEEMODDIR: &str = "/data/adb/modules/fs_enhancer_extreme";

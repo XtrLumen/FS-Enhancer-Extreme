@@ -29,7 +29,7 @@ ForgeStore增强器,极致隐藏由解锁引导加载程序产生的检测点.
 
 ### 其他
 - 规避异常环境
-- 在模块描述显示详细仪表盘，例如:  
+- 在模块描述显示详细仪表盘，例:  
 `[根实现: ✅APatch(11224), 主模块: ✅TrickyStoreOSS(155), 完整性: ✅通过验证, 服务: ✅运行中]`  
 `[根实现: ❌多重共存-APatch(11224)|KernelSU(32525), 主模块: ❌多重共存-ForgeStore(143)|TrickyStore(248), 完整性: ⚠️本次构建未签名, 服务: ❌所有服务将不会启动]`
 - 根据系统语言分别显示 zh-Hans 或 en-US : 用户可见部分
@@ -73,7 +73,7 @@ ForgeStore增强器,极致隐藏由解锁引导加载程序产生的检测点.
   - 日志目录路径: `/data/adb/fs_enhancer_extreme/log|log.old`，如遇到问题，请创建 issue 并附上日志。
 
 > [!NOTE]
-> ### WebUI支持
+> ### WebUI 启动
 >   - **KernelSU 或 APatch**
 >     - 原生支持
 >   - **Magisk**
@@ -82,19 +82,26 @@ ForgeStore增强器,极致隐藏由解锁引导加载程序产生的检测点.
 ## 构建
 ### 环境
 - JDK 21
+- Node.js 24
 - Android SDK
 - Android NDK 29.0.14206865
 - Rust Nightly 2026-01-01
 - cargo-ndk
 
 ### 打包
-于终端执行 `./gradlew zip`
+- 于终端执行 `./gradlew zip`
 
 ## 致谢
-- [bmax121/APatch](https://github.com/bmax121/APatch) fseec 命令行解析部分 参考来源
-- [JingMatrix/NeoZygisk](https://github.com/JingMatrix/NeoZygisk) fseec-root实现分析 执行部分 参考来源
-- [vvb2060/KeyAttestation](https://github.com/vvb2060/KeyAttestation) vbmeta提供服务 执行部分 来源
-- [Google-Inc/Android-Open-Source-Project](https://cs.android.com/android/platform/superproject/) fseec-pidof 参考来源
+- [fluentui](https://github.com/microsoft/fluentui)
+  - webui 使用的设计语言
+- [APatch](https://github.com/bmax121/APatch)
+  - fseec `cli.rs` 参考来源
+- [NeoZygisk](https://github.com/JingMatrix/NeoZygisk)
+  - fseec `magisk.rs` 参考来源
+- [KeyAttestation](https://github.com/vvb2060/KeyAttestation)
+  - VBMetaProvider `attestation/*` 直接来源
+- [Android-Open-Source-Project](https://cs.android.com/android/platform/superproject)
+  - fseec `fn pidof` 参考来源
 
 ## 本项目地址(用于非Github下载的用户从本自述文件溯源)
 - https://github.com/XtrLumen/FS-Enhancer-Extreme

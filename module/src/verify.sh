@@ -18,10 +18,10 @@ mkdir -p "${TMPDIR_FOR_VERIFY}"
 
 extract() {
     unpack() {
-        local zip=${1}
-        local file=${2}
-        local dir=${3}
-        local args=${4}
+        local zip="${1}"
+        local file="${2}"
+        local dir="${3}"
+        local args="${4}"
         unzip -o "${zip}" "${file}" -d "${dir}" >/dev/null 2>&1
         file_path="${dir}/${file}"
         if [ -f "${file_path}" ]
