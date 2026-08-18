@@ -139,7 +139,7 @@ pub fn refresh(mode: Mode) -> anyhow::Result<()> {
         };
 
         let (daemon_prefix, daemon_state) = if *ENV_NORMAL {
-            if let None = pidof("fseed") {
+            if let None = pidof("fsees") {
                 ("❌", *DESC_SERVICE_FAILURE)
             } else {
                 ("✅", *DESC_SERVICE_SUCCESS)

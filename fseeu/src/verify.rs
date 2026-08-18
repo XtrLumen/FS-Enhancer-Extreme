@@ -53,7 +53,7 @@ pub fn entry() -> Option<bool> {
 
     let files: [&str; SYNC_LEN] = [
         "bin/fseec",
-        "bin/fseed",
+        "bin/fsees",
         "lib/libutils.so",
         "script/state.sh",
         "script/util_functions.sh",

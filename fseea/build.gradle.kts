@@ -10,7 +10,9 @@ dependencies {
 }
 
 val verName: String by rootProject.extra
-val verCode: Int by rootProject.extra
+val verType: String by rootProject.extra
+val verCode:    Int by rootProject.extra
+val verHash: String by rootProject.extra
 
 android {
     namespace = "io.github.xtrlumen.vbmeta"
@@ -20,7 +22,7 @@ android {
         minSdk = 29
         targetSdk = 29
         versionCode = verCode
-        versionName = verName
+        versionName = "${verName}${verType}-${verHash}"
     }
 
     buildFeatures {
@@ -29,7 +31,7 @@ android {
 
     buildTypes {
         debug {
-            versionNameSuffix = "-d"
+            versionNameSuffix = "-DEBUG"
         }
         release {
             isMinifyEnabled = true

@@ -1,0 +1,170 @@
+#!/bin/zsh
+
+set -e
+
+[ ${#} -eq 0 ] && echo "No arguments" && exit 2
+
+cd "${0%/*}"
+
+invalid() {
+    echo "Invalid arguments"
+    exit 1
+}
+
+root() {
+    adb shell su -c "${@}"
+}
+
+user() {
+    adb shell "${@}"
+}
+
+push() {
+    adb push "${@}"
+}
+
+rs_clean() {
+    cargo clean
+}
+
+rs_build() (
+    echo -e "    \e[1m\e[4mBuild ${TARGET}\e[0m\n"
+    cd "${TARGET}"
+    ${1} && local variant="--release"
+    cargo ndk build --target aarch64-linux-android ${variant}
+)
+
+rs_push() {
+    rs_build ${1} && \
+    if ${1}
+    then
+        local variant=release
+    else
+        local variant=debug
+    fi
+    push "./target/aarch64-linux-android/${variant}/fseec" "/data/local/tmp"
+}
+
+rs_exe() {
+    root "/data/local/tmp/fseec" "${@}"
+}
+
+web_clean() {
+    rm -rf "./dist"
+}
+
+web_build() {
+    if ${1}
+    then
+        local variant=Release
+    else
+        local variant=Development
+        local args=(-- --mode development)
+    fi
+    echo -e "> \e[1m\e[4m${variant}\e[0m"
+    npm run build ${args[@]}
+}
+
+FSEEMODDIR=/data/adb/modules/fs_enhancer_extreme
+
+web_push() {
+    web_build ${1} && \
+    local tmp=/data/local/tmp/src
+    root rm -rf ${tmp} ${FSEEMODDIR}/webroot
+    push ./dist ${tmp}
+    root mv -f ${tmp} ${FSEEMODDIR}/webroot
+}
+
+web_test() {
+    web_push ${1} && \
+    local pkgs=(
+        "com.dergoogler.mmrl.wx" 
+        "io.github.a13e300.ksuwebui"
+    )
+    for pkg in "${pkgs[@]}"
+    do
+        user am force-stop ${pkg}
+    done && \
+    user input keyevent KEYCODE_WAKEUP && \
+    root ${FSEEMODDIR}/bin/fseec startwebui
+}
+
+case ${1} in
+    rs)
+        shift
+        TARGET=fseec
+        case ${2} in
+            fsees)
+                TARGET=fsees
+                ;;
+            fseeu)
+                TARGET=fseeu                
+        esac
+        case ${1} in
+            buildRelease)
+                rs_build true
+                ;;
+            build)
+                rs_build false
+                ;;
+            pushRelease)
+                rs_push true
+                ;;
+            push)
+                rs_push false
+                ;;
+            testRelease)
+                shift
+                rs_push true && rs_exe "${@}"
+                ;;
+            test)
+                shift
+                rs_push false && rs_exe "${@}"
+                ;;
+            exe)
+                shift
+                rs_exe "${@}"
+                ;;
+            clean)
+                rs_clean
+                ;;
+            *)
+                invalid
+        esac
+        ;;
+    web)
+        shift
+        cd ./fseew
+        case ${1} in
+            buildRelease)
+                web_build true
+                ;;
+            build)
+                web_build false
+                ;;
+            pushRelease)
+                web_push true
+                ;;
+            push)
+                web_push false
+                ;;
+            testRelease)
+                web_test true
+                ;;
+            test)
+                web_test false
+                ;;
+            clean)
+                web_clean
+                ;;
+            *)
+                invalid
+        esac
+        ;;
+    clean)
+        rs_clean
+        web_clean
+        ;;
+    *)
+        invalid
+esac

@@ -27,10 +27,12 @@ listOf(
     "debug",
     "release"
 ).forEach { variantName ->
-    val variantCapped = variantName.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+    val variantCapped = variantName.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase() else it.toString()
+    }
     val variantLowered = variantName.lowercase()
     val moduleDir = layout.buildDirectory.dir("outputs/module/${variantLowered}")
-    val moduleDirAsFile = moduleDir.get().asFile
+    val moduleDirFile = moduleDir.get().asFile
     val zipFileName = "${moduleName}-${verName}-${verCode}-${verHash}-${variantName}.zip".replace(' ', '-')
 
     val prepareModuleFilesTask = tasks.register<Copy>("prepareModuleFiles${variantCapped}") {
@@ -40,13 +42,13 @@ listOf(
         dependsOn(
             ":fseea:assemble${variantCapped}",
             ":fseec:build${variantCapped}",
-            ":fseed:build${variantCapped}",
+            ":fsees:build${variantCapped}",
             ":fseeu:build${variantCapped}",
-            ":fseew:build"
+            ":fseew:build${variantCapped}"
         )
 
         doFirst {
-            with(moduleDirAsFile) {
+            with(moduleDirFile) {
                 deleteRecursively()
             }
         }
@@ -98,15 +100,15 @@ listOf(
                 )
             }
         into("bin") {
-            from(project(":fseec").file("target/aarch64-linux-android/${variantLowered}")) {
-                include("fseec")
-            }
-            from(project(":fseed").file("target/aarch64-linux-android/${variantLowered}")) {
-                include("fseed")
+            from(rootProject.file("target/aarch64-linux-android/${variantLowered}")) {
+                include(
+                    "fseec",
+                    "fsees"
+                )
             }
         }
         into("lib") {
-            from(project(":fseeu").file("target/aarch64-linux-android/${variantLowered}")) {
+            from(rootProject.file("target/aarch64-linux-android/${variantLowered}")) {
                 include("libutils.so")
             }
         }
@@ -125,6 +127,8 @@ listOf(
 
         dependsOn(prepareModuleFilesTask)
 
+        val privateKeyFile = project.file("private_key")
+        val publicKeyFile = project.file("public_key")
         doFirst {
             fun sha256Sum() {
                 fileTree(moduleDir) {
@@ -137,7 +141,7 @@ listOf(
                         mdInstance.update(bytes, 0, size)
                     }
 
-                    val sha256File = File(moduleDirAsFile, "MANIFEST/${file.relativeTo(moduleDirAsFile)}.sha256")
+                    val sha256File = File(moduleDirFile, "MANIFEST/${file.relativeTo(moduleDirFile)}.sha256")
                     sha256File.parentFile.mkdirs()
 
                     sha256File.writeText(
@@ -148,15 +152,14 @@ listOf(
                 }
             }
 
-            val mistyFile = File(moduleDirAsFile, "mistylake")
-            val privateKeyFile = project.file("private_key")
+            val mistyFile = File(moduleDirFile, "mistylake")
             if (privateKeyFile.exists()) {
                 fun mistylakeSign() {
                     val BLAKE3Builder = StringBuilder()
 
                     listOf(
                         "bin/fseec",
-                        "bin/fseed",
+                        "bin/fsees",
                         "lib/libutils.so",
                         "script/state.sh",
                         "script/util_functions.sh",
@@ -170,7 +173,7 @@ listOf(
                         println(it)
 
                         val mdInstance = Blake3.newInstance()
-                        mdInstance.update(File(moduleDirAsFile, it))
+                        mdInstance.update(File(moduleDirFile, it))
 
                         BLAKE3Builder.append(
                             mdInstance.hexdigest()
@@ -182,7 +185,7 @@ listOf(
                     println(BLAKE3Hash)
 
                     val privateKeyBytes = privateKeyFile.readBytes()
-                    val publicKeyBytes = project.file("public_key").readBytes()
+                    val publicKeyBytes = publicKeyFile.readBytes()
 
                     val signInstance = Signature.getInstance("ed25519")
                     signInstance.initSign(

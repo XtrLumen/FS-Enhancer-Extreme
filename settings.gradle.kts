@@ -20,7 +20,7 @@ rootProject.name = "FS-Enhancer-Extreme"
 include(
     ":fseea",
     ":fseec",
-    ":fseed",
+    ":fsees",
     ":fseeu",
     ":fseew",
     ":module"

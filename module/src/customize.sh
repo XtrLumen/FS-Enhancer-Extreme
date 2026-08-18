@@ -45,7 +45,7 @@ uninstall.sh
 #POST PROCESS#
 NES="
 ${MODPATH}/bin/fseec
-${MODPATH}/bin/fseed
+${MODPATH}/bin/fsees
 ${ADB}/service.d/.fsee_state.sh
 "
 SYS="
